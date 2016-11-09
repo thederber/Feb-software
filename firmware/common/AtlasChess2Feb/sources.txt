@@ -1,0 +1,17 @@
+vhdl work rtl/AtlasChess2FebAsic.vhd
+vhdl work rtl/AtlasChess2FebAsicRx.vhd
+vhdl work rtl/AtlasChess2FebAsicRxIdelay.vhd
+vhdl work rtl/AtlasChess2FebAsicRxMsg.vhd
+vhdl work rtl/AtlasChess2FebAsicRxReg.vhd
+vhdl work rtl/AtlasChess2FebClk.vhd
+vhdl work rtl/AtlasChess2FebCore.vhd
+vhdl work rtl/AtlasChess2FebDac.vhd
+vhdl work rtl/AtlasChess2FebDacSpi.vhd
+vhdl work rtl/AtlasChess2FebEvr.vhd
+vhdl work rtl/AtlasChess2FebEvrGtx.vhd
+vhdl work rtl/AtlasChess2FebPgp.vhd
+vhdl work rtl/AtlasChess2FebPkg.vhd
+vhdl work rtl/AtlasChess2FebSys.vhd
+vhdl work rtl/AtlasChess2FebSysReg.vhd
+vhdl work rtl/AtlasChess2FebTiming.vhd
+vhdl work rtl/AtlasChess2FebTimingMsg.vhd
