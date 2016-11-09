@@ -9,7 +9,7 @@ vhdl work rtl/AtlasChess2FebDac.vhd
 vhdl work rtl/AtlasChess2FebDacSpi.vhd
 vhdl work rtl/AtlasChess2FebEvr.vhd
 vhdl work rtl/AtlasChess2FebEvrGtx.vhd
-vhdl work rtl/AtlasChess2FebPgp.vhd
+vhdl work rtl/AtlasChess2FebPgpCore.vhd
 vhdl work rtl/AtlasChess2FebPkg.vhd
 vhdl work rtl/AtlasChess2FebSys.vhd
 vhdl work rtl/AtlasChess2FebSysReg.vhd

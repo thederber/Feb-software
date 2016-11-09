@@ -212,7 +212,7 @@ begin
    ---------------------
    -- PGP Front End Core
    ---------------------
-   U_PGP : entity work.AtlasChess2FebPgp
+   U_PGP : entity work.AtlasChess2FebPgpCore
       generic map (
          TPD_G            => TPD_G,
          AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)   

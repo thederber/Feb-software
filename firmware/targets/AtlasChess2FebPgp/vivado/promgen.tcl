@@ -8,7 +8,7 @@
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
 ## Source the AMC Carrier Core's .TCL file
-source $::env(PROJ_DIR)/../../modules/Common/Feb/vivado/promgen.tcl
+source $::env(PROJ_DIR)/../../common/AtlasChess2Feb/vivado/promgen.tcl
 
 ## Setup the .BIT file and user file configurations
 set loadbit    "up ${APP_BIT} ${BIT_PATH}"

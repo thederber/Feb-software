@@ -84,7 +84,7 @@ begin
          DATA_SIZE_G       => DATA_SIZE_C,
          CPHA_G            => '0',      -- Sample on leading edge
          CPOL_G            => '0',      -- Sample on rising edge
-         CLK_PERIOD_G      => getRealDiv(1, AXIL_CLK_FREQ_C),
+         CLK_PERIOD_G      => (1.0/AXIL_CLK_FREQ_C),
          SPI_SCLK_PERIOD_G => 1.0E-6)
       port map (
          clk       => axilClk,

@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 -- Title      : 
 -------------------------------------------------------------------------------
--- File       : AtlasChess2FebPgp.vhd
+-- File       : AtlasChess2FebPgpCore.vhd
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-02
@@ -33,7 +33,7 @@ use work.AtlasChess2FebPkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity AtlasChess2FebPgp is
+entity AtlasChess2FebPgpCore is
    generic (
       TPD_G            : time            := 1 ns;
       AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);        
@@ -66,9 +66,9 @@ entity AtlasChess2FebPgp is
       pgpRxN           : in  sl;
       pgpTxP           : out sl;
       pgpTxN           : out sl);
-end AtlasChess2FebPgp;
+end AtlasChess2FebPgpCore;
 
-architecture mapping of AtlasChess2FebPgp is
+architecture mapping of AtlasChess2FebPgpCore is
 
    signal pgpTxMasters : AxiStreamMasterArray(3 downto 0) := (others => AXI_STREAM_MASTER_INIT_C);
    signal pgpTxSlaves  : AxiStreamSlaveArray(3 downto 0)  := (others => AXI_STREAM_SLAVE_FORCE_C);

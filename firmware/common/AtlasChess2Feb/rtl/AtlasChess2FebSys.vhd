@@ -38,6 +38,7 @@ entity AtlasChess2FebSys is
    generic (
       TPD_G            : time            := 1 ns;
       FSBL_G           : boolean         := false;
+      CPU_G            : boolean         := false;                  -- True=Microblaze, False=No Microblaze
       AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);      
    port (
       -- Timing Clock and Reset
@@ -189,50 +190,60 @@ begin
 
    ----------------------------
    -- AXI-Lite: Microblaze Core
-   ----------------------------     
-   U_CPU : entity work.MicroblazeBasicCoreWrapper
-      generic map (
-         TPD_G => TPD_G)
-      port map (
-         -- Master AXI-Lite Interface: [0x00000000:0x7FFFFFFF]
-         mAxilWriteMaster => mbWriteMaster,
-         mAxilWriteSlave  => mbWriteSlave,
-         mAxilReadMaster  => mbReadMaster,
-         mAxilReadSlave   => mbReadSlave,
-         -- Streaming
-         mAxisMaster      => mbTxMaster,
-         mAxisSlave       => mbTxSlave,
-         -- IRQ
-         interrupt        => irqReq,
-         -- Clock and Reset
-         clk              => axilClk,
-         rst              => axilRst);         
-
-   -----------------------------
-   -- Microblaze User Interrupts
-   -----------------------------
-   process (axilClk)
-   begin
-      if rising_edge(axilClk) then
-         irqReq <= (others => '0') after TPD_G;
-         if axilRst = '1' then
-            irqCount <= (others => '0') after TPD_G;
-         else
-            -- IRQ[0]
-            if irqCount = x"9502f90" then
-               irqReq(0) <= '1'             after TPD_G;
-               irqCount  <= (others => '0') after TPD_G;
+   ----------------------------
+   GEN_CPU : if CPU_G = true generate
+   
+      U_CPU : entity work.MicroblazeBasicCoreWrapper
+         generic map (
+            TPD_G           => TPD_G,
+            AXIL_ADDR_MSB_C => false)
+         port map (
+            -- Master AXI-Lite Interface: [0x00000000:0x7FFFFFFF]
+            mAxilWriteMaster => mbWriteMaster,
+            mAxilWriteSlave  => mbWriteSlave,
+            mAxilReadMaster  => mbReadMaster,
+            mAxilReadSlave   => mbReadSlave,
+            -- Streaming
+            mAxisMaster      => mbTxMaster,
+            mAxisSlave       => mbTxSlave,
+            -- IRQ
+            interrupt        => irqReq,
+            -- Clock and Reset
+            clk              => axilClk,
+            rst              => axilRst);    
+            
+      -----------------------------
+      -- Microblaze User Interrupts
+      -----------------------------
+      process (axilClk)
+      begin
+         if rising_edge(axilClk) then
+            irqReq <= (others => '0') after TPD_G;
+            if axilRst = '1' then
+               irqCount <= (others => '0') after TPD_G;
             else
-               irqCount <= irqCount + 1 after TPD_G;
-            end if;
-            -- IRQ[1]
-            if (axiWrValid = '1') and (axiWrAddr = IRQ_ADDR_C) then
-               irqReq(1) <= '1' after TPD_G;
+               -- IRQ[0]
+               if irqCount = x"9502f90" then
+                  irqReq(0) <= '1'             after TPD_G;
+                  irqCount  <= (others => '0') after TPD_G;
+               else
+                  irqCount <= irqCount + 1 after TPD_G;
+               end if;
+               -- IRQ[1]
+               if (axiWrValid = '1') and (axiWrAddr = IRQ_ADDR_C) then
+                  irqReq(1) <= '1' after TPD_G;
+               end if;
             end if;
          end if;
-      end if;
-   end process;
+      end process;
+      
+   end generate GEN_CPU;
 
+   GEN_N_CPU : if CPU_G = false generate
+      mbWriteMaster <= AXI_LITE_WRITE_MASTER_INIT_C;
+      mbReadMaster  <= AXI_LITE_READ_MASTER_INIT_C;
+   end generate GEN_N_CPU;
+    
    --------------------------
    -- AXI-Lite: Crossbar Core
    --------------------------  

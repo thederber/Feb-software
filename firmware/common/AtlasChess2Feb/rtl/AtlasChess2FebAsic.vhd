@@ -189,7 +189,7 @@ begin
    -----------------------------
    U_Chess :
    for i in NUM_AXIL_MASTERS_C-1 downto 0 generate
-      U_Rx : entity work.AtlasChess2Rx
+      U_Rx : entity work.AtlasChess2FebAsicRx
          generic map (
             TPD_G              => TPD_G,
             INDEX_G            => i,
