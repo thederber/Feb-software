@@ -5,7 +5,6 @@ The atlas-chess2 project can be found at:
 
 https://github.com/slaclab/atlas-chess2
 
-To checkout atlas-chess2 submodule:
+To checkout atlas-chess2 and all submodules:
 
-> git submodule init
-> git sudmodule update
+> git clone git@github.com:slaclab/atlas-chess2 --recursive
