@@ -18,10 +18,14 @@
 # copied, modified, propagated, or distributed except according to the terms 
 # contained in the LICENSE.txt file.
 #-----------------------------------------------------------------------------
+
 import pyrogue
-import collections
 
 def create(name='AtlasChess2FebAsicRxReg', offset=0, memBase=None, hidden=False):
+
+    dev = pyrogue.Device(name=name,memBase=memBase,offset=offset,
+                         hidden=hidden,size=0x40,
+                         description='AtlasChess2FebAsicRxReg')
 
     dev.add(pyrogue.Variable(name='idelay0',
                              description='IDDR`s idelay[0]',

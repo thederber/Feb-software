@@ -18,10 +18,14 @@
 # copied, modified, propagated, or distributed except according to the terms 
 # contained in the LICENSE.txt file.
 #-----------------------------------------------------------------------------
+
 import pyrogue
-import collections
 
 def create(name='AtlasChess2FebSysReg', offset=0, memBase=None, hidden=False):
+
+    dev = pyrogue.Device(name=name,memBase=memBase,offset=offset,
+                         hidden=hidden,size=0x1000,
+                         description='AtlasChess2FebSysReg')
 
     dev.add(pyrogue.Variable(name='refLockedCnt',
                              description='Reference clock Locked Status Counter',
