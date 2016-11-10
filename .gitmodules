@@ -1,9 +1,12 @@
 [submodule "firmware/submodules/ruckus"]
 	path = firmware/submodules/ruckus
-	url = https://github.com/slaclab/ruckus
+	url = git@github.com:slaclab/ruckus
+	branch = v2
 [submodule "software/rogue"]
 	path = software/rogue
-	url = https://github.com/slaclab/rogue
+	url = git@github.com:slaclab/rogue
+	branch = master
 [submodule "firmware/submodules/surf"]
 	path = firmware/submodules/surf
-	url = https://github.com/slaclab/surf
+	url = git@github.com:slaclab/surf
+	branch = ruckus-v2-dev
