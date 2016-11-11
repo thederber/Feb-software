@@ -9,4 +9,4 @@
 [submodule "firmware/submodules/surf"]
 	path = firmware/submodules/surf
 	url = git@github.com:slaclab/surf
-	branch = ruckus-v2-dev
+	branch = surf_ruckus_dev
