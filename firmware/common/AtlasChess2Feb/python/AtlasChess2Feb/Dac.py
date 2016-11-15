@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 #-----------------------------------------------------------------------------
-# Title      : PyRogue AtlasChess2FebDac Module
+# Title      : PyRogue Dac Module
 #-----------------------------------------------------------------------------
-# File       : AtlasChess2FebDac.py
+# File       : Dac.py
 # Author     : Larry Ruckman <ruckman@slac.stanford.edu>
 # Created    : 2016-11-09
 # Last update: 2016-11-09
 #-----------------------------------------------------------------------------
 # Description:
-# PyRogue AtlasChess2FebDac Module
+# PyRogue Dac Module
 #-----------------------------------------------------------------------------
 # This file is part of the ATLAS CHESS2 DEV. It is subject to 
 # the license terms in the LICENSE.txt file found in the top-level directory 
@@ -21,11 +21,11 @@
 
 import pyrogue
 
-def create(name='AtlasChess2FebDac', offset=0, memBase=None, hidden=False):
+def create(name='Dac', offset=0, memBase=None, hidden=False):
 
     dev = pyrogue.Device(name=name,memBase=memBase,offset=offset,
                          hidden=hidden,size=0x20000,
-                         description='AtlasChess2FebDac')
+                         description='Dac')
 
     dev.add(pyrogue.Variable(name='dacCASC',
                              description='DAC CASC',

@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 #-----------------------------------------------------------------------------
-# Title      : PyRogue AtlasChess2FebSysReg Module
+# Title      : PyRogue SysReg Module
 #-----------------------------------------------------------------------------
-# File       : AtlasChess2FebSysReg.py
+# File       : SysReg.py
 # Author     : Larry Ruckman <ruckman@slac.stanford.edu>
 # Created    : 2016-11-09
 # Last update: 2016-11-09
 #-----------------------------------------------------------------------------
 # Description:
-# PyRogue AtlasChess2FebSysReg Module
+# PyRogue SysReg Module
 #-----------------------------------------------------------------------------
 # This file is part of the ATLAS CHESS2 DEV. It is subject to 
 # the license terms in the LICENSE.txt file found in the top-level directory 
@@ -21,11 +21,11 @@
 
 import pyrogue
 
-def create(name='AtlasChess2FebSysReg', offset=0, memBase=None, hidden=False):
+def create(name='SysReg', offset=0, memBase=None, hidden=False):
 
     dev = pyrogue.Device(name=name,memBase=memBase,offset=offset,
                          hidden=hidden,size=0x1000,
-                         description='AtlasChess2FebSysReg')
+                         description='SysReg')
 
     dev.add(pyrogue.Variable(name='refLockedCnt',
                              description='Reference clock Locked Status Counter',

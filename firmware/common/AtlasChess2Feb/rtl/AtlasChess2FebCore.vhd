@@ -444,7 +444,7 @@ begin
       generic map (
          TPD_G              => TPD_G,
          AXIL_ERROR_RESP_G  => AXI_ERROR_RESP_G,
-         AXIL_CLK_PERIOD_G  => AXIL_CLK_FREQ_C,          -- units of Hz
+         AXIL_CLK_PERIOD_G  => (1.0/AXIL_CLK_FREQ_C),          -- units of Hz
          AXIL_TIMEOUT_G     => 1.0E-3,                   -- In units of seconds
          SACI_CLK_PERIOD_G  => (AXIL_CLK_FREQ_C/256.0),  -- units of Hz         
          SACI_CLK_FREERUN_G => false,

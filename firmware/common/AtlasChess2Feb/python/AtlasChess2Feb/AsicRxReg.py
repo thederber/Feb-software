@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 #-----------------------------------------------------------------------------
-# Title      : PyRogue AtlasChess2FebAsicRxReg Module
+# Title      : PyRogue AsicRxReg Module
 #-----------------------------------------------------------------------------
-# File       : AtlasChess2FebAsicRxReg.py
+# File       : AsicRxReg.py
 # Author     : Larry Ruckman <ruckman@slac.stanford.edu>
 # Created    : 2016-11-09
 # Last update: 2016-11-09
 #-----------------------------------------------------------------------------
 # Description:
-# PyRogue AtlasChess2FebAsicRxReg Module
+# PyRogue AsicRxReg Module
 #-----------------------------------------------------------------------------
 # This file is part of the ATLAS CHESS2 DEV. It is subject to 
 # the license terms in the LICENSE.txt file found in the top-level directory 
@@ -21,11 +21,11 @@
 
 import pyrogue
 
-def create(name='AtlasChess2FebAsicRxReg', offset=0, memBase=None, hidden=False):
+def create(name='AsicRxReg', offset=0, memBase=None, hidden=False):
 
     dev = pyrogue.Device(name=name,memBase=memBase,offset=offset,
                          hidden=hidden,size=0x40,
-                         description='AtlasChess2FebAsicRxReg')
+                         description='AsicRxReg')
 
     dev.add(pyrogue.Variable(name='idelay0',
                              description='IDDR`s idelay[0]',

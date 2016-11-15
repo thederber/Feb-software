@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 #-----------------------------------------------------------------------------
-# Title      : PyRogue AtlasChess2SaciTest Module
+# Title      : PyRogue SaciTest Module
 #-----------------------------------------------------------------------------
-# File       : AtlasChess2SaciTest.py
+# File       : SaciTest.py
 # Author     : Larry Ruckman <ruckman@slac.stanford.edu>
 # Created    : 2016-11-09
 # Last update: 2016-11-09
 #-----------------------------------------------------------------------------
 # Description:
-# PyRogue AtlasChess2SaciTest Module
+# PyRogue SaciTest Module
 #-----------------------------------------------------------------------------
 # This file is part of the ATLAS CHESS2 DEV. It is subject to 
 # the license terms in the LICENSE.txt file found in the top-level directory 
@@ -21,11 +21,11 @@
 
 import pyrogue
 
-def create(name='AtlasChess2SaciTest', offset=0, memBase=None, hidden=False):
+def create(name='SaciTest', offset=0, memBase=None, hidden=False):
 
     dev = pyrogue.Device(name=name,memBase=memBase,offset=offset,
                          hidden=hidden,size=0x40,
-                         description='AtlasChess2SaciTest')
+                         description='SaciTest')
                          
     dev.add(pyrogue.Variable(name='RowPointer',
                              description='Row Pointer',
