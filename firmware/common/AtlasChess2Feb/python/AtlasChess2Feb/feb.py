@@ -61,6 +61,6 @@ def create(name='feb', offset=0, memBase=None, hidden=False):
         # # dev.add(AtlasChess2Feb.Saci.create( 
             # # name='AtlasChess2Feb.Saci_%01i'%(i),
             # # offset=(0x01000000 + i*0x400000)))            
-    # # dev.add(AtlasChess2Feb.SaciTest.create(     offset=0x01C00000))
+    dev.add(AtlasChess2Feb.SaciTest.create(     offset=0x01C00000))
                                
     return dev

@@ -21,7 +21,7 @@
 import rogue.hardware.pgp
 import pyrogue.utilities.fileio
 import pyrogue.gui
-import AtlasChess2Feb
+import AtlasChess2Feb.feb
 import threading
 import signal
 import atexit
@@ -92,11 +92,12 @@ pyrogue.streamConnect(febBoard,dataWriter.getChannel(0x0))
 pyrogue.streamConnect(pgpVc0,dataWriter.getChannel(0x1))
 
 # Add registers
-febBoard.add(AtlasChess2Feb.create(memBase=srp,offset=0x0))
+febBoard.add(AtlasChess2Feb.feb.create(memBase=srp,offset=0x0))
 
 # Create GUI
 appTop = PyQt4.QtGui.QApplication(sys.argv)
 guiTop = pyrogue.gui.GuiTop('febBoardGui')
+guiTop.resize(600, 1000)
 guiTop.addTree(febBoard)
 
 # Run gui

@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-11-04
+-- Last update: 2016-11-15
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -444,9 +444,9 @@ begin
       generic map (
          TPD_G              => TPD_G,
          AXIL_ERROR_RESP_G  => AXI_ERROR_RESP_G,
-         AXIL_CLK_PERIOD_G  => (1.0/AXIL_CLK_FREQ_C),          -- units of Hz
+         AXIL_CLK_PERIOD_G  => (1.0/AXIL_CLK_FREQ_C),    -- In units of seconds
          AXIL_TIMEOUT_G     => 1.0E-3,                   -- In units of seconds
-         SACI_CLK_PERIOD_G  => (AXIL_CLK_FREQ_C/256.0),  -- units of Hz         
+         SACI_CLK_PERIOD_G  => (256.0/AXIL_CLK_FREQ_C),  -- In units of seconds        
          SACI_CLK_FREERUN_G => false,
          SACI_NUM_CHIPS_G   => 4,
          SACI_RSP_BUSSED_G  => false)
