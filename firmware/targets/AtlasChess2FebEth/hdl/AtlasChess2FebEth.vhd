@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 -- Title      : 
 -------------------------------------------------------------------------------
--- File       : AtlasChess2FebPgp.vhd
+-- File       : AtlasChess2FebEth.vhd
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
@@ -25,9 +25,10 @@ use ieee.std_logic_1164.all;
 
 use work.StdRtlPkg.all;
 
-entity AtlasChess2FebPgp is
+entity AtlasChess2FebEth is
    generic (
-      TPD_G : time := 1 ns);
+      TPD_G  : time    := 1 ns;
+      FSBL_G : boolean := false);
    port (
       -- CHESS2 ASIC Serial Ports
       chessDinP       : in    Slv14Array(2 downto 0);
@@ -94,16 +95,16 @@ entity AtlasChess2FebPgp is
       -- XADC Ports
       vPIn            : in    sl;
       vNIn            : in    sl);      
-end AtlasChess2FebPgp;
+end AtlasChess2FebEth;
 
-architecture top_level of AtlasChess2FebPgp is
+architecture top_level of AtlasChess2FebEth is
 
 begin
 
    U_Core : entity work.AtlasChess2FebCore
       generic map (
          TPD_G => TPD_G,
-         ETH_G => false)                -- PGP mode
+         ETH_G => true)                 -- ETH mode
       port map (
          -- CHESS2 ASIC Serial Ports
          chessDinP       => chessDinP,
