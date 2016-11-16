@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-11-15
+-- Last update: 2016-11-16
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -35,6 +35,7 @@ use unisim.vcomponents.all;
 entity AtlasChess2FebCore is
    generic (
       TPD_G            : time            := 1 ns;
+      ETH_G            : boolean         := false;
       FSBL_G           : boolean         := false;
       AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);          
    port (
@@ -70,13 +71,13 @@ entity AtlasChess2FebCore is
       evrRxN          : in    sl;
       evrTxP          : out   sl;
       evrTxN          : out   sl;
-      -- PGP Ports
-      pgpClkP         : in    sl;
-      pgpClkN         : in    sl;
-      pgpRxP          : in    sl;
-      pgpRxN          : in    sl;
-      pgpTxP          : out   sl;
-      pgpTxN          : out   sl;
+      -- PGP/GbE Ports
+      gtClkP          : in    sl;
+      gtClkN          : in    sl;
+      gtRxP           : in    sl;
+      gtRxN           : in    sl;
+      gtTxP           : out   sl;
+      gtTxN           : out   sl;
       -- System Ports
       extTrigL        : in    sl;
       extBusy         : out   sl;
@@ -107,19 +108,23 @@ end AtlasChess2FebCore;
 
 architecture mapping of AtlasChess2FebCore is
 
+   constant AXIL_CLK_FREQ_C : real := ite(ETH_G, 125.0E+6, 156.25E+6);
+
    constant NUM_AXIL_SLAVES_C  : natural := 2;
-   constant NUM_AXIL_MASTERS_C : natural := 5;
+   constant NUM_AXIL_MASTERS_C : natural := 6;
 
    constant SYS_INDEX_C    : natural := 0;
    constant DAC_INDEX_C    : natural := 1;
    constant TIMING_INDEX_C : natural := 2;
    constant CHESS2_INDEX_C : natural := 3;
-   constant SACI_INDEX_C   : natural := 4;
+   constant ETH_INDEX_C    : natural := 4;
+   constant SACI_INDEX_C   : natural := 5;
 
    constant SYS_ADDR_C    : slv(31 downto 0) := X"00000000";
    constant DAC_ADDR_C    : slv(31 downto 0) := X"00100000";
    constant TIMING_ADDR_C : slv(31 downto 0) := X"00200000";
    constant CHESS2_ADDR_C : slv(31 downto 0) := X"00300000";
+   constant ETH_ADDR_C    : slv(31 downto 0) := X"00400000";
    constant SACI_ADDR_C   : slv(31 downto 0) := X"01000000";
    
    constant AXIL_CROSSBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXIL_MASTERS_C-1 downto 0) := (
@@ -137,6 +142,10 @@ architecture mapping of AtlasChess2FebCore is
          connectivity => X"FFFF"),
       CHESS2_INDEX_C  => (
          baseAddr     => CHESS2_ADDR_C,
+         addrBits     => 20,
+         connectivity => X"FFFF"),
+      ETH_INDEX_C     => (
+         baseAddr     => ETH_ADDR_C,
          addrBits     => 20,
          connectivity => X"FFFF"),
       SACI_INDEX_C    => (
@@ -169,10 +178,13 @@ architecture mapping of AtlasChess2FebCore is
    signal refclk200MHz : sl;
    signal refRst200MHz : sl;
 
-   signal pgpTxIn  : Pgp2bTxInType;
-   signal pgpTxOut : Pgp2bTxOutType;
-   signal pgpRxIn  : Pgp2bRxInType;
-   signal pgpRxOut : Pgp2bRxOutType;
+   signal pgpTxIn  : Pgp2bTxInType  := PGP2B_TX_IN_INIT_C;
+   signal pgpTxOut : Pgp2bTxOutType := PGP2B_TX_OUT_INIT_C;
+   signal pgpRxIn  : Pgp2bRxInType  := PGP2B_RX_IN_INIT_C;
+   signal pgpRxOut : Pgp2bRxOutType := PGP2B_RX_OUT_INIT_C;
+
+   signal ethReady   : sl              := '0';
+   signal rssiStatus : slv(6 downto 0) := (others => '0');
 
    signal timingClk320MHz : sl;
    signal timingRst320MHz : sl;
@@ -181,10 +193,36 @@ architecture mapping of AtlasChess2FebCore is
    signal timingTrig      : sl;
    signal timingMsg       : slv(63 downto 0) := (others => '0');
    signal evrOpCode       : slv(7 downto 0);
-
+   
 begin
 
+   --------------
+   -- Misc. Ports
+   --------------
    saciRstL <= not(axilRst);
+
+   led(3) <= pgpRxOut.remLinkReady;
+   led(2) <= pgpRxOut.linkReady;
+   led(1) <= rssiStatus(0);
+   led(0) <= ethReady;
+
+   redL   <= "11";
+   blueL  <= "11";
+   greenL <= "00";
+
+   oeClk <= (others => '1');
+
+   pwrSyncSclk <= '0';
+   pwrSyncFclk <= '0';
+
+   testClk   <= '0';
+   dacEnL    <= '1';
+   term100   <= '0';
+   term300   <= '0';
+   lvdsTxSel <= '0';
+   acMode    <= '0';
+   bitSel    <= '0';
+   injSig    <= (others => '0');
 
    ---------------
    -- Timing Clock 
@@ -212,39 +250,98 @@ begin
    ---------------------
    -- PGP Front End Core
    ---------------------
-   U_PGP : entity work.AtlasChess2FebPgpCore
-      generic map (
-         TPD_G            => TPD_G,
-         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)   
-      port map (
-         -- Reference Clock and Reset
-         refclk200MHz     => refclk200MHz,
-         refRst200MHz     => refRst200MHz,
-         -- AXI-Lite Interface   
-         axilClk          => axilClk,
-         axilRst          => axilRst,
-         mAxilReadMaster  => sAxilReadMasters(0),
-         mAxilReadSlave   => sAxilReadSlaves(0),
-         mAxilWriteMaster => sAxilWriteMasters(0),
-         mAxilWriteSlave  => sAxilWriteSlaves(0),
-         -- Streaming CHESS2 Data (axilClk domain)
-         sAxisMaster      => chessMaster,
-         sAxisSlave       => chessSlave,
-         -- MB Interface (axilClk domain)
-         mbTxMaster       => mbTxMaster,
-         mbTxSlave        => mbTxSlave,
-         -- Trigger Interface (axilClk domain)
-         pgpTxIn          => pgpTxIn,
-         pgpTxOut         => pgpTxOut,
-         pgpRxIn          => pgpRxIn,
-         pgpRxOut         => pgpRxOut,
-         -- PGP Ports
-         pgpClkP          => pgpClkP,
-         pgpClkN          => pgpClkN,
-         pgpRxP           => pgpRxP,
-         pgpRxN           => pgpRxN,
-         pgpTxP           => pgpTxP,
-         pgpTxN           => pgpTxN);     
+   Pgp_Config : if (ETH_G = false) generate
+      
+      U_PGP : entity work.AtlasChess2FebPgpCore
+         generic map (
+            TPD_G            => TPD_G,
+            AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)   
+         port map (
+            -- Reference Clock and Reset
+            refclk200MHz     => refclk200MHz,
+            refRst200MHz     => refRst200MHz,
+            -- AXI-Lite Interface   
+            axilClk          => axilClk,
+            axilRst          => axilRst,
+            mAxilReadMaster  => sAxilReadMasters(0),
+            mAxilReadSlave   => sAxilReadSlaves(0),
+            mAxilWriteMaster => sAxilWriteMasters(0),
+            mAxilWriteSlave  => sAxilWriteSlaves(0),
+            -- Streaming CHESS2 Data (axilClk domain)
+            sAxisMaster      => chessMaster,
+            sAxisSlave       => chessSlave,
+            -- MB Interface (axilClk domain)
+            mbTxMaster       => mbTxMaster,
+            mbTxSlave        => mbTxSlave,
+            -- Trigger Interface (axilClk domain)
+            pgpTxIn          => pgpTxIn,
+            pgpTxOut         => pgpTxOut,
+            pgpRxIn          => pgpRxIn,
+            pgpRxOut         => pgpRxOut,
+            -- PGP Ports
+            pgpClkP          => gtClkP,
+            pgpClkN          => gtClkN,
+            pgpRxP           => gtRxP,
+            pgpRxN           => gtRxN,
+            pgpTxP           => gtTxP,
+            pgpTxN           => gtTxN);    
+
+      U_ETH : entity work.AxiLiteEmpty
+         generic map (
+            TPD_G => TPD_G)
+         port map (
+            -- AXI-Lite Bus
+            axiClk         => axilClk,
+            axiClkRst      => axilRst,
+            axiReadMaster  => mAxilReadMasters(ETH_INDEX_C),
+            axiReadSlave   => mAxilReadSlaves(ETH_INDEX_C),
+            axiWriteMaster => mAxilWriteMasters(ETH_INDEX_C),
+            axiWriteSlave  => mAxilWriteSlaves(ETH_INDEX_C));              
+
+   end generate;
+
+   ---------------------
+   -- GbE Front End Core
+   ---------------------
+   Eth_Config : if (ETH_G = true) generate
+      
+      U_ETH : entity work.AtlasChess2FebEthCore
+         generic map (
+            TPD_G            => TPD_G,
+            AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)   
+         port map (
+            -- Reference Clock and Reset
+            refclk200MHz     => refclk200MHz,
+            refRst200MHz     => refRst200MHz,
+            -- AXI-Lite Interface   
+            axilClk          => axilClk,
+            axilRst          => axilRst,
+            mAxilReadMaster  => sAxilReadMasters(0),
+            mAxilReadSlave   => sAxilReadSlaves(0),
+            mAxilWriteMaster => sAxilWriteMasters(0),
+            mAxilWriteSlave  => sAxilWriteSlaves(0),
+            -- Streaming CHESS2 Data (axilClk domain)
+            sAxisMaster      => chessMaster,
+            sAxisSlave       => chessSlave,
+            -- MB Interface (axilClk domain)
+            mbTxMaster       => mbTxMaster,
+            mbTxSlave        => mbTxSlave,
+            -- Eth/RSSI Status
+            phyReady         => ethReady,
+            rssiStatus       => rssiStatus,
+            axilReadMaster   => mAxilReadMasters(ETH_INDEX_C),
+            axilReadSlave    => mAxilReadSlaves(ETH_INDEX_C),
+            axilWriteMaster  => mAxilWriteMasters(ETH_INDEX_C),
+            axilWriteSlave   => mAxilWriteSlaves(ETH_INDEX_C),
+            -- GbE Ports
+            gtClkP           => gtClkP,
+            gtClkN           => gtClkN,
+            gtRxP            => gtRxP,
+            gtRxN            => gtRxN,
+            gtTxP            => gtTxP,
+            gtTxN            => gtTxN);    
+
+   end generate;
 
    --------------------------
    -- AXI-Lite: Crossbar Core
@@ -294,24 +391,8 @@ begin
          -- System Interface 
          status           => status,
          config           => config,
-         -- Test Structure Ports
-         testClk          => testClk,
-         dacEnL           => dacEnL,
-         term100          => term100,
-         term300          => term300,
-         lvdsTxSel        => lvdsTxSel,
-         acMode           => acMode,
-         bitSel           => bitSel,
-         injSig           => injSig,
          -- System Ports
          tempAlertL       => tempAlertL,
-         redL             => redL,
-         blueL            => blueL,
-         greenL           => greenL,
-         led              => led,
-         oeClk            => oeClk,
-         pwrSyncSclk      => pwrSyncSclk,
-         pwrSyncFclk      => pwrSyncFclk,
          pwrScl           => pwrScl,
          pwrSda           => pwrSda,
          configScl        => configScl,
@@ -334,6 +415,7 @@ begin
       generic map (
          TPD_G            => TPD_G,
          AXI_BASE_ADDR_G  => AXIL_CROSSBAR_CONFIG_C(DAC_INDEX_C).baseAddr,
+         AXI_CLK_FREQ_G   => AXIL_CLK_FREQ_C,
          AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
       port map (
          -- AXI-Lite Interface

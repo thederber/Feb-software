@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-08-09
+-- Last update: 2016-11-16
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -27,7 +27,6 @@ use work.StdRtlPkg.all;
 
 package AtlasChess2FebPkg is
 
-   constant AXIL_CLK_FREQ_C    : real     := 156.25E+6;
    constant DELAY_ADDR_WIDTH_C : positive := 12;
 
    subtype TimingModeType is slv(1 downto 0);

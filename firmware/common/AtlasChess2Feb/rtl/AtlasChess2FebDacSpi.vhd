@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-02-19
--- Last update: 2016-06-10
+-- Last update: 2016-11-16
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -27,11 +27,11 @@ use ieee.std_logic_unsigned.all;
 
 use work.StdRtlPkg.all;
 use work.AxiLitePkg.all;
-use work.AtlasChess2FebPkg.all;
 
 entity AtlasChess2FebDacSpi is
    generic (
       TPD_G            : time            := 1 ns;
+      AXI_CLK_FREQ_G   : real            := 156.25E+6;
       AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);
    port (
       -- AXI-Lite Interface
@@ -84,7 +84,7 @@ begin
          DATA_SIZE_G       => DATA_SIZE_C,
          CPHA_G            => '0',      -- Sample on leading edge
          CPOL_G            => '0',      -- Sample on rising edge
-         CLK_PERIOD_G      => (1.0/AXIL_CLK_FREQ_C),
+         CLK_PERIOD_G      => (1.0/AXI_CLK_FREQ_G),
          SPI_SCLK_PERIOD_G => 1.0E-6)
       port map (
          clk       => axilClk,

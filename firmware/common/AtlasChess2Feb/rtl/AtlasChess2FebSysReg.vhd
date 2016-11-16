@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-06-10
+-- Last update: 2016-11-16
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -32,6 +32,7 @@ use work.AtlasChess2FebPkg.all;
 entity AtlasChess2FebSysReg is
    generic (
       TPD_G            : time            := 1 ns;
+      AXI_CLK_FREQ_G   : real            := 156.25E+6;
       AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);
    port (
       -- Timing Clock and Reset
@@ -160,7 +161,7 @@ begin
    U_sysClkFreq : entity work.SyncClockFreq
       generic map (
          TPD_G          => TPD_G,
-         REF_CLK_FREQ_G => AXIL_CLK_FREQ_C)
+         REF_CLK_FREQ_G => AXI_CLK_FREQ_G)
       port map (
          -- Frequency Measurement and Monitoring Outputs (locClk domain)
          freqOut => refClkFreq,

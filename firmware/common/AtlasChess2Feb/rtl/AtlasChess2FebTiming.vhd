@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-02
--- Last update: 2016-08-09
+-- Last update: 2016-11-16
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -34,6 +34,7 @@ entity AtlasChess2FebTiming is
    generic (
       TPD_G            : time             := 1 ns;
       AXI_BASE_ADDR_G  : slv(31 downto 0) := (others => '0');
+      AXI_CLK_FREQ_G   : real             := 156.25E+6;
       AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C;
       IODELAY_GROUP_G  : string           := "CHESS2_IODELAY_GRP");
    port (
@@ -149,7 +150,7 @@ begin
          COMMON_TX_CLK_G    => true,
          COMMON_RX_CLK_G    => true,
          WRITE_EN_G         => false,
-         AXI_CLK_FREQ_G     => AXIl_CLK_FREQ_C,
+         AXI_CLK_FREQ_G     => AXI_CLK_FREQ_G,
          STATUS_CNT_WIDTH_G => 32,
          ERROR_CNT_WIDTH_G  => 16)
       port map (

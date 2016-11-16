@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-11-04
+-- Last update: 2016-11-16
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -38,7 +38,8 @@ entity AtlasChess2FebSys is
    generic (
       TPD_G            : time            := 1 ns;
       FSBL_G           : boolean         := false;
-      CPU_G            : boolean         := false;                  -- True=Microblaze, False=No Microblaze
+      CPU_G            : boolean         := false;  -- True=Microblaze, False=No Microblaze
+      AXI_CLK_FREQ_G   : real            := 156.25E+6;
       AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);      
    port (
       -- Timing Clock and Reset
@@ -58,24 +59,9 @@ entity AtlasChess2FebSys is
       -- System Interface 
       status           : in    AtlasChess2FebStatusType;
       config           : out   AtlasChess2FebConfigType;
-      -- Test Structure Ports
-      testClk          : out   sl;
-      dacEnL           : out   sl;
-      term100          : out   sl;
-      term300          : out   sl;
-      lvdsTxSel        : out   sl;
-      acMode           : out   sl;
-      bitSel           : out   sl;
-      injSig           : out   slv(1 downto 0);
       -- System Ports
       tempAlertL       : in    sl;
-      redL             : out   slv(1 downto 0);
-      blueL            : out   slv(1 downto 0);
-      greenL           : out   slv(1 downto 0);
-      led              : out   slv(3 downto 0);
       oeClk            : out   Slv(2 downto 0);
-      pwrSyncSclk      : out   sl;
-      pwrSyncFclk      : out   sl;
       pwrScl           : inout sl;
       pwrSda           : inout sl;
       configScl        : inout sl;
@@ -170,29 +156,11 @@ architecture mapping of AtlasChess2FebSys is
 
 begin
 
-   -- Misc. Ports
-   redL        <= "11";
-   blueL       <= "11";
-   greenL      <= "11";
-   led         <= (others => '0');
-   oeClk       <= (others => '1');
-   pwrSyncSclk <= '0';
-   pwrSyncFclk <= '0';
-
-   testClk   <= '0';
-   dacEnL    <= '1';
-   term100   <= '0';
-   term300   <= '0';
-   lvdsTxSel <= '0';
-   acMode    <= '0';
-   bitSel    <= '0';
-   injSig    <= (others => '0');
-
    ----------------------------
    -- AXI-Lite: Microblaze Core
    ----------------------------
    GEN_CPU : if CPU_G = true generate
-   
+      
       U_CPU : entity work.MicroblazeBasicCoreWrapper
          generic map (
             TPD_G           => TPD_G,
@@ -211,7 +179,7 @@ begin
             -- Clock and Reset
             clk              => axilClk,
             rst              => axilRst);    
-            
+
       -----------------------------
       -- Microblaze User Interrupts
       -----------------------------
@@ -243,7 +211,7 @@ begin
       mbWriteMaster <= AXI_LITE_WRITE_MASTER_INIT_C;
       mbReadMaster  <= AXI_LITE_READ_MASTER_INIT_C;
    end generate GEN_N_CPU;
-    
+
    --------------------------
    -- AXI-Lite: Crossbar Core
    --------------------------  
@@ -273,7 +241,7 @@ begin
       generic map (
          TPD_G              => TPD_G,
          AXI_ERROR_RESP_G   => AXI_ERROR_RESP_G,
-         CLK_PERIOD_G       => (1.0/AXIL_CLK_FREQ_C),
+         CLK_PERIOD_G       => (1.0/AXI_CLK_FREQ_G),
          XIL_DEVICE_G       => "7SERIES",
          EN_DEVICE_DNA_G    => true,
          EN_DS2411_G        => false,
@@ -315,9 +283,9 @@ begin
       generic map (
          TPD_G            => TPD_G,
          AXI_ERROR_RESP_G => AXI_ERROR_RESP_G,
-         MEM_ADDR_MASK_G  => x"00000000",            -- Using hardware write protection
-         AXI_CLK_FREQ_G   => AXIL_CLK_FREQ_C,        -- units of Hz
-         SPI_CLK_FREQ_G   => (AXIL_CLK_FREQ_C/8.0))  -- units of Hz
+         MEM_ADDR_MASK_G  => x"00000000",           -- Using hardware write protection
+         AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G,        -- units of Hz
+         SPI_CLK_FREQ_G   => (AXI_CLK_FREQ_G/8.0))  -- units of Hz
       port map (
          -- FLASH Memory Ports
          csL            => bootCsL,
@@ -358,6 +326,7 @@ begin
    U_SysReg : entity work.AtlasChess2FebSysReg
       generic map (
          TPD_G            => TPD_G,
+         AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G,
          AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
       port map (
          -- Timing Clock and Reset
@@ -410,7 +379,7 @@ begin
          TPD_G            => TPD_G,
          AXI_ERROR_RESP_G => AXI_ERROR_RESP_G,
          DEVICE_MAP_G     => PWR_I2C_C,
-         AXI_CLK_FREQ_G   => AXIL_CLK_FREQ_C)
+         AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G)
       port map (
          -- I2C Ports
          scl            => pwrScl,
@@ -433,7 +402,7 @@ begin
          ADDR_WIDTH_G     => 13,
          I2C_ADDR_G       => "1010000",
          AXI_ERROR_RESP_G => AXI_ERROR_RESP_G,
-         AXI_CLK_FREQ_G   => AXIL_CLK_FREQ_C)
+         AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G)
       port map (
          -- I2C Ports
          scl             => configScl,

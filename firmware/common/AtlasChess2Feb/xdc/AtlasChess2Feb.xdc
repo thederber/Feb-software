@@ -104,8 +104,8 @@ set_property PACKAGE_PIN N21 [get_ports {chessClk320MHzP[0]} ]
 set_property PACKAGE_PIN N22 [get_ports {chessClk320MHzN[0]} ]
 set_property PACKAGE_PIN F17 [get_ports {chessClk320MHzP[1]} ]
 set_property PACKAGE_PIN E17 [get_ports {chessClk320MHzN[1]} ]
-set_property PACKAGE_PIN E10 [get_ports {chessClk320MHzP[1]} ]
-set_property PACKAGE_PIN D10 [get_ports {chessClk320MHzN[1]} ]
+set_property PACKAGE_PIN E10 [get_ports {chessClk320MHzP[2]} ]
+set_property PACKAGE_PIN D10 [get_ports {chessClk320MHzN[2]} ]
 
 set_property IOSTANDARD LVDS_25 [get_ports {chessClk320MHzP[*]} ]
 set_property IOSTANDARD LVDS_25 [get_ports {chessClk320MHzN[*]} ]
@@ -151,13 +151,13 @@ set_property -dict { PACKAGE_PIN F15 IOSTANDARD LVCMOS25 } [get_ports { dacSlowM
 set_property -dict { PACKAGE_PIN J15 IOSTANDARD LVCMOS25 } [get_ports { dacSlowCsL[1] }];
 
 # PGP Port Mapping
-set_property PACKAGE_PIN D6 [get_ports {pgpClkP}]
-set_property PACKAGE_PIN D5 [get_ports {pgpClkN}]
+set_property PACKAGE_PIN D6 [get_ports {gtClkP}]
+set_property PACKAGE_PIN D5 [get_ports {gtClkN}]
 
-set_property PACKAGE_PIN F2 [get_ports {pgpTxP}]
-set_property PACKAGE_PIN F1 [get_ports {pgpTxN}]
-set_property PACKAGE_PIN G4 [get_ports {pgpRxP}]
-set_property PACKAGE_PIN G3 [get_ports {pgpRxN}]
+set_property PACKAGE_PIN F2 [get_ports {gtTxP}]
+set_property PACKAGE_PIN F1 [get_ports {gtTxN}]
+set_property PACKAGE_PIN G4 [get_ports {gtRxP}]
+set_property PACKAGE_PIN G3 [get_ports {gtRxN}]
 
 # SLAC Timing Port Mapping
 set_property PACKAGE_PIN H6 [get_ports {evrClkP}]
@@ -212,7 +212,7 @@ set_property PACKAGE_PIN N12 [get_ports {vPIn}]
 set_property PACKAGE_PIN P11 [get_ports {vNIn}]
 
 # Timing Constraints
-create_clock -name pgpClkRef   -period  3.200 [get_ports {pgpClkP}]
+create_clock -name pgpClkRef   -period  3.200 [get_ports {gtClkP}]
 
 create_clock -name evrClkRef -period  4.201 [get_ports {evrClkP}]
 create_clock -name evrRecClk -period  8.402 [get_pins  {U_Core/U_Timing/U_EVR/U_GTX/Gtx7Core_Inst/gtxe2_i/RXOUTCLK}]
@@ -225,33 +225,8 @@ set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets {U_Core/U_Clk/extClock40MHz}]
 
 set_case_analysis 1 [get_pins {U_Core/U_Clk/U_BUFGMUX/S}]
 
-create_generated_clock -name refClk200MHz    [get_pins {U_Core/U_PGP/U_MMCM/MmcmGen.U_Mmcm/CLKOUT0}] 
-create_generated_clock -name axilClk         [get_pins {U_Core/U_PGP/U_MMCM/MmcmGen.U_Mmcm/CLKOUT1}]
-create_generated_clock -name dnaClk          [get_pins {U_Core/U_Sys/U_AxiVersion/GEN_DEVICE_DNA.DeviceDna_1/GEN_7SERIES.DeviceDna7Series_Inst/BUFR_Inst/O}]
-create_generated_clock -name progClk         [get_pins {U_Core/U_Sys/U_AxiVersion/GEN_ICAP.Iprog_1/GEN_7SERIES.Iprog7Series_Inst/DIVCLK_GEN.BUFR_ICPAPE2/O}]  
-create_generated_clock -name refClk156MHz    [get_pins {U_Core/U_PGP/U_IBUFDS_GTE2/ODIV2}]  
-create_generated_clock -name evrClk          [get_pins {U_Core/U_Timing/U_EVR/U_GTX/IBUFDS_GTE2_Inst/ODIV2}]  
-
-create_generated_clock -name timingClk320MHz [get_pins {U_Core/U_Clk/U_MMCM/MmcmGen.U_Mmcm/CLKOUT0}] 
-create_generated_clock -name timingClk40MHz  [get_pins {U_Core/U_Clk/U_MMCM/MmcmGen.U_Mmcm/CLKOUT1}] 
-
-set_clock_groups -asynchronous -group [get_clocks {axilClk}] -group [get_clocks {dnaClk}]
-set_clock_groups -asynchronous -group [get_clocks {axilClk}] -group [get_clocks {progClk}]
-set_clock_groups -asynchronous -group [get_clocks {axilClk}] -group [get_clocks {refClk200MHz}]
-set_clock_groups -asynchronous -group [get_clocks {axilClk}] -group [get_clocks {locClk40MHz}]
-set_clock_groups -asynchronous -group [get_clocks {axilClk}] -group [get_clocks {extClk40MHz}]
-set_clock_groups -asynchronous -group [get_clocks {axilClk}] -group [get_clocks {evrRecClk}]
-set_clock_groups -asynchronous -group [get_clocks {axilClk}] -group [get_clocks {evrClk}]
-set_clock_groups -asynchronous -group [get_clocks {axilClk}] -group [get_clocks {timingClk320MHz}]
-
-set_clock_groups -asynchronous -group [get_clocks {timingClk320MHz}] -group [get_clocks {evrRecClk}]
-
-set_clock_groups -asynchronous -group [get_clocks {locClk40MHz}] -group [get_clocks {extClk40MHz}]
-
-set_clock_groups -asynchronous -group [get_clocks {refClk200MHz}] -group [get_clocks {timingClk320MHz}]
-
 # StdLib
-set_property ASYNC_REG TRUE [get_cells -hierarchical {*crossDomainSyncReg_reg*}]
+set_property ASYNC_REG TRUE [get_cells -hierarchical *crossDomainSyncReg_reg*]
 
 # FPGA Hardware Configuration
 set_property CFGBVS VCCO         [current_design]

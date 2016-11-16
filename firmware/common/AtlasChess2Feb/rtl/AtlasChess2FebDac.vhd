@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-08-09
+-- Last update: 2016-11-16
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -27,7 +27,6 @@ use ieee.std_logic_unsigned.all;
 
 use work.StdRtlPkg.all;
 use work.AxiLitePkg.all;
-use work.AtlasChess2FebPkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -36,6 +35,7 @@ entity AtlasChess2FebDac is
    generic (
       TPD_G            : time             := 1 ns;
       AXI_BASE_ADDR_G  : slv(31 downto 0) := (others => '0');
+      AXI_CLK_FREQ_G   : real             := 156.25E+6;
       AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C);      
    port (
       -- AXI-Lite Interface
@@ -107,6 +107,7 @@ begin
       U_SPI : entity work.AtlasChess2FebDacSpi
          generic map (
             TPD_G            => TPD_G,
+            AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G,
             AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
          port map (
             -- AXI-Lite Interface
