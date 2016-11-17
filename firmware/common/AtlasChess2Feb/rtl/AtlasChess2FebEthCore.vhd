@@ -83,7 +83,8 @@ architecture mapping of AtlasChess2FebEthCore is
    signal ethClkDiv2 : sl;
    signal ethRstDiv2 : sl;
 
-   signal localMac : slv(47 downto 0) := x"00_00_00_00_00_08";  -- 08:00:XX;XX;XX;XX (big endian SLV) 
+   signal efuse    : slv(31 downto 0);
+   signal localMac : slv(47 downto 0);
 
    signal rxMaster : AxiStreamMasterType;
    signal rxSlave  : AxiStreamSlaveType;
@@ -111,7 +112,10 @@ begin
    --------------------
    U_EFuse : EFUSE_USR
       port map (
-         EFUSEUSR => localMac(47 downto 16));
+         EFUSEUSR => efuse);
+
+   localMac(23 downto 0)  <= x"56_00_08";  -- 08:00:56:XX:XX:XX (big endian SLV)   
+   localMac(47 downto 24) <= efuse(31 downto 8);
 
    ------------------
    -- Reference Clock
@@ -204,14 +208,16 @@ begin
       generic map (
          -- Simulation Generics
          TPD_G          => TPD_G,
-         -- UDP General Generic
-         DHCP_G         => true,
          -- UDP Server Generics
          SERVER_EN_G    => true,
          SERVER_SIZE_G  => 1,
          SERVER_PORTS_G => SERVER_PORTS_C,
          -- UDP Client Generics
-         CLIENT_EN_G    => false)
+         CLIENT_EN_G    => false,
+         -- General IPv4/ARP/DHCP Generics
+         DHCP_G         => true,
+         CLK_FREQ_G     => 125.0E+6,
+         COMM_TIMEOUT_G => 30)
       port map (
          -- Local Configurations
          localMac           => localMac,
