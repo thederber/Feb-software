@@ -23,8 +23,8 @@ import pyrogue
 
 import surf
 import surf.AxiVersion
-# # import surf.AxiXadc
-# # import surf.AxiMicronN25Q
+import surf.AxiXadc
+import surf.AxiMicronN25Q
 # # import surf.GenericMemory
 # # import surf.AxiPgp2bMon
 
@@ -44,8 +44,8 @@ def create(name='feb', offset=0, memBase=None, hidden=False):
                          description='feb')
 
     dev.add(surf.AxiVersion.create(         offset=0x00000000))
-    # # dev.add(surf.AxiXadc.create(          offset=0x00010000))
-    # # dev.add(surf.AxiMicronN25Q.create(    offset=0x00020000))
+    dev.add(surf.AxiXadc.create(          offset=0x00010000))
+    dev.add(surf.AxiMicronN25Q.create(    offset=0x00020000))
     dev.add(AtlasChess2Feb.SysReg.create(    offset=0x00030000))
     # # dev.add(GenericMemory.create(         offset=0x00040000))
     # # dev.add(AtlasChess2Feb.PwrMon.create(  offset=0x00050000))
@@ -61,6 +61,6 @@ def create(name='feb', offset=0, memBase=None, hidden=False):
         # # dev.add(AtlasChess2Feb.Saci.create( 
             # # name='AtlasChess2Feb.Saci_%01i'%(i),
             # # offset=(0x01000000 + i*0x400000)))            
-    dev.add(AtlasChess2Feb.SaciTest.create(     offset=0x01C00000))
+    # dev.add(AtlasChess2Feb.SaciTest.create(     offset=0x01C00000))
                                
     return dev

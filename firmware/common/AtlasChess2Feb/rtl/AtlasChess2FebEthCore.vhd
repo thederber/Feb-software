@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-02
--- Last update: 2016-11-16
+-- Last update: 2016-11-18
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -29,14 +29,17 @@ use work.AxiStreamPkg.all;
 use work.SsiPkg.all;
 use work.EthMacPkg.all;
 use work.AtlasChess2FebPkg.all;
+use work.Pgp2bPkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
 
 entity AtlasChess2FebEthCore is
    generic (
-      TPD_G            : time            := 1 ns;
-      AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);        
+      TPD_G            : time             := 1 ns;
+      DHCP_G           : boolean          := true;         -- true = DHCP, false = static address
+      IP_ADDR_G        : slv(31 downto 0) := x"0A01A8C0";  -- 192.168.1.10 (before DHCP)
+      AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C);        
    port (
       -- Reference Clock and Reset
       refclk200MHz     : out sl;
@@ -54,6 +57,11 @@ entity AtlasChess2FebEthCore is
       -- MB Interface (axilClk domain)
       mbTxMaster       : in  AxiStreamMasterType;
       mbTxSlave        : out AxiStreamSlaveType;
+      -- Emulate PGP Timing Interface
+      pgpTxIn          : in  Pgp2bTxInType;
+      pgpTxOut         : out Pgp2bTxOutType;
+      pgpRxIn          : in  Pgp2bRxInType;
+      pgpRxOut         : out Pgp2bRxOutType;
       -- Eth/RSSI Status
       phyReady         : out sl;
       rssiStatus       : out slv(6 downto 0);
@@ -73,7 +81,6 @@ end AtlasChess2FebEthCore;
 architecture mapping of AtlasChess2FebEthCore is
 
    constant SERVER_PORTS_C : PositiveArray(0 downto 0) := (0 => 8192);
-   constant IP_ADDR_C      : slv(31 downto 0)          := x"0A01A8C0";  -- 192.168.1.10 (before DHCP)
 
    signal gtClkDiv2  : sl;
    signal refClk     : sl;
@@ -96,11 +103,18 @@ architecture mapping of AtlasChess2FebEthCore is
    signal obServerMaster : AxiStreamMasterType;
    signal obServerSlave  : AxiStreamSlaveType;
 
-   signal rssiIbMasters   : AxiStreamMasterArray(2 downto 0);
-   signal rssiIbSlaves    : AxiStreamSlaveArray(2 downto 0);
-   signal rssiObMasters   : AxiStreamMasterArray(2 downto 0);
-   signal rssiObSlaves    : AxiStreamSlaveArray(2 downto 0);
-   constant AXIS_CONFIG_C : AxiStreamConfigArray(2 downto 0) := (others => ssiAxiStreamConfig(4));
+   constant RSSI_SIZE_C : positive := 4;
+   constant AXIS_CONFIG_C : AxiStreamConfigArray(RSSI_SIZE_C-1 downto 0) := (
+      0 => ssiAxiStreamConfig(4),
+      1 => ssiAxiStreamConfig(4),
+      2 => ssiAxiStreamConfig(4),
+      3 => ssiAxiStreamConfig(1));
+   signal rssiIbMasters : AxiStreamMasterArray(RSSI_SIZE_C-1 downto 0);
+   signal rssiIbSlaves  : AxiStreamSlaveArray(RSSI_SIZE_C-1 downto 0);
+   signal rssiObMasters : AxiStreamMasterArray(RSSI_SIZE_C-1 downto 0);
+   signal rssiObSlaves  : AxiStreamSlaveArray(RSSI_SIZE_C-1 downto 0);
+
+   signal pgpRxTrig : Pgp2bRxOutType := PGP2B_RX_OUT_INIT_C;
    
 begin
 
@@ -215,13 +229,13 @@ begin
          -- UDP Client Generics
          CLIENT_EN_G    => false,
          -- General IPv4/ARP/DHCP Generics
-         DHCP_G         => true,
+         DHCP_G         => DHCP_G,
          CLK_FREQ_G     => 125.0E+6,
          COMM_TIMEOUT_G => 30)
       port map (
          -- Local Configurations
          localMac           => localMac,
-         localIp            => IP_ADDR_C,
+         localIp            => IP_ADDR_G,
          -- Interface to Ethernet Media Access Controller (MAC)
          obMacMaster        => rxMaster,
          obMacSlave         => rxSlave,
@@ -244,7 +258,7 @@ begin
          TPD_G               => TPD_G,
          MAX_SEG_SIZE_G      => 1024,
          SEGMENT_ADDR_SIZE_G => 7,
-         APP_STREAMS_G       => 3,
+         APP_STREAMS_G       => RSSI_SIZE_C,
          APP_STREAM_ROUTES_G => (
             0                => X"00",
             1                => X"01",
@@ -322,16 +336,19 @@ begin
 
    -----------------------------------------------
    -- TDEST = 0x1: Streaming CHESS2 Data Interface  
+   -- TDEST = 0x1: Emulate PGP Timing Interface  
    -----------------------------------------------
-   rssiIbMasters(1) <= sAxisMaster;
-   sAxisSlave       <= rssiIbSlaves(1);
-   rssiObSlaves(1)  <= AXI_STREAM_SLAVE_FORCE_C;  -- Blowoff unused stream
+   rssiIbMasters(1)   <= sAxisMaster;
+   sAxisSlave         <= rssiIbSlaves(1);
+   rssiObSlaves(1)    <= AXI_STREAM_SLAVE_FORCE_C;  -- always ready
+   pgpRxTrig.opCodeEn <= rssiObMasters(1).tValid and rssiObMasters(3).tLast;
+   pgpRxTrig.opCode   <= rssiObMasters(1).tData(7 downto 0);
 
-   ---------------------------------------------
-   -- TDEST = 0x2: ASIC Waveform Data Interface  
-   ---------------------------------------------
+   ----------------------------
+   -- TDEST = 0x2: MB Interface  
+   ----------------------------
    rssiIbMasters(2) <= mbTxMaster;
    mbTxSlave        <= rssiIbSlaves(2);
-   rssiObSlaves(2)  <= AXI_STREAM_SLAVE_FORCE_C;  -- Blowoff unused stream         
+   rssiObSlaves(2)  <= AXI_STREAM_SLAVE_FORCE_C;  -- Blowoff unused stream
 
 end mapping;

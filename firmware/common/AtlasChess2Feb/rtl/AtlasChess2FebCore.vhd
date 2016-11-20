@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-11-16
+-- Last update: 2016-11-18
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -34,10 +34,12 @@ use unisim.vcomponents.all;
 
 entity AtlasChess2FebCore is
    generic (
-      TPD_G            : time            := 1 ns;
-      ETH_G            : boolean         := false;
-      FSBL_G           : boolean         := false;
-      AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);          
+      TPD_G            : time             := 1 ns;
+      ETH_G            : boolean          := false;
+      DHCP_G           : boolean          := true;         -- true = DHCP, false = static address
+      IP_ADDR_G        : slv(31 downto 0) := x"0A01A8C0";  -- 192.168.1.10 (before DHCP)      
+      FSBL_G           : boolean          := false;
+      AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C);          
    port (
       -- CHESS2 ASIC Serial Ports
       chessDinP       : in    Slv14Array(2 downto 0);
@@ -308,6 +310,8 @@ begin
       U_ETH : entity work.AtlasChess2FebEthCore
          generic map (
             TPD_G            => TPD_G,
+            DHCP_G           => DHCP_G,
+            IP_ADDR_G        => IP_ADDR_G,
             AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)   
          port map (
             -- Reference Clock and Reset
@@ -326,6 +330,11 @@ begin
             -- MB Interface (axilClk domain)
             mbTxMaster       => mbTxMaster,
             mbTxSlave        => mbTxSlave,
+            -- Emulate PGP Timing Interface
+            pgpTxIn          => pgpTxIn,
+            pgpTxOut         => pgpTxOut,
+            pgpRxIn          => pgpRxIn,
+            pgpRxOut         => pgpRxOut,
             -- Eth/RSSI Status
             phyReady         => ethReady,
             rssiStatus       => rssiStatus,
