@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-11-18
+-- Last update: 2016-12-02
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -35,11 +35,12 @@ use unisim.vcomponents.all;
 entity AtlasChess2FebCore is
    generic (
       TPD_G            : time             := 1 ns;
-      ETH_G            : boolean          := false;
-      DHCP_G           : boolean          := true;         -- true = DHCP, false = static address
-      IP_ADDR_G        : slv(31 downto 0) := x"0A01A8C0";  -- 192.168.1.10 (before DHCP)      
-      FSBL_G           : boolean          := false;
-      AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C);          
+      COMM_MODE_G      : boolean          := false;         -- true = ETH mode, false = PGP mode
+      AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C;
+      -- ETH configuration
+      ETH_DEV_G        : boolean          := true;          -- true = Adds non-RSSI on port 8193
+      ETH_DHCP_G       : boolean          := true;          -- true = DHCP, false = static address
+      ETH_IP_ADDR_G    : slv(31 downto 0) := x"0A01A8C0");  -- 192.168.1.10 (before DHCP) 
    port (
       -- CHESS2 ASIC Serial Ports
       chessDinP       : in    Slv14Array(2 downto 0);
@@ -110,7 +111,7 @@ end AtlasChess2FebCore;
 
 architecture mapping of AtlasChess2FebCore is
 
-   constant AXIL_CLK_FREQ_C : real := ite(ETH_G, 125.0E+6, 156.25E+6);
+   constant AXIL_CLK_FREQ_C : real := ite(COMM_MODE_G, 125.0E+6, 156.25E+6);
 
    constant NUM_AXIL_SLAVES_C  : natural := 2;
    constant NUM_AXIL_MASTERS_C : natural := 6;
@@ -252,7 +253,7 @@ begin
    ---------------------
    -- PGP Front End Core
    ---------------------
-   Pgp_Config : if (ETH_G = false) generate
+   Pgp_Config : if (COMM_MODE_G = false) generate
       
       U_PGP : entity work.AtlasChess2FebPgpCore
          generic map (
@@ -305,13 +306,14 @@ begin
    ---------------------
    -- GbE Front End Core
    ---------------------
-   Eth_Config : if (ETH_G = true) generate
+   Eth_Config : if (COMM_MODE_G = true) generate
       
       U_ETH : entity work.AtlasChess2FebEthCore
          generic map (
             TPD_G            => TPD_G,
-            DHCP_G           => DHCP_G,
-            IP_ADDR_G        => IP_ADDR_G,
+            DEV_G            => ETH_DEV_G,
+            DHCP_G           => ETH_DHCP_G,
+            IP_ADDR_G        => ETH_IP_ADDR_G,
             AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)   
          port map (
             -- Reference Clock and Reset
@@ -380,7 +382,7 @@ begin
    U_Sys : entity work.AtlasChess2FebSys
       generic map (
          TPD_G            => TPD_G,
-         FSBL_G           => FSBL_G,
+         FSBL_G           => false,     -- not supported in standard build
          AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
       port map (
          -- Timing Clock and Reset

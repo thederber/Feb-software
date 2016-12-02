@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-11-16
+-- Last update: 2016-12-02
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -93,43 +93,43 @@ architecture mapping of AtlasChess2FebSys is
    constant PWR_INDEX_C      : natural := 5;
    constant CONFIG_INDEX_C   : natural := 6;
 
-   constant VERSION_ADDR_C  : slv(31 downto 0) := X"00000000";
-   constant XADC_ADDR_C     : slv(31 downto 0) := X"00010000";
-   constant BOOT_MEM_ADDR_C : slv(31 downto 0) := X"00020000";
-   constant SYS_REG_ADDR_C  : slv(31 downto 0) := X"00030000";
-   constant MEM_REG_ADDR_C  : slv(31 downto 0) := X"00040000";
-   constant PWR_ADDR_C      : slv(31 downto 0) := X"00050000";
-   constant CONFIG_ADDR_C   : slv(31 downto 0) := X"00060000";
+   constant VERSION_ADDR_C  : slv(31 downto 0) := x"00000000";
+   constant XADC_ADDR_C     : slv(31 downto 0) := x"00010000";
+   constant BOOT_MEM_ADDR_C : slv(31 downto 0) := x"00020000";
+   constant SYS_REG_ADDR_C  : slv(31 downto 0) := x"00030000";
+   constant MEM_REG_ADDR_C  : slv(31 downto 0) := x"00040000";
+   constant PWR_ADDR_C      : slv(31 downto 0) := x"00050000";
+   constant CONFIG_ADDR_C   : slv(31 downto 0) := x"00060000";
 
    constant AXIL_CROSSBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXIL_MASTERS_C-1 downto 0) := (
       VERSION_INDEX_C  => (
          baseAddr      => VERSION_ADDR_C,
          addrBits      => 16,
-         connectivity  => X"FFFF"),
+         connectivity  => x"FFFF"),
       XADC_INDEX_C     => (
          baseAddr      => XADC_ADDR_C,
          addrBits      => 16,
-         connectivity  => X"FFFF"),
+         connectivity  => x"FFFF"),
       BOOT_MEM_INDEX_C => (
          baseAddr      => BOOT_MEM_ADDR_C,
          addrBits      => 16,
-         connectivity  => X"FFFF"),
+         connectivity  => x"FFFF"),
       SYS_REG_INDEX_C  => (
          baseAddr      => SYS_REG_ADDR_C,
          addrBits      => 16,
-         connectivity  => X"FFFF"),
+         connectivity  => x"FFFF"),
       MEM_INDEX_C      => (
          baseAddr      => MEM_REG_ADDR_C,
          addrBits      => 16,
-         connectivity  => X"FFFF"),
+         connectivity  => x"FFFF"),
       PWR_INDEX_C      => (
          baseAddr      => PWR_ADDR_C,
          addrBits      => 16,
-         connectivity  => X"FFFF"),
+         connectivity  => x"FFFF"),
       CONFIG_INDEX_C   => (
          baseAddr      => CONFIG_ADDR_C,
          addrBits      => 16,
-         connectivity  => X"FFFF"));  
+         connectivity  => x"FFFF"));  
 
    signal mAxilWriteMasters : AxiLiteWriteMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
    signal mAxilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0);

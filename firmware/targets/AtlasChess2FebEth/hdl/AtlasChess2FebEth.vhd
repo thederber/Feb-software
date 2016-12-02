@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-11-18
+-- Last update: 2016-12-02
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -103,10 +103,13 @@ begin
 
    U_Core : entity work.AtlasChess2FebCore
       generic map (
-         TPD_G     => TPD_G,
-         ETH_G     => true,             -- ETH mode
-         DHCP_G    => true,             -- true = DHCP, false = static address
-         IP_ADDR_G => x"0A01A8C0")      -- 192.168.1.10 (before DHCP)            
+
+         TPD_G         => TPD_G,
+         COMM_MODE_G   => true,         -- true = ETH mode, false = PGP mode
+         -- ETH configuration 
+         ETH_DEV_G     => true,         -- true = Adds non-RSSI on port 8193
+         ETH_DHCP_G    => true,         -- true = DHCP, false = static address
+         ETH_IP_ADDR_G => x"0A01A8C0")  -- 192.168.1.10 (before DHCP)            
       port map (
          -- CHESS2 ASIC Serial Ports
          chessDinP       => chessDinP,

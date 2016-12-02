@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-11-16
+-- Last update: 2016-12-02
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -102,8 +102,7 @@ begin
 
    U_Core : entity work.AtlasChess2FebCore
       generic map (
-         TPD_G => TPD_G,
-         ETH_G => false)                -- PGP mode
+         TPD_G => TPD_G)
       port map (
          -- CHESS2 ASIC Serial Ports
          chessDinP       => chessDinP,
