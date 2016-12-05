@@ -35,6 +35,7 @@ package AtlasChess2FebPkg is
    constant TIMING_SLAC_EVR_C  : TimingModeType := "10";
 
    type AtlasChess2FebConfigType is record
+      softTrig   : sl;
       softRst    : sl;
       hardRst    : sl;
       pllRst     : sl;
@@ -48,6 +49,7 @@ package AtlasChess2FebPkg is
       refSelect  : sl;
    end record;
    constant CHESS2_FEB_CONFIG_INIT_C : AtlasChess2FebConfigType := (
+      softTrig   => '0',
       softRst    => '1',
       hardRst    => '1',
       pllRst     => '1',

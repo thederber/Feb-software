@@ -91,11 +91,12 @@ begin
       v := r;
 
       -- Reset the strobe
-      v.config.softRst := '0';
-      v.config.hardRst := '0';
-      v.config.pllRst  := '0';
-      v.config.dlyRst  := '0';
-      v.cntRst         := '0';
+      v.config.softRst  := '0';
+      v.config.hardRst  := '0';
+      v.config.pllRst   := '0';
+      v.config.dlyRst   := '0';
+      v.config.softTrig := '0';
+      v.cntRst          := '0';
 
       -- Determine the transaction type
       axiSlaveWaitTxn(axilEp, axilWriteMaster, axilReadMaster, v.axilWriteSlave, v.axilReadSlave);
@@ -123,6 +124,7 @@ begin
 
       axiSlaveRegister(axilEp, x"F00", 0, v.rollOverEn);
       axiSlaveRegister(axilEp, x"F10", 0, v.cntRst);
+      axiSlaveRegister(axilEp, x"F14", 0, v.config.softTrig);
       axiSlaveRegister(axilEp, x"FF8", 0, v.config.softRst);
       axiSlaveRegister(axilEp, x"FFC", 0, v.config.hardRst);
 
@@ -196,6 +198,15 @@ begin
    config.refSelect  <= r.config.refSelect;   -- Bypass the SYNC because controls clock MUX
    config.timingMode <= r.config.timingMode;  -- Bypass the SYNC because controls clock MUX
 
+
+   U_startLog : entity work.SynchronizerOneShot
+      generic map (
+         TPD_G => TPD_G)
+      port map (
+         clk     => timingClk320MHz,
+         dataIn  => r.config.softTrig,
+         dataOut => config.softTrig);   
+   
    SyncOut_softRst : entity work.RstSync
       generic map (
          TPD_G => TPD_G)   

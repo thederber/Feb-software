@@ -83,7 +83,11 @@ def create(name='SysReg', offset=0, memBase=None, hidden=False):
 
     dev.add(pyrogue.Variable(name='counterReset',
                              description='CounterReset',
-                             hidden=False, enum=None, offset=0xff4, bitSize=1, bitOffset=0, base='bool', mode='WO'))
+                             hidden=False, enum=None, offset=0xf10, bitSize=1, bitOffset=0, base='bool', mode='WO'))
+                             
+    dev.add(pyrogue.Command(name = "SoftTrig", 
+                             description = "Software Trigger",
+                             offset = 0xf14, bitSize = 1, bitOffset = 0))                             
 
     dev.add(pyrogue.Variable(name='softReset',
                              description='SoftReset',

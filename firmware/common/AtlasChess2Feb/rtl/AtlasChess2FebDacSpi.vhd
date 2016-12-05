@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-02-19
--- Last update: 2016-11-16
+-- Last update: 2016-12-04
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -49,28 +49,27 @@ end AtlasChess2FebDacSpi;
 
 architecture rtl of AtlasChess2FebDacSpi is
 
-   constant DATA_SIZE_C : positive := 24;
+   constant DATA_SIZE_C : positive := 16;
 
    type RegType is record
       wrEn           : sl;
       wrData         : slv(DATA_SIZE_C-1 downto 0);
-      data           : Slv16Array(3 downto 0);
+      data           : Slv12Array(3 downto 0);
       axilReadSlave  : AxiLiteReadSlaveType;
       axilWriteSlave : AxiLiteWriteSlaveType;
    end record RegType;
    
    constant REG_INIT_C : RegType := (
-      wrEn           => '1',
+      wrEn           => '0',
       wrData         => (others => '0'),
       data           => (others => (others => '0')),
       axilReadSlave  => AXI_LITE_READ_SLAVE_INIT_C,
       axilWriteSlave => AXI_LITE_WRITE_SLAVE_INIT_C);   
 
-   signal rdEn : sl;
-
-
    signal r   : RegType := REG_INIT_C;
    signal rin : RegType;
+
+   signal rdy : sl;
 
    -- attribute dont_touch               : string;
    -- attribute dont_touch of r          : signal is "TRUE";
@@ -92,7 +91,7 @@ begin
          chipSel   => "0",
          wrEn      => r.wrEn,
          wrData    => r.wrData,
-         rdEn      => rdEn,
+         rdEn      => rdy,
          rdData    => open,
          spiCsL(0) => dacSlowCsL,
          spiSclk   => dacSlowSck,
@@ -102,31 +101,49 @@ begin
    --------------------- 
    -- AXI Lite Interface
    --------------------- 
-   comb : process (axilReadMaster, axilRst, axilWriteMaster, r, rdEn) is
-      variable v      : RegType;
-      variable axilEp : AxiLiteEndPointType;
-      variable i      : natural;
+   comb : process (axilReadMaster, axilRst, axilWriteMaster, r, rdy) is
+      variable v             : RegType;
+      variable axilStatus    : AxiLiteStatusType;
+      variable axilWriteResp : slv(1 downto 0);
+      variable axilReadResp  : slv(1 downto 0);
    begin
       -- Latch the current value
       v := r;
 
-      -- Reset the strobe
-      v.wrEn := '0';
+      -- Determine the transaction type
+      axiSlaveWaitTxn(axilWriteMaster, axilReadMaster, v.axilWriteSlave, v.axilReadSlave, axilStatus);
 
-      -- Check if ready for next transaction
-      if rdEn = '1' then
+      -- Reset the strobes
+      axilWriteResp := AXI_RESP_OK_C;
+      axilReadResp  := AXI_RESP_OK_C;
+      v.wrEn        := '0';
 
-         -- Determine the transaction type
-         axiSlaveWaitTxn(axilEp, axilWriteMaster, axilReadMaster, v.axilWriteSlave, v.axilReadSlave);
+      -- Check for write request and not in the middle of SPI transaction 
+      if (axilStatus.writeEnable = '1') and (rdy = '1') then
+         -- Decode address and perform write
+         case (axilWriteMaster.awaddr(3 downto 0)) is
+            when x"0"   => v.data(0)     := axilWriteMaster.wdata(11 downto 0);
+            when x"4"   => v.data(1)     := axilWriteMaster.wdata(11 downto 0);
+            when x"8"   => v.data(2)     := axilWriteMaster.wdata(11 downto 0);
+            when x"C"   => v.data(3)     := axilWriteMaster.wdata(11 downto 0);
+            when others => axilWriteResp := AXI_ERROR_RESP_G;
+         end case;
+         -- Send AXI-Lite Response
+         axiSlaveWriteResponse(v.axilWriteSlave, axilWriteResp);
+      end if;
 
-         -- Mapping registers      
-         for i in 3 downto 0 loop
-            axiSlaveRegisterR(axilEp, toSlv((i*4), 4), 0, v.data(i));
-         end loop;
-
-         -- Close out the transaction
-         axiSlaveDefault(axilEp, v.axilWriteSlave, v.axilReadSlave, AXI_ERROR_RESP_G);
-
+      -- Check for read request
+      if (axilStatus.readEnable = '1') then
+         -- Decode address and perform read
+         case (axilReadMaster.araddr(3 downto 0)) is
+            when x"0"   => v.axilReadSlave.rdata(11 downto 0) := r.data(0);
+            when x"4"   => v.axilReadSlave.rdata(11 downto 0) := r.data(1);
+            when x"8"   => v.axilReadSlave.rdata(11 downto 0) := r.data(2);
+            when x"C"   => v.axilReadSlave.rdata(11 downto 0) := r.data(3);
+            when others => axilReadResp                       := AXI_ERROR_RESP_G;
+         end case;
+         -- Send AXI-Lite Response
+         axiSlaveReadResponse(v.axilReadSlave, axilReadResp);
       end if;
 
       -- Loop through the channels
@@ -136,10 +153,9 @@ begin
             -- Start the SPI transfer
             v.wrEn                 := '1';
             -- Update the write data bus
-            v.wrData(23 downto 22) := "00";   -- Unused
-            v.wrData(21 downto 19) := toSlv(i, 3);  -- Address Command
-            v.wrData(18 downto 16) := "011";  -- Command Definition: Write to and update DAC channel n
-            v.wrData(15 downto 0)  := v.data(i);    -- DAC Value
+            v.wrData(15 downto 14) := toSlv(i, 2);  -- Address Bits
+            v.wrData(13 downto 12) := "00";         -- Normal operation.
+            v.wrData(11 downto 0)  := v.data(i);    -- DAC Value
          end if;
       end loop;
 

@@ -51,6 +51,7 @@ entity AtlasChess2FebTiming is
       timingTrig      : out sl;
       timingMsg       : out slv(63 downto 0);
       timingMode      : in  TimingModeType;
+      softTrig        : in  sl;
       evrOpCode       : out slv(7 downto 0);
       -- Reference clock and Reset
       refClk200MHz    : in  sl;
@@ -83,11 +84,11 @@ architecture mapping of AtlasChess2FebTiming is
 
    constant AXIL_CROSSBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXIL_MASTERS_C-1 downto 0) := (
       PGP_INDEX_C     => (
-         baseAddr     => EVR_ADDR_C,
+         baseAddr     => PGP_ADDR_C,
          addrBits     => 16,
          connectivity => X"FFFF"),
       EVR_INDEX_C     => (
-         baseAddr     => PGP_ADDR_C,
+         baseAddr     => EVR_ADDR_C,
          addrBits     => 16,
          connectivity => X"FFFF"));  
 
@@ -233,8 +234,9 @@ begin
       generic map (
          TPD_G => TPD_G)
       port map (
-         -- External Trigger Interface
+         -- Trigger Interface
          extTrig         => extTrig,
+         softTrig       => softTrig,
          -- PGP OP-Code Interface
          pgpEn           => pgpEn,
          pgpOpCode       => pgpOpCode,

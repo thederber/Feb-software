@@ -32,8 +32,9 @@ entity AtlasChess2FebTimingMsg is
    generic (
       TPD_G : time := 1 ns);      
    port (
-      -- External Trigger Interface
+      -- Trigger Interface
       extTrig         : in  sl;
+      softTrig        : in  sl;
       -- PGP OP-Code Interface
       pgpEn           : in  sl;
       pgpOpCode       : in  slv(7 downto 0);
@@ -124,6 +125,9 @@ begin
       ----------------------------------------------------------------------
       end case;
 
+      -- Force trigger if generated from software
+      v.timingTrig := softTrig;      
+      
       -- Synchronous Reset
       if timingRst320MHz = '1' then
          v := REG_INIT_C;

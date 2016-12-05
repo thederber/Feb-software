@@ -463,6 +463,7 @@ begin
          timingTrig      => timingTrig,
          timingMsg       => timingMsg,
          timingMode      => config.timingMode,
+         softTrig        => config.softTrig,
          evrOpCode       => evrOpCode,
          -- Reference Clock and Reset
          refclk200MHz    => refclk200MHz,
