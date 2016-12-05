@@ -27,11 +27,6 @@ import surf.AxiXadc
 import surf.AxiMicronN25Q
 
 import AtlasChess2Feb
-import AtlasChess2Feb.SysReg
-import AtlasChess2Feb.Dac
-import AtlasChess2Feb.AsicRxReg
-import AtlasChess2Feb.Saci
-import AtlasChess2Feb.SaciTest
 
 def create(name='feb', offset=0, memBase=None, hidden=False):
 
@@ -39,21 +34,21 @@ def create(name='feb', offset=0, memBase=None, hidden=False):
                          hidden=hidden,size=0x02000000,
                          description='feb')
 
-    dev.add(surf.AxiVersion.create(      offset=0x00000000))
-    dev.add(surf.AxiXadc.create(         offset=0x00010000))
-    dev.add(surf.AxiMicronN25Q.create(   offset=0x00020000))
-    dev.add(AtlasChess2Feb.SysReg.create(offset=0x00030000))   
-    dev.add(AtlasChess2Feb.Dac.create(   offset=0x00100000))
-    dev.add(surf.Pgp2bAxi(               offset=0x00200000))
+    dev.add(surf.AxiVersion.create(   offset=0x00000000))
+    dev.add(surf.AxiXadc.create(      offset=0x00010000))
+    dev.add(surf.AxiMicronN25Q.create(offset=0x00020000))
+    dev.add(AtlasChess2Feb.sysReg(    offset=0x00030000))   
+    dev.add(AtlasChess2Feb.dac(       offset=0x00100000))
+    dev.add(surf.Pgp2bAxi(            offset=0x00200000))
     
     for i in range(0,3):
-        dev.add(AtlasChess2Feb.AsicRxReg.create( 
-            name='AtlasChess2Feb.AsicRxReg_%01i'%(i),
+        dev.add(AtlasChess2Feb.idelay( 
+            name='idelay_%01i'%(i),
             offset=(0x00300000 + i*0x10000)))
-    # # for i in range(0,2):
-        # # dev.add(AtlasChess2Feb.Saci.create( 
-            # # name='AtlasChess2Feb.Saci_%01i'%(i),
-            # # offset=(0x01000000 + i*0x400000)))            
-    # dev.add(AtlasChess2Feb.SaciTest.create(     offset=0x01C00000))
+    for i in range(0,3):
+        dev.add(AtlasChess2Feb.saci( 
+            name='saci_%01i'%(i),
+            offset=(0x01000000 + i*0x400000)))            
+    dev.add(AtlasChess2Feb.saciTest(offset=0x01C00000))
                                
     return dev
