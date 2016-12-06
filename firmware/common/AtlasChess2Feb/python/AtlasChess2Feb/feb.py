@@ -20,13 +20,12 @@
 #-----------------------------------------------------------------------------
 
 import pyrogue
-
 import surf
+import AtlasChess2Feb
+
 import surf.AxiVersion
 import surf.AxiXadc
 import surf.AxiMicronN25Q
-
-import AtlasChess2Feb
 
 def create(name='feb', offset=0, memBase=None, hidden=False):
 
@@ -35,20 +34,24 @@ def create(name='feb', offset=0, memBase=None, hidden=False):
                          description='feb')
 
     dev.add(surf.AxiVersion.create(   offset=0x00000000))
-    dev.add(surf.AxiXadc.create(      offset=0x00010000))
-    dev.add(surf.AxiMicronN25Q.create(offset=0x00020000))
+    dev.add(surf.AxiXadc.create(      offset=0x00010000,hidden=True))  
+    dev.add(surf.AxiMicronN25Q.create(offset=0x00020000,hidden=True))  
     dev.add(AtlasChess2Feb.sysReg(    offset=0x00030000))   
+    # dev.add(surf.GenericMemory(     offset=0x00040000,name='MicroblazeShareMem',elements=(2**9),hidden=True))   
+    # dev.add(surf.Ltc4151(           offset=0x00050000))   
+    # dev.add(surf.Sa56004(           offset=0x00050200))   
+    # dev.add(surf.GenericMemory(     offset=0x00060000,name='CalI2CProm',elements=0x800,hidden=True))   
     dev.add(AtlasChess2Feb.dac(       offset=0x00100000))
-    dev.add(surf.Pgp2bAxi(            offset=0x00200000))
+    dev.add(surf.Pgp2bAxi(            offset=0x00200000,hidden=True))  
     
-    for i in range(0,3):
+    for i in xrange(3):
         dev.add(AtlasChess2Feb.idelay( 
             name='idelay_%01i'%(i),
             offset=(0x00300000 + i*0x10000)))
-    for i in range(0,3):
         dev.add(AtlasChess2Feb.saci( 
             name='saci_%01i'%(i),
             offset=(0x01000000 + i*0x400000)))            
+            
     dev.add(AtlasChess2Feb.saciTest(offset=0x01C00000))
                                
     return dev

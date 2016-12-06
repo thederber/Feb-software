@@ -29,36 +29,40 @@ class saciTest(pr.Device):
         # Define the command bit mask                                     
         cmd0x1  = (0x1 << 14)                                             
                              
+        # Define the row and col bit size
+        rowBitSize = 7
+        colBitSize = 5                             
+                             
         # Define all the global registers                               
         self.add(pr.Variable(name='RowPointer',description='Row Pointer',
-            offset=(cmd0x1|0x04), bitSize=5, bitOffset=0, base='hex', mode='RW')) 
+            offset=(cmd0x1|(4*0x1)), bitSize=rowBitSize, bitOffset=0, base='hex', mode='RW')) 
                                  
         self.add(pr.Variable(name='ColPointer',description='Column Pointer',
-            offset=(cmd0x1|0x0C), bitSize=7, bitOffset=0, base='hex', mode='RW'))  
+            offset=(cmd0x1|(4*0x3)), bitSize=colBitSize, bitOffset=0, base='hex', mode='RW'))  
 
         self.add(pr.Variable(name='Casc',description='Casc',
-            offset=(cmd0x1|0x14), bitSize=10, bitOffset=0, base='hex', mode='RW'))  
+            offset=(cmd0x1|(4*0x5)), bitSize=10, bitOffset=0, base='hex', mode='RW'))  
                                  
         self.add(pr.Variable(name='ColMux',description='ColMux',
-            offset=(cmd0x1|0x14), bitSize=5, bitOffset=10, base='hex', mode='RW'))  
+            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=10, base='hex', mode='RW'))  
                            
         self.add(pr.Variable(name='BL',description='BL',
-            offset=(cmd0x1|0x18), bitSize=10, bitOffset=0, base='hex', mode='RW'))  
+            offset=(cmd0x1|(4*0x6)), bitSize=10, bitOffset=0, base='hex', mode='RW'))  
                                  
         self.add(pr.Variable(name='CascPD',description='CascPD',
-            offset=(cmd0x1|0x18), bitSize=1, bitOffset=10, base='hex', mode='RW'))  
+            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=10, base='hex', mode='RW'))  
                                  
         self.add(pr.Variable(name='BLPD',description='BLPD',
-            offset=(cmd0x1|0x18), bitSize=1, bitOffset=11, base='hex', mode='RW'))      
+            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=11, base='hex', mode='RW'))      
                                  
         self.add(pr.Variable(name='PixPD',description='PixPD',
-            offset=(cmd0x1|0x18), bitSize=1, bitOffset=12, base='hex', mode='RW'))  
+            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=12, base='hex', mode='RW'))  
                                  
         self.add(pr.Variable(name='BLRPD',description='BLRPD',
-            offset=(cmd0x1|0x18), bitSize=1, bitOffset=13, base='hex', mode='RW'))                               
+            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=13, base='hex', mode='RW'))                               
                            
         self.add(pr.Variable(name='Pix',description='Pix',
-            offset=(cmd0x1|0x1C), bitSize=10, bitOffset=0, base='hex', mode='RW'))   
+            offset=(cmd0x1|(4*0x7)), bitSize=10, bitOffset=0, base='hex', mode='RW'))   
                            
         self.add(pr.Variable(name='BLR',description='BLR',
-            offset=(cmd0x1|0x20), bitSize=10, bitOffset=0, base='hex', mode='RW'))                                
+            offset=(cmd0x1|(4*0x8)), bitSize=10, bitOffset=0, base='hex', mode='RW'))                                

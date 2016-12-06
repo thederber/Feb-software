@@ -26,34 +26,26 @@ class dac(pr.Device):
         super(self.__class__, self).__init__(name, "Configurations the DAC module",
                                              memBase, offset, hidden)
                                              
-        self.add(pr.Variable(name='dacCASC',
-                                 description='DAC CASC',
-                                 hidden=False, enum=None, offset=0x00000, bitSize=12, bitOffset=0, base='hex', mode='RW'))
+        self.add(pr.Variable(name='dacCASC',description='DAC CASC',
+            hidden=False, enum=None, offset=0x00000, bitSize=12, bitOffset=0, base='hex', mode='RW'))
 
-        self.add(pr.Variable(name='dacPIXTH',
-                                 description='DAC PIXTH',
-                                 hidden=False, enum=None, offset=0x00004, bitSize=12, bitOffset=0, base='hex', mode='RW'))   
+        self.add(pr.Variable(name='dacPIXTH',description='DAC PIXTH',
+            hidden=False, enum=None, offset=0x00004, bitSize=12, bitOffset=0, base='hex', mode='RW'))   
 
-        self.add(pr.Variable(name='dacBLR',
-                                 description='DAC BLR',
-                                 hidden=False, enum=None, offset=0x00008, bitSize=12, bitOffset=0, base='hex', mode='RW')) 
+        self.add(pr.Variable(name='dacBLR',description='DAC BLR',
+            hidden=False, enum=None, offset=0x00008, bitSize=12, bitOffset=0, base='hex', mode='RW')) 
 
-        self.add(pr.Variable(name='dacBL',
-                                 description='DAC BL',
-                                 hidden=False, enum=None, offset=0x0000C, bitSize=12, bitOffset=0, base='hex', mode='RW'))     
+        self.add(pr.Variable(name='dacBL',description='DAC BL',
+            hidden=False, enum=None, offset=0x0000C, bitSize=12, bitOffset=0, base='hex', mode='RW'))     
 
-        self.add(pr.Variable(name='dacLvdsVCOM',
-                                 description='DAC LVDS_VCOM',
-                                 hidden=False, enum=None, offset=0x10000, bitSize=12, bitOffset=0, base='hex', mode='RW'))
+        self.add(pr.Variable(name='dacLvdsVCOM',description='DAC LVDS_VCOM',
+            hidden=False, enum=None, offset=0x10000, bitSize=12, bitOffset=0, base='hex', mode='RW'))
 
-        self.add(pr.Variable(name='dacLvdsVctrl',
-                                 description='DAC LVDS_VCTRL',
-                                 hidden=False, enum=None, offset=0x10004, bitSize=12, bitOffset=0, base='hex', mode='RW'))   
+        self.add(pr.Variable(name='dacLvdsVctrl',description='DAC LVDS_VCTRL',
+            hidden=False, enum=None, offset=0x10004, bitSize=12, bitOffset=0, base='hex', mode='RW'))   
 
-        self.add(pr.Variable(name='dacRefP',
-                                 description='DAC REFP',
-                                 hidden=False, enum=None, offset=0x10008, bitSize=12, bitOffset=0, base='hex', mode='RW'))
+        self.add(pr.Variable(name='dacRefP',description='DAC REFP',
+            hidden=False, enum=None, offset=0x10008, bitSize=12, bitOffset=0, base='hex', mode='RW'))
 
-        self.add(pr.Variable(name='dacRefN',
-                                 description='DAC REFN',
-                                 hidden=False, enum=None, offset=0x1000C, bitSize=12, bitOffset=0, base='hex', mode='RW'))                                 
+        self.add(pr.Variable(name='dacRefN',description='DAC REFN',
+            hidden=False, enum=None, offset=0x1000C, bitSize=12, bitOffset=0, base='hex', mode='RW'))                                 
