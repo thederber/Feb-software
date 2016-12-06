@@ -36,7 +36,7 @@ class MyRunControl(pyrogue.RunControl):
       pyrogue.RunControl.__init__(self,name,'Run Controller')
       self._thread = None
 
-      self.runRate.enum = {1:'1 Hz', 10:'10 Hz', 30:'30 Hz'}
+      self.runRate.enum = {1:'1 Hz', 10:'10 Hz', 100:'100 Hz'}
 
    def _setRunState(self,dev,var,value):
       if self._runState != value:
@@ -56,8 +56,7 @@ class MyRunControl(pyrogue.RunControl):
       while (self._runState == 'Running'):
          delay = 1.0 / ({value: key for key,value in self.runRate.enum.iteritems()}[self._runRate])
          time.sleep(delay)
-         # Add command here
-         #ExampleCommand: self._root.ssiPrbsTx.oneShot()
+         self._root.feb.sysReg.softTrig()
 
          self._runCount += 1
          if self._last != int(time.time()):
@@ -97,7 +96,7 @@ febBoard.add(AtlasChess2Feb.feb.create(memBase=srp,offset=0x0))
 # Create GUI
 appTop = PyQt4.QtGui.QApplication(sys.argv)
 guiTop = pyrogue.gui.GuiTop('febBoardGui')
-guiTop.resize(600, 1000)
+guiTop.resize(800, 1000)
 guiTop.addTree(febBoard)
 
 # Run gui
