@@ -122,12 +122,6 @@ class saci(pr.Device):
         self.add(pr.Variable(name='clk_dly',description='Hit Encoding Delay respect Matrix Clock',
             offset=(cmd0x1|(4*0x8)), bitSize=4, bitOffset=1, base='hex', mode='RW'))   
 
-        self.add(pr.Variable(name='DAC6',description='DAC6',
-            offset=(cmd0x1|(4*0x8)), bitSize=1, bitOffset=5, base='hex', mode='RW'))  
-
-        self.add(pr.Variable(name='DAC7',description='DAC7',
-            offset=(cmd0x1|(4*0x8)), bitSize=6, bitOffset=6, base='hex', mode='RW'))                               
-
         self.add(pr.Variable(name='rd_1',description='Reset Distance',
             offset=(cmd0x1|(4*0x9)), bitSize=3, bitOffset=0, base='hex', mode='RW'))    
 
