@@ -25,6 +25,17 @@ class saci(pr.Device):
     def __init__(self, name="saci", memBase=None, offset=0, hidden=False):
         super(self.__class__, self).__init__(name, "CHESS2 SACI Interface",
                                              memBase, offset, hidden)
+        #################################################################################################
+        # Using the atlas-chess2/firmware/submodules/surf/protocols/saci/rtl/AxiLiteSaciMaster.vhd module
+        # AXI_Lite_Address[31:24] = Ignored
+        # AXI_Lite_Address[23:22] = SACI Chip Select [1:0]
+        # AXI_Lite_Address[21]    = Ignored
+        # AXI_Lite_Address[20:14] = SACI command [6:0]
+        # AXI_Lite_Address[13:2]  = SACI address [11:0]
+        # AXI_Lite_Address[1:0]   = Ignored
+        # AXI_Lite_Data[31:0]     = SACI data [31:0]
+        #################################################################################################
+        
         # Define the command bit mask                                     
         cmd0x0  = (0x0 << 14)
         cmd0x1  = (0x1 << 14)
