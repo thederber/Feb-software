@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-11-16
+-- Last update: 2016-12-06
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -47,6 +47,7 @@ package AtlasChess2FebPkg is
       dlyTiming  : slv(DELAY_ADDR_WIDTH_C-1 downto 0);
       dlyChess   : slv(DELAY_ADDR_WIDTH_C-1 downto 0);
       refSelect  : sl;
+      chessClkOe : sl;
    end record;
    constant CHESS2_FEB_CONFIG_INIT_C : AtlasChess2FebConfigType := (
       softTrig   => '0',
@@ -60,7 +61,8 @@ package AtlasChess2FebPkg is
       dlyRst     => '1',
       dlyTiming  => (others => '0'),
       dlyChess   => (others => '0'),
-      refSelect  => '0');  
+      refSelect  => '0',
+      chessClkOe => '0');  
 
    type AtlasChess2FebStatusType is record
       refClk40MHz : sl;

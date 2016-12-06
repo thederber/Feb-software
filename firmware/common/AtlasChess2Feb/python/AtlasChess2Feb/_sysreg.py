@@ -35,11 +35,12 @@ class sysReg(pr.Device):
         self.add(pr.Variable(name='refClkFreq',description='Reference clock frequency (units of Hz)',
                 offset=0x1FC, bitSize=32, bitOffset=0, base='uint', mode='RO'))
                                  
-        self.add(pr.Variable(name='refSelect',description='0x0 = local 40 MHz OSC, 0x1 = external 40 MHz reference',
-                offset=0x800, bitSize=1, bitOffset=0, base='bool', mode='RW'))
-                                 
+        self.add(pr.Variable(name='refSelect',description='0x0 = local 40 MHz OSC, 0x1 = external 40 MHz reference',                
+                enum = {0:'LOCAL_40MHZ_OSC',1:'EXTERNAL_40MHZ_OSC'},
+                offset=0x800, bitSize=1, bitOffset=0, base='enum', mode='RW'))                
+                
         self.add(pr.Variable(name='timingMode',description='0x0 = LEMO Triggering, 0x1 = PGP Triggering, 0x2 = EVR Triggering',
-                enum = {0:'TIMING_LEMO_TRIG_C',1:'TIMING_PGP_TRIG_C',2:'TIMING_SLACE_EVR_C',3:'TIMING_RESERVED'},
+                enum = {0:'TIMING_LEMO_TRIG_C',1:'TIMING_PGP_TRIG_C',2:'TIMING_SLAC_EVR_C',3:'TIMING_RESERVED'},
                 offset=0x804, bitSize=2, bitOffset=0, base='enum', mode='RW'))
                                  
         self.add(pr.Variable(name='pllRst',description='PLL reset',
@@ -62,12 +63,16 @@ class sysReg(pr.Device):
 
         self.add(pr.Variable(name='pktWordSize',description='ASIC Packet Size (in units of 16-bits words)',
                 offset=0x820, bitSize=8, bitOffset=0, base='hex', mode='RW'))                             
-                                                        
+                                
+        self.add(pr.Variable(name='chessClkOe',description='CHESS clock output enable',
+                # enum = {0:'CLOCKS_DISABLED',1:'CLOCKS_ENABLED'},
+                offset=0x824, bitSize=1, bitOffset=0, base='bool', mode='RW'))
+                                
         self.add(pr.Variable(name='rollOverEn',description='RollOverEn',
-                offset=0xf00, bitSize=1, bitOffset=0, base='bool', mode='RW'))
+                offset=0xf00, bitSize=1, bitOffset=0, base='hex', mode='RW'))
 
-        self.add(pr.Variable(name='counterReset',description='CounterReset',
-                offset=0xf10, bitSize=1, bitOffset=0, base='bool', mode='WO'))
+        self.add(pr.Command(name='counterReset',description='CounterReset',
+                            offset = 0xf10, bitSize = 1, bitOffset = 0, function=pr.Command.touch))                
                                  
         self.add(pr.Variable(name = "softTrigVar", description = "Software Trigger",
                 offset=0xf14, bitSize=1, bitOffset=0, base='bool', mode='SL', hidden=True)) 
@@ -77,7 +82,7 @@ class sysReg(pr.Device):
                         """))                
                         
         self.add(pr.Variable(name='softReset',description='SoftReset',
-                offset=0xff8, bitSize=1, bitOffset=0, base='bool', mode='WO'))
+                offset=0xff8, bitSize=1, bitOffset=0, base='bool', mode='SL', hidden=True))
 
         self.add(pr.Variable(name='hardReset',description='HardReset',
-                offset=0xffc, bitSize=1, bitOffset=0, base='bool', mode='WO'))                                                               
+                offset=0xffc, bitSize=1, bitOffset=0, base='hex', mode='WO', hidden=False))                                                               

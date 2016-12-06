@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-08-30
+-- Last update: 2016-12-06
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -45,6 +45,7 @@ entity AtlasChess2FebAsicRx is
       chessClk320MHzP : out sl;
       chessClk320MHzN : out sl;
       chessClk40MHz   : out sl;
+      chessClkOe      : in  sl;
       -- Reference clock and Reset
       refClk200MHz    : in  sl;
       refRst200MHz    : in  sl;
@@ -79,17 +80,22 @@ architecture mapping of AtlasChess2FebAsicRx is
    signal chessDinDelay : slv(13 downto 0);
    signal delayCnt      : slv(DELAY_ADDR_WIDTH_G-1 downto 0);
    signal delayRdEn     : sl;
+   signal chessClkOeL   : sl;
 
 begin
 
+   chessClkOeL <= not(chessClkOe);
+
    U_ClkOutBuf320MHz : entity work.ClkOutBufDiff
       port map (
+         outEnL  => chessClkOeL,
          clkIn   => timingClk320MHz,
          clkOutP => chessClk320MHzP,
          clkOutN => chessClk320MHzN);
 
    U_ClkOutBuf40MHz : entity work.ClkOutBufSingle
       port map (
+         outEnL => chessClkOeL,
          clkIn  => timingClk40MHz,
          clkOut => chessClk40MHz);
 

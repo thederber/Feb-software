@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-12-02
+-- Last update: 2016-12-06
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -377,8 +377,9 @@ begin
    U_PwrI2C : entity work.AxiI2cRegMaster
       generic map (
          TPD_G            => TPD_G,
-         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G,
          DEVICE_MAP_G     => PWR_I2C_C,
+         I2C_SCL_FREQ_G   => 400.0E+3,  -- units of Hz
+         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G,
          AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G)
       port map (
          -- I2C Ports
@@ -401,6 +402,7 @@ begin
          TPD_G            => TPD_G,
          ADDR_WIDTH_G     => 13,
          I2C_ADDR_G       => "1010000",
+         I2C_SCL_FREQ_G   => 400.0E+3,  -- units of Hz
          AXI_ERROR_RESP_G => AXI_ERROR_RESP_G,
          AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G)
       port map (

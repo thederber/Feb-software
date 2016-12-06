@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-11-16
+-- Last update: 2016-12-06
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -121,6 +121,7 @@ begin
       axiSlaveRegister(axilEp, x"818", 0, v.config.destId);
       axiSlaveRegister(axilEp, x"81C", 0, v.config.frameType);
       axiSlaveRegister(axilEp, x"820", 0, v.config.wordSize);
+      axiSlaveRegister(axilEp, x"824", 0, v.config.chessClkOe);
 
       axiSlaveRegister(axilEp, x"F00", 0, v.rollOverEn);
       axiSlaveRegister(axilEp, x"F10", 0, v.cntRst);
@@ -195,6 +196,7 @@ begin
    ---------------------------
    -- Synchronization: Outputs
    ---------------------------
+   config.chessClkOe <= r.config.chessClkOe;  -- Bypass the SYNC because ASYNC to output buffer
    config.refSelect  <= r.config.refSelect;   -- Bypass the SYNC because controls clock MUX
    config.timingMode <= r.config.timingMode;  -- Bypass the SYNC because controls clock MUX
 
@@ -206,22 +208,24 @@ begin
          clk     => timingClk320MHz,
          dataIn  => r.config.softTrig,
          dataOut => config.softTrig);   
-   
-   SyncOut_softRst : entity work.RstSync
-      generic map (
-         TPD_G => TPD_G)   
-      port map (
-         clk      => axilClk,
-         asyncRst => r.config.softRst,
-         syncRst  => config.softRst); 
 
-   SyncOut_hardRst : entity work.RstSync
+   SyncOut_softRst : entity work.PwrUpRst
       generic map (
-         TPD_G => TPD_G)   
+         TPD_G      => TPD_G,
+         DURATION_G => 8)
       port map (
-         clk      => axilClk,
-         asyncRst => r.config.hardRst,
-         syncRst  => config.hardRst); 
+         clk    => axilClk,
+         arst   => r.config.softRst,
+         rstOut => config.softRst); 
+
+   SyncOut_hardRst : entity work.PwrUpRst
+      generic map (
+         TPD_G      => TPD_G,
+         DURATION_G => integer(AXI_CLK_FREQ_G/1.0E+3))  -- 1 ms reset
+      port map (
+         clk    => axilClk,
+         arst   => r.config.hardRst,
+         rstOut => config.hardRst); 
 
    SyncOut_pllRst : entity work.RstSync
       generic map (

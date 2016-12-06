@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-12-05
+-- Last update: 2016-12-06
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -50,6 +50,7 @@ entity AtlasChess2FebAsic is
       chessClk320MHzP : out Slv(2 downto 0);
       chessClk320MHzN : out Slv(2 downto 0);
       chessClk40MHz   : out Slv(2 downto 0);
+      chessClkOe      : in  sl;
       -- Reference clock and Reset
       refClk200MHz    : in  sl;
       refRst200MHz    : in  sl;
@@ -204,6 +205,7 @@ begin
             chessClk320MHzP => chessClk320MHzP(i),
             chessClk320MHzN => chessClk320MHzN(i),
             chessClk40MHz   => chessClk40MHz(i),
+            chessClkOe      => chessClkOe,
             -- Reference clock and Reset
             refClk200MHz    => refClk200MHz,
             refRst200MHz    => refRst200MHz,

@@ -28,11 +28,13 @@ import surf.AxiXadc
 import surf.AxiMicronN25Q
 
 def create(name='feb', offset=0, memBase=None, hidden=False):
-
     dev = pyrogue.Device(name=name,memBase=memBase,offset=offset,
                          hidden=hidden,size=0x02000000,
                          description='feb')
-
+    # SACI base address and address stride 
+    saciAddr = 0x01000000
+    saciChip = 0x400000
+     
     dev.add(surf.AxiVersion.create(   offset=0x00000000))
     dev.add(surf.AxiXadc.create(      offset=0x00010000,hidden=True))  
     dev.add(surf.AxiMicronN25Q.create(offset=0x00020000,hidden=True))  
@@ -50,8 +52,7 @@ def create(name='feb', offset=0, memBase=None, hidden=False):
             offset=(0x00300000 + i*0x10000)))
         dev.add(AtlasChess2Feb.saci( 
             name='saci_%01i'%(i),
-            offset=(0x01000000 + i*0x400000)))            
-            
-    dev.add(AtlasChess2Feb.saciTest(offset=0x01C00000))
+            offset=(saciAddr + i*saciChip)))            
+    dev.add(AtlasChess2Feb.saciTest(offset=saciAddr+(3*saciChip)))
                                
     return dev
