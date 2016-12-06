@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-08-30
+-- Last update: 2016-12-05
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -37,6 +37,7 @@ use unisim.vcomponents.all;
 entity AtlasChess2FebAsic is
    generic (
       TPD_G            : time             := 1 ns;
+      COMM_MODE_G      : boolean          := false;
       AXI_BASE_ADDR_G  : slv(31 downto 0) := (others => '0');
       AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C;
       IODELAY_GROUP_G  : string           := "CHESS2_IODELAY_GRP");      
@@ -229,8 +230,9 @@ begin
 
    U_RxMsg : entity work.AtlasChess2FebAsicRxMsg
       generic map (
-         TPD_G      => TPD_G,
-         NUM_ASIC_G => NUM_AXIL_MASTERS_C)
+         TPD_G       => TPD_G,
+         COMM_MODE_G => COMM_MODE_G,
+         NUM_ASIC_G  => NUM_AXIL_MASTERS_C)
       port map (
          -- CHESS2 Interface
          dataValid       => dataValid,

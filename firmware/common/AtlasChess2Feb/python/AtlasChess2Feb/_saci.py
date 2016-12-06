@@ -51,7 +51,7 @@ class saci(pr.Device):
             offset=(cmd0x2|0x00), bitSize=7, bitOffset=0, base='hex', mode='WO'))      
 
         self.add(pr.Variable(name='WriteAllRow',description='Write All Rows',
-            offset=(cmd0x3|0x00), bitSize=7, bitOffset=0, base='hex', mode='WO'))      
+            offset=(cmd0x3|0x00), bitSize=5, bitOffset=0, base='hex', mode='WO'))      
         
         # Define all the global registers                                     
         self.add(pr.Variable(name='RowPointer',description='Row Pointer',

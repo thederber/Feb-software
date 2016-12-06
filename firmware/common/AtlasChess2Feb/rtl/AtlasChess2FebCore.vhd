@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-12-02
+-- Last update: 2016-12-05
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -489,6 +489,7 @@ begin
    U_Asic : entity work.AtlasChess2FebAsic
       generic map (
          TPD_G            => TPD_G,
+         COMM_MODE_G      => COMM_MODE_G,
          AXI_BASE_ADDR_G  => AXIL_CROSSBAR_CONFIG_C(CHESS2_INDEX_C).baseAddr,
          AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
       port map(

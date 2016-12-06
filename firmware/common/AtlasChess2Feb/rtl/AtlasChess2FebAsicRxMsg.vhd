@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-06-13
+-- Last update: 2016-12-05
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -28,10 +28,12 @@ use ieee.std_logic_arith.all;
 use work.StdRtlPkg.all;
 use work.AxiStreamPkg.all;
 use work.SsiPkg.all;
+use work.Pgp2bPkg.all;
 
 entity AtlasChess2FebAsicRxMsg is
    generic (
       TPD_G          : time                  := 1 ns;
+      COMM_MODE_G    : boolean               := false;
       NUM_ASIC_G     : positive range 1 to 4 := 3;
       CASCADE_SIZE_G : positive              := 4);
    port (
@@ -294,7 +296,7 @@ begin
          CASCADE_PAUSE_SEL_G => (CASCADE_SIZE_G-1),
          -- AXI Stream Port Configurations
          SLAVE_AXI_CONFIG_G  => AXIS_CONFIG_C,
-         MASTER_AXI_CONFIG_G => ssiAxiStreamConfig(2)) 
+         MASTER_AXI_CONFIG_G => ite(COMM_MODE_G, ssiAxiStreamConfig(4), SSI_PGP2B_CONFIG_C)) 
       port map (
          -- Slave Port
          sAxisClk    => timingClk320MHz,

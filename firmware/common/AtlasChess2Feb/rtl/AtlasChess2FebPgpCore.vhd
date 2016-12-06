@@ -86,7 +86,7 @@ architecture mapping of AtlasChess2FebPgpCore is
 begin
 
    axilClk <= pgpClk;
-   pgpRst  <= pgpRst;
+   axilRst <= pgpRst;
 
    U_IBUFDS_GTE2 : IBUFDS_GTE2
       port map (
