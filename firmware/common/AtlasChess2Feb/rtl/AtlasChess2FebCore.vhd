@@ -40,7 +40,7 @@ entity AtlasChess2FebCore is
       -- ETH configuration
       ETH_DEV_G        : boolean          := true;          -- true = Adds non-RSSI on port 8193
       ETH_DHCP_G       : boolean          := true;          -- true = DHCP, false = static address
-      ETH_IP_ADDR_G    : slv(31 downto 0) := x"0A01A8C0");  -- 192.168.1.10 (before DHCP) 
+      ETH_IP_ADDR_G    : slv(31 downto 0) := x"0C02A8C0");  -- 192.168.2.12 (before DHCP) 
    port (
       -- CHESS2 ASIC Serial Ports
       chessDinP       : in    Slv14Array(2 downto 0);

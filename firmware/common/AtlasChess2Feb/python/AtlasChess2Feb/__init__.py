@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-from _dac       import *
-from _idelay    import *
-from _sysreg    import *
-from _saci      import *
-from _saciTest  import *
+
+from AtlasChess2Feb._dac       import *
+from AtlasChess2Feb._idelay    import *
+from AtlasChess2Feb._sysreg    import *
+from AtlasChess2Feb._saci      import *
+from AtlasChess2Feb._saciTest  import *
 

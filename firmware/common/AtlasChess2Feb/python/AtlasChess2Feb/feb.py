@@ -46,7 +46,7 @@ def create(name='feb', offset=0, memBase=None, hidden=False):
     dev.add(AtlasChess2Feb.dac(       offset=0x00100000))
     dev.add(surf.Pgp2bAxi(            offset=0x00200000,hidden=True))  
     
-    for i in xrange(3):
+    for i in range(3):
         dev.add(AtlasChess2Feb.idelay( 
             name='idelay_%01i'%(i),
             offset=(0x00300000 + i*0x10000)))
