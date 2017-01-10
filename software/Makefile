@@ -20,12 +20,16 @@
 # ----------------------------------------------------------------------------
 # 
 
+# Python 3
+PYCONF = python3-config
+PYBOOST = -lboost_python3
+
 # Variables
 CC       := g++
 DEF      :=
-CFLAGS   := -Wall `python2.7-config --cflags` -I$(ROGUE_DIR)/include -std=c++0x -fPIC 
-LFLAGS   := `python2.7-config --ldflags` $(BOOST_THREAD) -lboost_python -lboost_system
-LFLAGS   += -L`python2.7-config --prefix`/lib/ -l:rogue.so -L$(ROGUE_DIR)/python
+CFLAGS   := -Wall `$(PYCONF) --cflags` -I $(BOOST_PATH)/include -I$(ROGUE_DIR)/include -std=c++0x -fPIC 
+LFLAGS   := `$(PYCONF) --ldflags` -lboost_thread $(PYBOOST) -lboost_system
+LFLAGS   += -L`$(PYCONF) --prefix`/lib/ -L$(BOOST_PATH)/lib -l:rogue.so -L$(ROGUE_DIR)/python
 DST      := $(PWD)/python
 SHNAME   := rogue_example
 SHLIB    := rogue_example.so

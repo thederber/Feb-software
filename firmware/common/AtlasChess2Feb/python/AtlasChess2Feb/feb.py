@@ -24,7 +24,6 @@ import surf
 import AtlasChess2Feb
 
 import surf.AxiVersion
-import surf.AxiXadc
 import surf.AxiMicronN25Q
 
 def create(name='feb', offset=0, memBase=None, hidden=False):
@@ -36,7 +35,7 @@ def create(name='feb', offset=0, memBase=None, hidden=False):
     saciChip = 0x400000
      
     dev.add(surf.AxiVersion.create(   offset=0x00000000))
-    dev.add(surf.AxiXadc.create(      offset=0x00010000,hidden=True))  
+    dev.add(surf.Xadc(                offset=0x00010000))  
     dev.add(surf.AxiMicronN25Q.create(offset=0x00020000,hidden=True))  
     dev.add(AtlasChess2Feb.sysReg(    offset=0x00030000))   
     # dev.add(surf.GenericMemory(     offset=0x00040000,name='MicroblazeShareMem',elements=(2**9),hidden=True))   
@@ -50,6 +49,7 @@ def create(name='feb', offset=0, memBase=None, hidden=False):
         dev.add(AtlasChess2Feb.idelay( 
             name='idelay_%01i'%(i),
             offset=(0x00300000 + i*0x10000)))
+    for i in range(3):
         dev.add(AtlasChess2Feb.saci( 
             name='saci_%01i'%(i),
             offset=(saciAddr + i*saciChip)))            

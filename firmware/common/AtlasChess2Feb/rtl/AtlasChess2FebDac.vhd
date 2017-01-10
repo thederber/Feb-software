@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-11-16
+-- Last update: 2017-01-09
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ entity AtlasChess2FebDac is
       TPD_G            : time             := 1 ns;
       AXI_BASE_ADDR_G  : slv(31 downto 0) := (others => '0');
       AXI_CLK_FREQ_G   : real             := 156.25E+6;
-      AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C);      
+      AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C);
    port (
       -- AXI-Lite Interface
       axilClk         : in  sl;
@@ -52,6 +52,19 @@ entity AtlasChess2FebDac is
 end AtlasChess2FebDac;
 
 architecture mapping of AtlasChess2FebDac is
+
+   constant VREF_C  : real := 3.3;
+   constant RANGE_C : real := 4095.0;
+
+   constant DAC_INIT_C : Slv12Array(7 downto 0) := (
+      0 => toSlv(integer((1.70/VREF_C)*RANGE_C), 12),  -- CASC       = 1.70V
+      1 => toSlv(integer((1.61/VREF_C)*RANGE_C), 12),  -- PIXTH      = 1.61V
+      2 => toSlv(integer((2.10/VREF_C)*RANGE_C), 12),  -- BLR        = 2.10V
+      3 => toSlv(integer((1.60/VREF_C)*RANGE_C), 12),  -- BL         = 1.60V
+      4 => toSlv(integer((1.20/VREF_C)*RANGE_C), 12),  -- LVDS_VCOM  = 1.20V
+      5 => toSlv(integer((1.20/VREF_C)*RANGE_C), 12),  -- LVDS_VCTRL = 1.20V
+      6 => toSlv(integer((1.20/VREF_C)*RANGE_C), 12),  -- DAC_REFP   = 1.20V
+      7 => toSlv(integer((1.20/VREF_C)*RANGE_C), 12));  -- DAC_REFN  = 1.20V
 
    constant NUM_AXIL_MASTERS_C : natural := 2;
 
@@ -69,13 +82,13 @@ architecture mapping of AtlasChess2FebDac is
       SLOW_DAC1_INDEX_C => (
          baseAddr       => SLOW_DAC1_ADDR_C,
          addrBits       => 16,
-         connectivity   => X"FFFF"));  
+         connectivity   => X"FFFF"));
 
    signal mAxilWriteMasters : AxiLiteWriteMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
    signal mAxilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0);
    signal mAxilReadMasters  : AxiLiteReadMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
    signal mAxilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0);
-   
+
 begin
 
    --------------------------
@@ -107,6 +120,10 @@ begin
       U_SPI : entity work.AtlasChess2FebDacSpi
          generic map (
             TPD_G            => TPD_G,
+            DAC_INIT_G(0)    => DAC_INIT_C((4*i)+0),
+            DAC_INIT_G(1)    => DAC_INIT_C((4*i)+1),
+            DAC_INIT_G(2)    => DAC_INIT_C((4*i)+2),
+            DAC_INIT_G(3)    => DAC_INIT_C((4*i)+3),
             AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G,
             AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
          port map (
@@ -122,5 +139,5 @@ begin
             dacSlowSck      => dacSlowSck(i),
             dacSlowMosi     => dacSlowMosi(i));
    end generate DAC_SPI;
-   
+
 end mapping;

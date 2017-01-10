@@ -26,26 +26,25 @@ class dac(pr.Device):
         super(self.__class__, self).__init__(name, "Configurations the DAC module",
                                              memBase, offset, hidden)
                                              
-        self.add(pr.Variable(name='dacCASC',description='DAC CASC',
-            hidden=False, enum=None, offset=0x00000, bitSize=12, bitOffset=0, base='hex', mode='RW'))
+        def addPair(name, description, offset):
+            """Add a Raw ADC register variable and corresponding converted value Variable"""
+            self.add(pr.Variable(name=name+"Raw", offset=offset, bitSize=12, bitOffset=0,
+                                 base='hex', mode='RW', description=description))
+            
+            self.add(pr.Variable(name=name, mode = 'RO', base='string',
+                                 getFunction=dac.convtFloat, dependencies=[self.variables[name+"Raw"]]))
 
-        self.add(pr.Variable(name='dacPIXTH',description='DAC PIXTH',
-            hidden=False, enum=None, offset=0x00004, bitSize=12, bitOffset=0, base='hex', mode='RW'))   
-
-        self.add(pr.Variable(name='dacBLR',description='DAC BLR',
-            hidden=False, enum=None, offset=0x00008, bitSize=12, bitOffset=0, base='hex', mode='RW')) 
-
-        self.add(pr.Variable(name='dacBL',description='DAC BL',
-            hidden=False, enum=None, offset=0x0000C, bitSize=12, bitOffset=0, base='hex', mode='RW'))     
-
-        self.add(pr.Variable(name='dacLvdsVCOM',description='DAC LVDS_VCOM',
-            hidden=False, enum=None, offset=0x10000, bitSize=12, bitOffset=0, base='hex', mode='RW'))
-
-        self.add(pr.Variable(name='dacLvdsVctrl',description='DAC LVDS_VCTRL',
-            hidden=False, enum=None, offset=0x10004, bitSize=12, bitOffset=0, base='hex', mode='RW'))   
-
-        self.add(pr.Variable(name='dacRefP',description='DAC REFP',
-            hidden=False, enum=None, offset=0x10008, bitSize=12, bitOffset=0, base='hex', mode='RW'))
-
-        self.add(pr.Variable(name='dacRefN',description='DAC REFN',
-            hidden=False, enum=None, offset=0x1000C, bitSize=12, bitOffset=0, base='hex', mode='RW'))                                 
+        addPair(name='dacCASC',     description='DAC CASC',         offset=0x00000)
+        addPair(name='dacPIXTH',    description='DAC PIXTH',        offset=0x00004)
+        addPair(name='dacBLR',      description='DAC BLR',          offset=0x00008)
+        addPair(name='dacBL',       description='DAC BL',           offset=0x0000C)
+        addPair(name='dacLvdsVCOM', description='DAC LVDS_VCOM',    offset=0x10000)
+        addPair(name='dacLvdsVctrl',description='DAC LVDS_VCTRL',   offset=0x10004)
+        addPair(name='dacRefP',     description='DAC REFP',         offset=0x10008)
+        addPair(name='dacRefN',     description='DAC REFN',         offset=0x1000C)        
+                                
+    @staticmethod
+    def convtFloat(dev, var):
+        value   = var.dependencies[0].get(read=False)
+        fpValue = value*(3.3/4096.0)
+        return '%0.3f V'%(fpValue)            

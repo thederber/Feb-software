@@ -60,16 +60,16 @@ class saciTest(pr.Device):
             offset=(cmd0x1|(4*0x6)), bitSize=10, bitOffset=0, base='hex', mode='RW'))  
                                  
         self.add(pr.Variable(name='CascPD',description='CascPD',
-            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=10, base='hex', mode='RW'))  
+            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=10, base='bool', mode='RW'))  
                                  
         self.add(pr.Variable(name='BLPD',description='BLPD',
-            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=11, base='hex', mode='RW'))      
+            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=11, base='bool', mode='RW'))      
                                  
         self.add(pr.Variable(name='PixPD',description='PixPD',
-            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=12, base='hex', mode='RW'))  
+            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=12, base='bool', mode='RW'))  
                                  
         self.add(pr.Variable(name='BLRPD',description='BLRPD',
-            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=13, base='hex', mode='RW'))                               
+            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=13, base='bool', mode='RW'))                               
                            
         self.add(pr.Variable(name='Pix',description='Pix',
             offset=(cmd0x1|(4*0x7)), bitSize=10, bitOffset=0, base='hex', mode='RW'))   

@@ -75,49 +75,97 @@ class saci(pr.Device):
         self.add(pr.Variable(name='ColPointer', description='Column Pointer',
             offset=(cmd0x1|(4*0x3)), bitSize=colBitSize, bitOffset=0, base='hex', mode='RW'))  
 
-        self.add(pr.Variable(name='VNLogicatt',description='VNLogicatt',
-            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=0, base='hex', mode='RW'))  
-                                 
-        self.add(pr.Variable(name='VNLogicres',description='VNLogicres',
-            offset=(cmd0x1|(4*0x5)), bitSize=2, bitOffset=5, base='hex', mode='RW'))  
-                                 
-        self.add(pr.Variable(name='VNSFatt',description='VNSFatt',
-            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=7, base='hex', mode='RW')) 
-                                 
-        self.add(pr.Variable(name='VNSFres',description='VNSFres',
-            offset=(cmd0x1|(4*0x5)), bitSize=2, bitOffset=12, base='hex', mode='RW'))                              
-
-        self.add(pr.Variable(name='VNatt',description='VNatt',
-            offset=(cmd0x1|(4*0x6)), bitSize=5, bitOffset=0, base='hex', mode='RW'))  
-                                 
-        self.add(pr.Variable(name='VNres',description='VNres',
-            offset=(cmd0x1|(4*0x6)), bitSize=2, bitOffset=5, base='hex', mode='RW'))  
-                                 
-        self.add(pr.Variable(name='VPFBatt',description='VPFBatt',
-            offset=(cmd0x1|(4*0x6)), bitSize=5, bitOffset=7, base='hex', mode='RW')) 
-                                 
-        self.add(pr.Variable(name='VPFBres',description='VPFBres',
-            offset=(cmd0x1|(4*0x6)), bitSize=2, bitOffset=12, base='hex', mode='RW'))                              
-
-        self.add(pr.Variable(name='VPLoadatt',description='VPLoadatt',
-            offset=(cmd0x1|(4*0x7)), bitSize=5, bitOffset=0, base='hex', mode='RW'))  
-                                 
-        self.add(pr.Variable(name='VPLoadres',description='VPLoadres',
-            offset=(cmd0x1|(4*0x7)), bitSize=2, bitOffset=5, base='hex', mode='RW'))  
-                                 
-        self.add(pr.Variable(name='VPTrimatt',description='VPTrimatt',
-            offset=(cmd0x1|(4*0x7)), bitSize=5, bitOffset=7, base='hex', mode='RW')) 
-                                 
-        self.add(pr.Variable(name='VPTrimres',description='VPTrimres',
-            offset=(cmd0x1|(4*0x7)), bitSize=2, bitOffset=12, base='hex', mode='RW'))                                
-
-        self.add(pr.Variable(name='CLK_bit_sel',
+        self.add(pr.Variable(name='VNLogicatt',
             description="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """,              
+            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=0, base='hex', mode='RO'))  
+                                 
+        self.add(pr.Variable(name='VNLogicres',description="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """,              
+            offset=(cmd0x1|(4*0x5)), bitSize=2, bitOffset=5, base='hex', mode='RO'))  
+                                 
+        self.add(pr.Variable(name='VNSFatt',description="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """,              
+            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=7, base='hex', mode='RO')) 
+                                 
+        self.add(pr.Variable(name='VNSFres',description="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """,              
+            offset=(cmd0x1|(4*0x5)), bitSize=2, bitOffset=12, base='hex', mode='RO'))                              
+
+        self.add(pr.Variable(name='VNatt',description="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """,          
+            offset=(cmd0x1|(4*0x6)), bitSize=5, bitOffset=0, base='hex', mode='RO'))  
+                                 
+        self.add(pr.Variable(name='VNres',description="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """,          
+            offset=(cmd0x1|(4*0x6)), bitSize=2, bitOffset=5, base='hex', mode='RO'))  
+                                 
+        self.add(pr.Variable(name='VPFBatt',description="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """,          
+            offset=(cmd0x1|(4*0x6)), bitSize=5, bitOffset=7, base='hex', mode='RO')) 
+                                 
+        self.add(pr.Variable(name='VPFBres',description="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """,          
+            offset=(cmd0x1|(4*0x6)), bitSize=2, bitOffset=12, base='hex', mode='RO'))                              
+
+        self.add(pr.Variable(name='VPLoadatt',description="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """,             
+            offset=(cmd0x1|(4*0x7)), bitSize=5, bitOffset=0, base='hex', mode='RO'))  
+                                 
+        self.add(pr.Variable(name='VPLoadres',description="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """,          
+            offset=(cmd0x1|(4*0x7)), bitSize=2, bitOffset=5, base='hex', mode='RO'))  
+                                 
+        self.add(pr.Variable(name='VPTrimatt',description="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """,               
+            offset=(cmd0x1|(4*0x7)), bitSize=5, bitOffset=7, base='hex', mode='RO')) 
+                                 
+        self.add(pr.Variable(name='VPTrimres',description="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """,          
+            offset=(cmd0x1|(4*0x7)), bitSize=2, bitOffset=12, base='hex', mode='RO'))                                
+
+        self.add(pr.Variable(name='CLK_bit_sel',description="""
             Hit Encoding Clock Selection:
             0 - Clock include Matrix load delay
             1 - Clock does not includes Matrix Load delay                                         
             """,        
-            offset=(cmd0x1|(4*0x8)), bitSize=1, bitOffset=0, base='hex', mode='RW'))  
+            offset=(cmd0x1|(4*0x8)), bitSize=1, bitOffset=0, base='bool', mode='RW'))  
 
         self.add(pr.Variable(name='clk_dly',description='Hit Encoding Delay respect Matrix Clock',
             offset=(cmd0x1|(4*0x8)), bitSize=4, bitOffset=1, base='hex', mode='RW'))   
@@ -131,8 +179,20 @@ class saci(pr.Device):
         self.add(pr.Variable(name='wrd_1',description='Reset Write Distance',
             offset=(cmd0x1|(4*0x9)), bitSize=3, bitOffset=6, base='hex', mode='RW'))  
 
-        self.add(pr.Variable(name='DigiMux',description='Monitor Mux Selection bits',
-            offset=(cmd0x1|(4*0x9)), bitSize=3, bitOffset=9, base='hex', mode='RW'))                               
+        self.add(pr.Variable(name='DigiMux',description="""
+            Multiplexer Configuration for digital output monitoring:
+            0b000 = 0x0 = reset1i
+            0b001 = 0x1 = writeCLK1i
+            0b010 = 0x2 = reset2i
+            0b011 = 0x3 = writeCLK2i
+            0b000 = 0x4 = wsi
+            0b001 = 0x5 = CLKi_1_40MHzi
+            0b010 = 0x6 = CLKi_2_40MHzi
+            0b011 = 0x7 = gndd!
+            """,             
+            enum = {0:'reset1i',1:'writeCLK1i',2:'reset2i',3:'writeCLK2i',
+                    4:'wsi',5:'CLKi_1_40MHzi',6:'CLKi_2_40MHzi',7:'gndd'},
+            offset=(cmd0x1|(4*0x9)), bitSize=3, bitOffset=9, base='enum', mode='RW'))                               
 
         self.add(pr.Variable(name='wrd_2',description='Reset Write Distance',
             offset=(cmd0x1|(4*0xA)), bitSize=3, bitOffset=0, base='hex', mode='RW'))                                
@@ -144,23 +204,23 @@ class saci(pr.Device):
             offset=(cmd0x1|(4*0xA)), bitSize=3, bitOffset=6, base='hex', mode='RW'))   
 
         self.add(pr.Variable(name='DelEXEC',description='Exec Delay',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=9, base='hex', mode='RW'))  
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=9, base='bool', mode='RW'))  
 
         self.add(pr.Variable(name='DelCCKreg',description='CCKreg Delay',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=10, base='hex', mode='RW'))   
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=10, base='bool', mode='RW'))   
 
         self.add(pr.Variable(name='LVDS_TX_Current',description='Standard LVDS Current',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=11, base='hex', mode='RW'))     
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=11, base='bool', mode='RW'))     
 
         self.add(pr.Variable(name='LVDS_RX_AC_Mode',description='LVDS Receiver mode',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=12, base='hex', mode='RW'))    
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=12, base='bool', mode='RW'))    
 
         self.add(pr.Variable(name='LVDS_RX_100Ohm',description='DC LVDS Receiver input impedance - 100 Ohm',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=13, base='hex', mode='RW'))
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=13, base='bool', mode='RW'))
 
         self.add(pr.Variable(name='LVDS_RX_300Ohm',description='DC LVDS Receiver input impedance - 300 Ohm',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=14, base='hex', mode='RW'))         
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=14, base='bool', mode='RW'))         
 
         self.add(pr.Variable(name='TM',description='Hit Encoding Test Mode',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=15, base='hex', mode='RW'))                                      
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=15, base='bool', mode='RW'))                                      
  

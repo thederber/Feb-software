@@ -15,7 +15,7 @@ package Version is
 
    constant FPGA_VERSION_C : std_logic_vector(31 downto 0) := x"00000001";  -- MAKE_VERSION
 
-   constant BUILD_STAMP_C : string := "AtlasChess2FebPgp: Vivado v2016.2 (x86_64) Built Tue Dec  6 13:52:21 PST 2016 by ruckman";
+   constant BUILD_STAMP_C : string := "AtlasChess2FebPgp: Vivado v2016.2 (x86_64) Built Tue Jan 10 10:38:19 PST 2017 by ruckman";
 
 end Version;
 

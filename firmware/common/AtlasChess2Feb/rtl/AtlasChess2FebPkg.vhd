@@ -61,8 +61,8 @@ package AtlasChess2FebPkg is
       dlyRst     => '1',
       dlyTiming  => (others => '0'),
       dlyChess   => (others => '0'),
-      refSelect  => '0',
-      chessClkOe => '0');  
+      refSelect  => '0',   -- internal 40 MHz reference
+      chessClkOe => '1');  -- enabled
 
    type AtlasChess2FebStatusType is record
       refClk40MHz : sl;
