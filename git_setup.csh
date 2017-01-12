@@ -9,4 +9,4 @@ git config fetch.recurseSubmodules on-demand
 git config pull.rebase preserve
 git config diff.submodule log
 
-git strack
+git spull
