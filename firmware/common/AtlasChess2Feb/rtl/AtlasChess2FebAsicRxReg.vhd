@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-06-10
+-- Last update: 2017-01-11
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ architecture rtl of AtlasChess2FebAsicRxReg is
       axilReadSlave  : AxiLiteReadSlaveType;
       axilWriteSlave : AxiLiteWriteSlaveType;
    end record RegType;
-   
+
    constant REG_INIT_C : RegType := (
       phaseSel       => (others => '0'),
       delayLoad      => (others => '0'),
@@ -73,12 +73,13 @@ architecture rtl of AtlasChess2FebAsicRxReg is
 
    -- attribute dont_touch      : string;
    -- attribute dont_touch of r : signal is "true";
-   
+
 begin
 
    comb : process (axilReadMaster, axilRst, axilWriteMaster, delayData, r) is
       variable v             : RegType;
       variable axilStatus    : AxiLiteStatusType;
+      variable i             : natural;
       variable wrIndex       : natural range 0 to 15;
       variable rdIndex       : natural range 0 to 15;
       variable axilWriteResp : slv(1 downto 0);
@@ -110,8 +111,11 @@ begin
             -- Update the phase select bus
             v.phaseSel := axilWriteMaster.wdata(13 downto 0);
          else
-            -- Address Decoding error
-            axilWriteResp := AXI_ERROR_RESP_G;
+            -- Update all IDelay channels
+            for i in 13 downto 0 loop
+               v.delayLoad(i) := '1';
+               v.delayData(i) := axilWriteMaster.wdata(4 downto 0);
+            end loop;
          end if;
          -- Send AXI-Lite response
          axiSlaveWriteResponse(v.axilWriteSlave, axilWriteResp);
@@ -144,7 +148,7 @@ begin
       -- Outputs
       axilReadSlave  <= r.axilReadSlave;
       axilWriteSlave <= r.axilWriteSlave;
-      
+
    end process comb;
 
    seq : process (axilClk) is
@@ -161,11 +165,11 @@ begin
       port map (
          clk     => refClk200MHz,
          dataIn  => r.phaseSel,
-         dataOut => phaseSel);       
+         dataOut => phaseSel);
 
    GEN_DELAY_CH :
    for i in 13 downto 0 generate
-      
+
       SyncOutDelayLoad : entity work.PwrUpRst
          generic map (
             TPD_G      => TPD_G,
@@ -173,7 +177,7 @@ begin
          port map (
             clk    => refClk200MHz,
             arst   => r.delayLoad(i),
-            rstOut => delayInLoad(i));           
+            rstOut => delayInLoad(i));
 
       SyncOutDelayData : entity work.SynchronizerVector
          generic map (
@@ -182,7 +186,7 @@ begin
          port map (
             clk     => refClk200MHz,
             dataIn  => r.delayData(i),
-            dataOut => delayInData(i));    
+            dataOut => delayInData(i));
 
       SyncInDelayData : entity work.SynchronizerVector
          generic map (
@@ -191,7 +195,7 @@ begin
          port map (
             clk     => axilClk,
             dataIn  => delayOutData(i),
-            dataOut => delayData(i));       
+            dataOut => delayData(i));
 
    end generate GEN_DELAY_CH;
 

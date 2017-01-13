@@ -111,9 +111,9 @@ set_property IOSTANDARD LVDS_25 [get_ports {chessClk320MHzP[*]} ]
 set_property IOSTANDARD LVDS_25 [get_ports {chessClk320MHzN[*]} ]
 
 # CHESS2 Timing Clock Port Mapping
-set_property -dict { PACKAGE_PIN F22 IOSTANDARD LVCMOS33 } [get_ports { chessClk40MHz[0] }];
-set_property -dict { PACKAGE_PIN E23 IOSTANDARD LVCMOS33 } [get_ports { chessClk40MHz[1] }];
-set_property -dict { PACKAGE_PIN G22 IOSTANDARD LVCMOS33 } [get_ports { chessClk40MHz[2] }];
+set_property -dict { PACKAGE_PIN F22 IOSTANDARD LVCMOS33 SLEW FAST } [get_ports { chessClk40MHz[0] }];
+set_property -dict { PACKAGE_PIN E23 IOSTANDARD LVCMOS33 SLEW FAST } [get_ports { chessClk40MHz[1] }];
+set_property -dict { PACKAGE_PIN G22 IOSTANDARD LVCMOS33 SLEW FAST } [get_ports { chessClk40MHz[2] }];
 
 # Test Structure Port Mapping
 set_property -dict { PACKAGE_PIN B22 IOSTANDARD LVCMOS33 } [get_ports { bitSel }];

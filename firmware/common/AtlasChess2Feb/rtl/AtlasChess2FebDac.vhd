@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2017-01-09
+-- Last update: 2017-01-12
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -56,15 +56,17 @@ architecture mapping of AtlasChess2FebDac is
    constant VREF_C  : real := 3.3;
    constant RANGE_C : real := 4095.0;
 
-   constant DAC_INIT_C : Slv12Array(7 downto 0) := (
-      0 => toSlv(integer((1.70/VREF_C)*RANGE_C), 12),  -- CASC       = 1.70V
-      1 => toSlv(integer((1.61/VREF_C)*RANGE_C), 12),  -- PIXTH      = 1.61V
-      2 => toSlv(integer((2.10/VREF_C)*RANGE_C), 12),  -- BLR        = 2.10V
-      3 => toSlv(integer((1.60/VREF_C)*RANGE_C), 12),  -- BL         = 1.60V
-      4 => toSlv(integer((1.20/VREF_C)*RANGE_C), 12),  -- LVDS_VCOM  = 1.20V
-      5 => toSlv(integer((1.20/VREF_C)*RANGE_C), 12),  -- LVDS_VCTRL = 1.20V
-      6 => toSlv(integer((1.20/VREF_C)*RANGE_C), 12),  -- DAC_REFP   = 1.20V
-      7 => toSlv(integer((1.20/VREF_C)*RANGE_C), 12));  -- DAC_REFN  = 1.20V
+   constant DAC_INIT0_C : Slv12Array(3 downto 0) := (
+      0 => toSlv(integer((1.70/VREF_C)*RANGE_C), 12),   -- CASC       = 1.70V
+      1 => toSlv(integer((1.61/VREF_C)*RANGE_C), 12),   -- PIXTH      = 1.61V
+      2 => toSlv(integer((2.10/VREF_C)*RANGE_C), 12),   -- BLR        = 2.10V
+      3 => toSlv(integer((1.60/VREF_C)*RANGE_C), 12));  -- BL         = 1.60V
+
+   constant DAC_INIT1_C : Slv12Array(3 downto 0) := (
+      0 => toSlv(integer((1.20/VREF_C)*RANGE_C), 12),   -- LVDS_VCOM  = 1.20V
+      1 => toSlv(integer((3.30/VREF_C)*RANGE_C), 12),   -- LVDS_VCTRL = 3.30V
+      2 => toSlv(integer((0.00/VREF_C)*RANGE_C), 12),   -- DAC_REFP   = 0.00V
+      3 => toSlv(integer((0.00/VREF_C)*RANGE_C), 12));  -- DAC_REFN   = 0.00V      
 
    constant NUM_AXIL_MASTERS_C : natural := 2;
 
@@ -115,29 +117,43 @@ begin
 
    -----------------------
    -- Slow DAC SPI Modules
-   -----------------------   
-   DAC_SPI : for i in 1 downto 0 generate
-      U_SPI : entity work.AtlasChess2FebDacSpi
-         generic map (
-            TPD_G            => TPD_G,
-            DAC_INIT_G(0)    => DAC_INIT_C((4*i)+0),
-            DAC_INIT_G(1)    => DAC_INIT_C((4*i)+1),
-            DAC_INIT_G(2)    => DAC_INIT_C((4*i)+2),
-            DAC_INIT_G(3)    => DAC_INIT_C((4*i)+3),
-            AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G,
-            AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
-         port map (
-            -- AXI-Lite Interface
-            axilClk         => axilClk,
-            axilRst         => axilRst,
-            axilReadMaster  => mAxilReadMasters(SLOW_DAC0_INDEX_C+i),
-            axilReadSlave   => mAxilReadSlaves(SLOW_DAC0_INDEX_C+i),
-            axilWriteMaster => mAxilWriteMasters(SLOW_DAC0_INDEX_C+i),
-            axilWriteSlave  => mAxilWriteSlaves(SLOW_DAC0_INDEX_C+i),
-            -- Slow DAC's SPI Ports
-            dacSlowCsL      => dacSlowCsL(i),
-            dacSlowSck      => dacSlowSck(i),
-            dacSlowMosi     => dacSlowMosi(i));
-   end generate DAC_SPI;
+   ----------------------- 
+   U_SPI0 : entity work.AtlasChess2FebDacSpi
+      generic map (
+         TPD_G            => TPD_G,
+         DAC_INIT_G       => DAC_INIT0_C,
+         AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G,
+         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
+      port map (
+         -- AXI-Lite Interface
+         axilClk         => axilClk,
+         axilRst         => axilRst,
+         axilReadMaster  => mAxilReadMasters(SLOW_DAC0_INDEX_C),
+         axilReadSlave   => mAxilReadSlaves(SLOW_DAC0_INDEX_C),
+         axilWriteMaster => mAxilWriteMasters(SLOW_DAC0_INDEX_C),
+         axilWriteSlave  => mAxilWriteSlaves(SLOW_DAC0_INDEX_C),
+         -- Slow DAC's SPI Ports
+         dacSlowCsL      => dacSlowCsL(0),
+         dacSlowSck      => dacSlowSck(0),
+         dacSlowMosi     => dacSlowMosi(0));
 
+   U_SPI1 : entity work.AtlasChess2FebDacSpi
+      generic map (
+         TPD_G            => TPD_G,
+         DAC_INIT_G       => DAC_INIT1_C,
+         AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G,
+         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
+      port map (
+         -- AXI-Lite Interface
+         axilClk         => axilClk,
+         axilRst         => axilRst,
+         axilReadMaster  => mAxilReadMasters(SLOW_DAC1_INDEX_C),
+         axilReadSlave   => mAxilReadSlaves(SLOW_DAC1_INDEX_C),
+         axilWriteMaster => mAxilWriteMasters(SLOW_DAC1_INDEX_C),
+         axilWriteSlave  => mAxilWriteSlaves(SLOW_DAC1_INDEX_C),
+         -- Slow DAC's SPI Ports
+         dacSlowCsL      => dacSlowCsL(1),
+         dacSlowSck      => dacSlowSck(1),
+         dacSlowMosi     => dacSlowMosi(1));
+         
 end mapping;

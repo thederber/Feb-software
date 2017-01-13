@@ -34,3 +34,7 @@ class idelay(pr.Device):
         self.add(pr.Variable(name='phaseSel',
             description='IDDR`s phase select [13:0]',
             hidden=False, enum=None, offset=0x38, bitSize=14, bitOffset=0, base='hex', mode='RW'))
+            
+        self.add(pr.Variable(name='WriteAllIdelay',
+            description='IDDR`s phase select [13:0]',
+            hidden=False, enum=None, offset=0x3C, bitSize=5, bitOffset=0, base='hex', mode='WO'))            
