@@ -48,7 +48,7 @@ def create(name='feb', offset=0, memBase=None, hidden=False):
     for i in range(3):
         dev.add(AtlasChess2Feb.idelay( 
             name='idelay_%01i'%(i),
-            offset=(0x00300000 + i*0x10000)))
+            offset=(0x00300000 + i*0x10000),hidden=True))
     for i in range(3):
         dev.add(AtlasChess2Feb.saci( 
             name='saci_%01i'%(i),

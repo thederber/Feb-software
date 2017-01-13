@@ -98,8 +98,37 @@ begin
          CLKIN_PERIOD_G     => 25.0,    -- 40 MHz
          DIVCLK_DIVIDE_G    => 1,       -- 40 MHz = 40 MHz/1
          CLKFBOUT_MULT_F_G  => 25.0,    -- 1 GHz = 40 MHz x 25
-         CLKOUT0_DIVIDE_F_G => 3.125,   -- 320 MHz = 1/3.125
+         -----------------------
+         -- 50 MHz Configuration
+         -----------------------         
+         -- CLKOUT0_DIVIDE_F_G => 2.50, -- 400 MHz = 1 GHz/2.5
+         -- CLKOUT1_DIVIDE_G   => 20)   -- 50 MHz = 1 GHz/20            
+         -----------------------
+         -- 45.45 MHz Configuration
+         -----------------------         
+         -- CLKOUT0_DIVIDE_F_G => 2.75, -- 363.6 MHz = 1 GHz/2.75
+         -- CLKOUT1_DIVIDE_G   => 22)   -- 45.45 MHz = 1 GHz/22         
+         -----------------------
+         -- 40 MHz Configuration
+         -----------------------         
+         CLKOUT0_DIVIDE_F_G => 3.125,   -- 320 MHz = 1 GHz/3.125
          CLKOUT1_DIVIDE_G   => 25)      -- 40 MHz = 1 GHz/25
+         -----------------------
+         -- 35.7 MHz Configuration
+         -----------------------
+         -- CLKOUT0_DIVIDE_F_G => 3.50, -- 285.7 MHz = 1 GHz/3.5
+         -- CLKOUT1_DIVIDE_G   => 28)   -- 35.7 MHz = 1 GHz/28           
+         -----------------------
+         -- 31.25 MHz Configuration
+         -----------------------
+         -- CLKOUT0_DIVIDE_F_G => 4.00, -- 250 MHz = 1 GHz/4.0
+         -- CLKOUT1_DIVIDE_G   => 32)   -- 31.25 MHz = 1 GHz/32         
+         -----------------------
+         -- 20 MHz Configuration
+         -----------------------
+         -- CLKOUT0_DIVIDE_F_G => 6.25, -- 160 MHz = 1 GHz/6.25
+         -- CLKOUT1_DIVIDE_G   => 50)   -- 20 MHz = 1 GHz/50
+         
       port map(
          clkIn     => clk40MHz,
          rstIn     => pllRst,
