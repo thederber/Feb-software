@@ -217,16 +217,7 @@ begin
 
    pwrSyncSclk <= '0';
    pwrSyncFclk <= '0';
-
-   testClk   <= '0';
-   dacEnL    <= '1';
-   term100   <= '0';
-   term300   <= '0';
-   lvdsTxSel <= '0';
-   acMode    <= '0';
-   bitSel    <= '0';
-   injSig    <= (others => '0');
-
+   
    ---------------
    -- Timing Clock 
    ---------------
@@ -502,6 +493,15 @@ begin
          chessClk320MHzN => chessClk320MHzN,
          chessClk40MHz   => chessClk40MHz,
          chessClkOe      => config.chessClkOe,
+         -- Test Structure Ports
+         testClk         => testClk,
+         dacEnL          => dacEnL,
+         term100         => term100,
+         term300         => term300,
+         lvdsTxSel       => lvdsTxSel,
+         acMode          => acMode,
+         bitSel          => bitSel,
+         injSig          => injSig,
          -- Reference clock and Reset
          refClk200MHz    => refClk200MHz,
          refRst200MHz    => refRst200MHz,

@@ -77,8 +77,10 @@ febBoard.add(dataWriter)
 pgpVc0 = rogue.hardware.pgp.PgpCard('/dev/pgpcard_0',0,0) # Data
 pgpVc1 = rogue.hardware.pgp.PgpCard('/dev/pgpcard_0',0,1) # Registers
 
+# Display PGP card's firmware version
 print("")
 print("PGP Card Version: %x" % (pgpVc0.getInfo().version))
+print("")
 
 # Create and Connect SRPv0 to VC1
 srp = rogue.protocols.srp.SrpV0()
@@ -92,6 +94,18 @@ pyrogue.streamConnect(pgpVc0,dataWriter.getChannel(0x1))
 
 # Add registers
 febBoard.add(AtlasChess2Feb.feb.create(memBase=srp,offset=0x0))
+
+# Display the FEB's firmware version and build string
+print("")
+print("Firmware Version: 0x%08X" % (febBoard.feb.axiVersion.fpgaVersion.get()))
+print("Firmware build string: %s" % (febBoard.feb.axiVersion.buildStamp.get()))
+print("")
+
+# testing 
+febBoard.feb.saci_0.writeMatrix(enable=0,chargeInj=0,trimI=0)
+# febBoard.feb.saci_0.writeAllRow(row=0,enable=0,chargeInj=0,trimI=0)
+# febBoard.feb.saci_0.writeAllCol(col=3,enable=0,chargeInj=0,trimI=0)
+# febBoard.feb.saci_0.writePixel(row=1,col=2,enable=0,chargeInj=0,trimI=0)
 
 # Create GUI
 appTop = PyQt4.QtGui.QApplication(sys.argv)

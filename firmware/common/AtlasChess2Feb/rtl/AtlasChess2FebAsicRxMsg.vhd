@@ -34,14 +34,13 @@ entity AtlasChess2FebAsicRxMsg is
    generic (
       TPD_G          : time                  := 1 ns;
       COMM_MODE_G    : boolean               := false;
-      NUM_ASIC_G     : positive range 1 to 4 := 3;
       CASCADE_SIZE_G : positive              := 4);
    port (
       -- CHESS2 Interface
-      dataValid       : in  slv(NUM_ASIC_G-1 downto 0);
-      multiHit        : in  slv(NUM_ASIC_G-1 downto 0);
-      col             : in  Slv5Array(NUM_ASIC_G-1 downto 0);
-      row             : in  Slv7Array(NUM_ASIC_G-1 downto 0);
+      dataValid       : in  slv(2 downto 0);
+      multiHit        : in  slv(2 downto 0);
+      col             : in  Slv5Array(2 downto 0);
+      row             : in  Slv7Array(2 downto 0);
       -- CHESS2 Configuration
       destId          : in  slv(5 downto 0);
       opCode          : in  slv(7 downto 0);
@@ -114,7 +113,7 @@ begin
 
       -- Format the data word
       data := (others => '0');
-      for i in NUM_ASIC_G-1 downto 0 loop
+      for i in 2 downto 0 loop
          data(13+(16*i) downto (16*i)) := dataValid(i) & multiHit(i) & col(i) & row(i);
       end loop;
 

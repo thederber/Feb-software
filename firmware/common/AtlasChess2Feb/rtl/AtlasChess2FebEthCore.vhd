@@ -86,7 +86,7 @@ architecture mapping of AtlasChess2FebEthCore is
    constant AXIL_CROSSBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(0 downto 0) := (
       0               => (
          baseAddr     => x"00000000",
-         addrBits     => 32,
+         addrBits     => 31,
          connectivity => x"FFFF"));    
 
    constant RSSI_SIZE_C   : positive                                     := 3;

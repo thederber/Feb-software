@@ -51,6 +51,15 @@ entity AtlasChess2FebAsic is
       chessClk320MHzN : out Slv(2 downto 0);
       chessClk40MHz   : out Slv(2 downto 0);
       chessClkOe      : in  sl;
+      -- Test Structure Ports
+      testClk         : out   sl;
+      dacEnL          : out   sl;
+      term100         : out   sl;
+      term300         : out   sl;
+      lvdsTxSel       : out   sl;
+      acMode          : out   sl;
+      bitSel          : out   sl;
+      injSig          : out   slv(1 downto 0);      
       -- Reference clock and Reset
       refClk200MHz    : in  sl;
       refRst200MHz    : in  sl;
@@ -85,15 +94,17 @@ end AtlasChess2FebAsic;
 
 architecture mapping of AtlasChess2FebAsic is
    
-   constant NUM_AXIL_MASTERS_C : natural := 3;
+   constant NUM_AXIL_MASTERS_C : natural := 4;
 
    constant CHESS2_INDEX0_C : natural := 0;
    constant CHESS2_INDEX1_C : natural := 1;
    constant CHESS2_INDEX2_C : natural := 2;
+   constant CHESS2_TEST_C   : natural := 3;
 
    constant CHESS2_ADDR0_C : slv(31 downto 0) := (x"00000000"+AXI_BASE_ADDR_G);
    constant CHESS2_ADDR1_C : slv(31 downto 0) := (x"00010000"+AXI_BASE_ADDR_G);
    constant CHESS2_ADDR2_C : slv(31 downto 0) := (x"00020000"+AXI_BASE_ADDR_G);
+   constant CHESS2_ADDR3_C : slv(31 downto 0) := (x"00030000"+AXI_BASE_ADDR_G);
 
    constant AXIL_CROSSBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXIL_MASTERS_C-1 downto 0) := (
       CHESS2_INDEX0_C => (
@@ -107,6 +118,10 @@ architecture mapping of AtlasChess2FebAsic is
       CHESS2_INDEX2_C => (
          baseAddr     => CHESS2_ADDR2_C,
          addrBits     => 16,
+         connectivity => X"FFFF"),         
+      CHESS2_TEST_C => (
+         baseAddr     => CHESS2_ADDR3_C,
+         addrBits     => 16,
          connectivity => X"FFFF"));  
 
    signal mAxilWriteMasters : AxiLiteWriteMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
@@ -114,8 +129,8 @@ architecture mapping of AtlasChess2FebAsic is
    signal mAxilReadMasters  : AxiLiteReadMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
    signal mAxilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0);
 
-   signal chessMasters : AxiStreamMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
-   signal chessSlaves  : AxiStreamSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0);
+   signal chessMasters : AxiStreamMasterArray(2 downto 0);
+   signal chessSlaves  : AxiStreamSlaveArray(2 downto 0);
 
    signal chessMaster : AxiStreamMasterType;
    signal chessSlave  : AxiStreamSlaveType;
@@ -125,10 +140,10 @@ architecture mapping of AtlasChess2FebAsic is
    signal delayCnt  : slv(DELAY_ADDR_WIDTH_C-1 downto 0);
    signal delayRdEn : sl;
 
-   signal dataValid : slv(NUM_AXIL_MASTERS_C-1 downto 0);
-   signal multiHit  : slv(NUM_AXIL_MASTERS_C-1 downto 0);
-   signal col       : Slv5Array(NUM_AXIL_MASTERS_C-1 downto 0);
-   signal row       : Slv7Array(NUM_AXIL_MASTERS_C-1 downto 0);
+   signal dataValid : slv(2 downto 0);
+   signal multiHit  : slv(2 downto 0);
+   signal col       : Slv5Array(2 downto 0);
+   signal row       : Slv7Array(2 downto 0);
 
    attribute IODELAY_GROUP                 : string;
    attribute IODELAY_GROUP of U_IDELAYCTRL : label is IODELAY_GROUP_G;
@@ -190,7 +205,7 @@ begin
    -- AXI-Lite: CHESS2 RX Engine
    -----------------------------
    U_Chess :
-   for i in NUM_AXIL_MASTERS_C-1 downto 0 generate
+   for i in 2 downto 0 generate
       U_Rx : entity work.AtlasChess2FebAsicRx
          generic map (
             TPD_G              => TPD_G,
@@ -233,8 +248,7 @@ begin
    U_RxMsg : entity work.AtlasChess2FebAsicRxMsg
       generic map (
          TPD_G       => TPD_G,
-         COMM_MODE_G => COMM_MODE_G,
-         NUM_ASIC_G  => NUM_AXIL_MASTERS_C)
+         COMM_MODE_G => COMM_MODE_G)
       port map (
          -- CHESS2 Interface
          dataValid       => dataValid,
@@ -257,5 +271,35 @@ begin
          extBusy         => extBusy,
          mAxisMaster     => mAxisMaster,
          mAxisSlave      => mAxisSlave);
-
+         
+   U_Test : entity work.AtlasChess2FebAsicTest
+      generic map (
+         TPD_G              => TPD_G,
+         AXI_ERROR_RESP_G   => AXI_ERROR_RESP_G)  
+      port map (
+         -- Test Structure Ports
+         testClk         => testClk,
+         dacEnL          => dacEnL,
+         term100         => term100,
+         term300         => term300,
+         lvdsTxSel       => lvdsTxSel,
+         acMode          => acMode,
+         bitSel          => bitSel,
+         injSig          => injSig,
+         -- CHESS2 Interface
+         dataValid       => dataValid,
+         multiHit        => multiHit,
+         col             => col,
+         row             => row,
+         -- Timing Interface
+         timingClk320MHz => timingClk320MHz,
+         timingRst320MHz => timingRst320MHz,
+         -- AXI-Lite Register Interface (axilClk domain)
+         axilClk         => axilClk,
+         axilRst         => axilRst,
+         axilReadMaster  => mAxilReadMasters(CHESS2_TEST_C),
+         axilReadSlave   => mAxilReadSlaves(CHESS2_TEST_C),
+         axilWriteMaster => mAxilWriteMasters(CHESS2_TEST_C),
+         axilWriteSlave  => mAxilWriteSlaves(CHESS2_TEST_C));        
+         
 end mapping;

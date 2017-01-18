@@ -51,10 +51,10 @@ class saci(pr.Device):
                 
         # Define all the non-global registers (A.K.A commands)
         self.add(pr.Variable(name='WriteMatrix',description='Write Matrix',
-            offset=(cmd0x4), bitSize=32, bitOffset=0, base='hex', mode='WO'))  
+            offset=(cmd0x4), bitSize=1, bitOffset=0, base='bool', mode='WO'))  
 
         self.add(pr.Variable(name='ReadWritePixel',description='Read/Write Pixel',
-            offset=(cmd0x5), bitSize=32, bitOffset=0, base='hex', mode='RW'))              
+            offset=(cmd0x5), bitSize=6, bitOffset=0, base='hex', mode='RW'))              
                 
         self.add(pr.Variable(name='StartMatrixConfig',description='START Matrix Configuration',
             offset=(cmd0x8), bitSize=1, bitOffset=0, base='bool', mode='WO'))     
@@ -223,4 +223,34 @@ class saci(pr.Device):
 
         self.add(pr.Variable(name='TM',description='Hit Encoding Test Mode',
             offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=15, base='bool', mode='RW'))                                      
- 
+    
+    @staticmethod
+    def configPixel(enable, chargeInj, trimI):
+        value = ((enable & 0x1) << 5) | ((trimI & 0x1F) << 1) | ((chargeInj & 0x1) << 0)
+        return(value)
+    
+    def writeMatrix(self, enable, chargeInj, trimI):
+        self.StartMatrixConfig.set(0)
+        self.WriteMatrix.set(self.configPixel(enable, chargeInj, trimI))
+        self.EndMatrixConfig.set(0)        
+        
+    def writeAllRow(self, row, enable, chargeInj, trimI):
+        self.StartMatrixConfig.set(0)
+        self.RowPointer.set(row)
+        self.WriteAllCol.set(self.configPixel(enable, chargeInj, trimI))
+        self.EndMatrixConfig.set(0)  
+        
+    def writeAllCol(self, col, enable, chargeInj, trimI):
+        self.StartMatrixConfig.set(0)
+        self.ColPointer.set(col)
+        self.WriteAllRow.set(self.configPixel(enable, chargeInj, trimI))
+        self.EndMatrixConfig.set(0)          
+        
+    def writePixel(self, row, col, enable, chargeInj, trimI):
+        self.StartMatrixConfig.set(0)
+        self.RowPointer.set(row)
+        self.ColPointer.set(col)
+        # self.ReadWritePixel.set(self.configPixel(enable, chargeInj, trimI))
+        # self.ReadWritePixel.set(0)
+        # self.EndMatrixConfig.set(0)
+        

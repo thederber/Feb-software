@@ -49,10 +49,14 @@ def create(name='feb', offset=0, memBase=None, hidden=False):
         dev.add(AtlasChess2Feb.idelay( 
             name='idelay_%01i'%(i),
             offset=(0x00300000 + i*0x10000),hidden=True))
+            
+    dev.add(AtlasChess2Feb.chargeInj(offset=0x00330000))   
+            
     for i in range(3):
         dev.add(AtlasChess2Feb.saci( 
             name='saci_%01i'%(i),
-            offset=(saciAddr + i*saciChip)))            
+            offset=(saciAddr + i*saciChip)))   
+            
     dev.add(AtlasChess2Feb.saciTest(offset=saciAddr+(3*saciChip)))
                                
     return dev
