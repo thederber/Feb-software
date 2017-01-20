@@ -21,7 +21,7 @@
 import rogue.hardware.pgp
 import pyrogue.utilities.fileio
 import pyrogue.gui
-import AtlasChess2Feb.feb
+import AtlasChess2Feb
 import threading
 import signal
 import atexit
@@ -93,7 +93,7 @@ pyrogue.streamConnect(febBoard,dataWriter.getChannel(0x0))
 pyrogue.streamConnect(pgpVc0,dataWriter.getChannel(0x1))
 
 # Add registers
-febBoard.add(AtlasChess2Feb.feb.create(memBase=srp,offset=0x0))
+febBoard.add(AtlasChess2Feb.feb(memBase=srp,offset=0x0))
 
 # Display the FEB's firmware version and build string
 print("")
@@ -101,12 +101,47 @@ print("Firmware Version: 0x%08X" % (febBoard.feb.axiVersion.fpgaVersion.get()))
 print("Firmware build string: %s" % (febBoard.feb.axiVersion.buildStamp.get()))
 print("")
 
+#########
 # testing 
-febBoard.feb.saci_0.writeMatrix(enable=0,chargeInj=0,trimI=0)
+#########
+
+# Set the default values for the ASIC cd ..
+
+febBoard.feb.saci_0.CLK_bit_sel.set(0)
+febBoard.feb.saci_0.clk_dly.set(0)
+febBoard.feb.saci_0.rd_1.set(0)
+febBoard.feb.saci_0.rlt_1.set(2)
+febBoard.feb.saci_0.wrd_1.set(3)
+febBoard.feb.saci_0.wrd_2.set(3)
+febBoard.feb.saci_0.rd_2.set(0)
+febBoard.feb.saci_0.rlt_2.set(2)
+
+# febBoard.feb.saci_0.writeMatrix(enable=0,chargeInj=0,trimI=0)
+# febBoard.feb.saci_1.writeMatrix(enable=0,chargeInj=0,trimI=0)
+# febBoard.feb.saci_2.writeMatrix(enable=0,chargeInj=0,trimI=0)
+
 # febBoard.feb.saci_0.writeAllRow(row=0,enable=0,chargeInj=0,trimI=0)
 # febBoard.feb.saci_0.writeAllCol(col=3,enable=0,chargeInj=0,trimI=0)
 # febBoard.feb.saci_0.writePixel(row=1,col=2,enable=0,chargeInj=0,trimI=0)
 
+# febBoard.feb.saci_0.writePixel(row=0,col=0,enable=0,chargeInj=0,trimI=0)
+
+# for row in range(128):
+    # for col in range(32):
+        # febBoard.feb.saci_0.writePixel(row=row,col=col,enable=0,chargeInj=0,trimI=0)
+        # febBoard.feb.saci_1.writePixel(row=row,col=col,enable=0,chargeInj=0,trimI=0)
+        # febBoard.feb.saci_2.writePixel(row=row,col=col,enable=0,chargeInj=0,trimI=0)
+        # febBoard.feb.saci_0.writePixel(row=row,col=col,enable=0,chargeInj=0,trimI=col)
+
+febBoard.feb.saci_0.StartMatrixConfig.post(0)       
+for row in range(128):
+    print ('row = %d) = 0x%x' % (row))    
+    for col in range(32):
+        febBoard.feb.saci_0.ColPointer.post(col)       
+        febBoard.feb.saci_0.RowPointer.post(row)       
+        febBoard.feb.saci_0.WritePixel.post(0)       
+febBoard.feb.saci_0.EndMatrixConfig.get()     
+        
 # Create GUI
 appTop = PyQt4.QtGui.QApplication(sys.argv)
 guiTop = pyrogue.gui.GuiTop('febBoardGui')

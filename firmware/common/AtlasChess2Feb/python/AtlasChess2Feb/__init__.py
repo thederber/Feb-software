@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from AtlasChess2Feb._feb import *
 from AtlasChess2Feb._chargeInj import *
 from AtlasChess2Feb._dac       import *
 from AtlasChess2Feb._idelay    import *

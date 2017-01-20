@@ -53,8 +53,8 @@ class saci(pr.Device):
         self.add(pr.Variable(name='WriteMatrix',description='Write Matrix',
             offset=(cmd0x4), bitSize=1, bitOffset=0, base='bool', mode='WO'))  
 
-        self.add(pr.Variable(name='ReadWritePixel',description='Read/Write Pixel',
-            offset=(cmd0x5), bitSize=6, bitOffset=0, base='hex', mode='RW'))              
+        self.add(pr.Variable(name='WritePixel',description='Write Pixel',
+            offset=(cmd0x5), bitSize=6, bitOffset=0, base='hex', mode='WO'))              
                 
         self.add(pr.Variable(name='StartMatrixConfig',description='START Matrix Configuration',
             offset=(cmd0x8), bitSize=1, bitOffset=0, base='bool', mode='WO'))     
@@ -63,10 +63,10 @@ class saci(pr.Device):
             offset=(cmd0x0), bitSize=1, bitOffset=0, base='bool', mode='RO'))                 
             
         self.add(pr.Variable(name='WriteAllCol',description='Write All Columns',
-            offset=(cmd0x2), bitSize=colBitSize, bitOffset=0, base='hex', mode='WO'))      
+            offset=(cmd0x2), bitSize=6, bitOffset=0, base='hex', mode='WO'))      
 
         self.add(pr.Variable(name='WriteAllRow',description='Write All Rows',
-            offset=(cmd0x3), bitSize=rowBitSize, bitOffset=0, base='hex', mode='WO'))      
+            offset=(cmd0x3), bitSize=6, bitOffset=0, base='hex', mode='WO'))      
         
         # Define all the global registers                                     
         self.add(pr.Variable(name='RowPointer',description='Row Pointer',
@@ -226,31 +226,38 @@ class saci(pr.Device):
     
     @staticmethod
     def configPixel(enable, chargeInj, trimI):
-        value = ((enable & 0x1) << 5) | ((trimI & 0x1F) << 1) | ((chargeInj & 0x1) << 0)
+        value = ((enable & 0x1) << 5) | ((trimI & 0x1F) << 1) | (chargeInj & 0x1)
         return(value)
     
     def writeMatrix(self, enable, chargeInj, trimI):
-        self.StartMatrixConfig.set(0)
-        self.WriteMatrix.set(self.configPixel(enable, chargeInj, trimI))
-        self.EndMatrixConfig.set(0)        
+        value = self.configPixel(enable, chargeInj, trimI)
+        # print ('writeMatrix(self=%s,enable=%d,chargeInj=%d,trimI=%d) = 0x%x' % (self,enable,chargeInj,trimI,value))
+        self.StartMatrixConfig.post(0)
+        self.WriteMatrix.post(value)
+        self.EndMatrixConfig.get()       
         
     def writeAllRow(self, row, enable, chargeInj, trimI):
-        self.StartMatrixConfig.set(0)
-        self.RowPointer.set(row)
-        self.WriteAllCol.set(self.configPixel(enable, chargeInj, trimI))
-        self.EndMatrixConfig.set(0)  
+        value = self.configPixel(enable, chargeInj, trimI)
+        # print ('writeAllRow(self=%s,row=%d,enable=%d,chargeInj=%d,trimI=%d) = 0x%x' % (self,row,enable,chargeInj,trimI,value))
+        self.StartMatrixConfig.post(0)
+        self.RowPointer.post(row)
+        self.WriteAllCol.post(value)
+        self.EndMatrixConfig.get() 
         
     def writeAllCol(self, col, enable, chargeInj, trimI):
-        self.StartMatrixConfig.set(0)
-        self.ColPointer.set(col)
-        self.WriteAllRow.set(self.configPixel(enable, chargeInj, trimI))
-        self.EndMatrixConfig.set(0)          
+        value = self.configPixel(enable, chargeInj, trimI)
+        # print ('writeAllCol(self=%s,col=%d,enable=%d,chargeInj=%d,trimI=%d) = 0x%x' % (self,col,enable,chargeInj,trimI,value))    
+        self.StartMatrixConfig.post(0)
+        self.ColPointer.post(col)
+        self.WriteAllRow.post(value)
+        self.EndMatrixConfig.get()        
         
     def writePixel(self, row, col, enable, chargeInj, trimI):
-        self.StartMatrixConfig.set(0)
-        self.RowPointer.set(row)
-        self.ColPointer.set(col)
-        # self.ReadWritePixel.set(self.configPixel(enable, chargeInj, trimI))
-        # self.ReadWritePixel.set(0)
-        # self.EndMatrixConfig.set(0)
+        value = self.configPixel(enable, chargeInj, trimI)
+        print ('writePixel(self=%s,row=%d,col=%d,enable=%d,chargeInj=%d,trimI=%d) = 0x%x' % (self,row,col,enable,chargeInj,trimI,value))        
+        self.StartMatrixConfig.post(0)
+        self.RowPointer.post(row)
+        self.ColPointer.post(col)
+        self.WritePixel.post(value)
+        self.EndMatrixConfig.get()
         

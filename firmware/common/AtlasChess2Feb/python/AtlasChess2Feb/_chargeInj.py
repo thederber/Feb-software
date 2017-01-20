@@ -44,5 +44,8 @@ class chargeInj(pr.Device):
                         """))       
                         
         self.add(pr.Variable(name='pulseWidth',description='pulse width minus one (in units of 4ns)',
-                offset=0x14, bitSize=15, bitOffset=0, base='hex', mode='RW'))           
+                offset=0x14, bitSize=15, bitOffset=0, base='hex', mode='RW')) 
+
+        self.add(pr.Variable(name='invPulse',description='Invert the pulse',
+                offset=0x18, bitSize=1, bitOffset=0, base='bool', mode='RW'))                 
                 

@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2017-01-17
+-- Last update: 2017-01-18
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -66,6 +66,7 @@ architecture rtl of AtlasChess2FebAsicTest is
 
    type RegType is record
       calPulse       : sl;
+      invPulse       : sl;
       calWidth       : slv(15 downto 0);
       axilReadSlave  : AxiLiteReadSlaveType;
       axilWriteSlave : AxiLiteWriteSlaveType;
@@ -73,6 +74,7 @@ architecture rtl of AtlasChess2FebAsicTest is
 
    constant REG_INIT_C : RegType := (
       calPulse       => '0',
+      invPulse       => '0',
       calWidth       => toSlv(7, 16),
       axilReadSlave  => AXI_LITE_READ_SLAVE_INIT_C,
       axilWriteSlave => AXI_LITE_WRITE_SLAVE_INIT_C);
@@ -81,6 +83,7 @@ architecture rtl of AtlasChess2FebAsicTest is
    signal rin : RegType;
 
    signal calPulse   : sl;
+   signal invPulse   : sl;
    signal pulse      : sl;
    signal pulseReg   : slv(1 downto 0);
    signal calWidth   : slv(15 downto 0);
@@ -125,6 +128,7 @@ begin
       axiSlaveRegisterR(axilEp, x"08", 0, hitDetSync(2));
       axiSlaveRegister(axilEp, x"10", 0, v.calPulse);
       axiSlaveRegister(axilEp, x"14", 0, v.calWidth);
+      axiSlaveRegister(axilEp, x"18", 0, v.invPulse);
 
       -- Close out the transaction
       axiSlaveDefault(axilEp, v.axilWriteSlave, v.axilReadSlave, AXI_ERROR_RESP_G);
@@ -180,6 +184,14 @@ begin
          dataIn  => r.calPulse,
          dataOut => calPulse);
 
+   U_invPulse : entity work.Synchronizer
+      generic map (
+         TPD_G => TPD_G)
+      port map (
+         clk     => timingClk320MHz,
+         dataIn  => r.invPulse,
+         dataOut => invPulse);
+
    U_calWidth : entity work.SynchronizerFifo
       generic map (
          TPD_G        => TPD_G,
@@ -194,11 +206,11 @@ begin
    begin
       if (rising_edge(timingClk320MHz)) then
          if (calPulse = '1') then
-            pulse <= '1'             after TPD_G;
+            pulse <= invPulse        after TPD_G;
             cnt   <= (others => '0') after TPD_G;
          else
             if (cnt = calWidth) then
-               pulse <= '0' after TPD_G;
+               pulse <= not(invPulse) after TPD_G;
             else
                cnt <= cnt + 1 after TPD_G;
             end if;
