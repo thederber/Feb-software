@@ -68,6 +68,9 @@ class sysReg(pr.Device):
                 # enum = {0:'CLOCKS_DISABLED',1:'CLOCKS_ENABLED'},
                 offset=0x824, bitSize=1, bitOffset=0, base='bool', mode='RW'))
                                 
+        self.add(pr.Variable(name='forceHardReset',description='ForceHardReset',
+                offset=0x828, bitSize=1, bitOffset=0, base='bool', mode='RW'))                                
+                                
         self.add(pr.Variable(name='rollOverEn',description='RollOverEn',
                 offset=0xf00, bitSize=1, bitOffset=0, base='hex', mode='RW'))
 

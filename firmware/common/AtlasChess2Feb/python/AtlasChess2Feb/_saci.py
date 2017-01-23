@@ -49,26 +49,35 @@ class saci(pr.Device):
         rowBitSize = 7
         colBitSize = 5
                 
+        ######################################################
         # Define all the non-global registers (A.K.A commands)
-        self.add(pr.Variable(name='WriteMatrix',description='Write Matrix',
-            offset=(cmd0x4), bitSize=1, bitOffset=0, base='bool', mode='WO'))  
+        ######################################################
+                        
+        self.add(pr.Variable(name='StartMatrixConfig',description='START Matrix Configuration',
+            offset=(cmd0x8), bitSize=32, bitOffset=0, base='bool', mode='WO'))     
 
         self.add(pr.Variable(name='WritePixel',description='Write Pixel',
             offset=(cmd0x5), bitSize=6, bitOffset=0, base='hex', mode='WO'))              
-                
-        self.add(pr.Variable(name='StartMatrixConfig',description='START Matrix Configuration',
-            offset=(cmd0x8), bitSize=1, bitOffset=0, base='bool', mode='WO'))     
-
-        self.add(pr.Variable(name='EndMatrixConfig',description='END Matrix Configuration',
-            offset=(cmd0x0), bitSize=1, bitOffset=0, base='bool', mode='RO'))                 
             
-        self.add(pr.Variable(name='WriteAllCol',description='Write All Columns',
-            offset=(cmd0x2), bitSize=6, bitOffset=0, base='hex', mode='WO'))      
+        self.add(pr.Variable(name='EndMatrixConfig',description='END Matrix Configuration',
+            offset=(cmd0x0), bitSize=32, bitOffset=0, base='bool', mode='RO'))             
+            
+        # # Untested
+        # self.add(pr.Variable(name='WriteMatrix',description='Write Matrix',
+            # offset=(cmd0x4), bitSize=6, bitOffset=0, base='bool', mode='WO'))  
+            
+        # # Untested 
+        # self.add(pr.Variable(name='WriteAllCol',description='Write All Columns',
+            # offset=(cmd0x2), bitSize=6, bitOffset=0, base='hex', mode='WO'))      
 
-        self.add(pr.Variable(name='WriteAllRow',description='Write All Rows',
-            offset=(cmd0x3), bitSize=6, bitOffset=0, base='hex', mode='WO'))      
+        # # Untested 
+        # self.add(pr.Variable(name='WriteAllRow',description='Write All Rows',
+            # offset=(cmd0x3), bitSize=6, bitOffset=0, base='hex', mode='WO'))      
         
-        # Define all the global registers                                     
+        #################################
+        # Define all the global registers     
+        #################################
+        
         self.add(pr.Variable(name='RowPointer',description='Row Pointer',
             offset=(cmd0x1|(4*0x1)), bitSize=rowBitSize, bitOffset=0, base='hex', mode='RW')) 
                                  
@@ -226,35 +235,33 @@ class saci(pr.Device):
     
     @staticmethod
     def configPixel(enable, chargeInj, trimI):
-        value = ((enable & 0x1) << 5) | ((trimI & 0x1F) << 1) | (chargeInj & 0x1)
-        return(value)
+        # Default value: disable pixel, no charge injection, all trim bits disabled
+        value = 0x00
+        # Check if pixel is enabled
+        if enable:
+            value |= 0x20
+        # Check if enabling charge injection
+        if chargeInj:
+            value |= 0x01
+        # Set the trim current source
+        value |= ((trimI & 0xF) << 1)
+        # Return the inverted value
+        return((~value)&0x3F)
     
-    def writeMatrix(self, enable, chargeInj, trimI):
+    def writeAllPixels(self, enable, chargeInj, trimI):
         value = self.configPixel(enable, chargeInj, trimI)
-        # print ('writeMatrix(self=%s,enable=%d,chargeInj=%d,trimI=%d) = 0x%x' % (self,enable,chargeInj,trimI,value))
+        # print ('writeAllPixels(self=%s,enable=%d,chargeInj=%d,trimI=%d) = 0x%x' % (self,enable,chargeInj,trimI,value))
         self.StartMatrixConfig.post(0)
-        self.WriteMatrix.post(value)
+        for row in range(128): 
+            for col in range(32):        
+                self.ColPointer.post(col)       
+                self.RowPointer.post(row)       
+                self.WritePixel.post(value)         
         self.EndMatrixConfig.get()       
-        
-    def writeAllRow(self, row, enable, chargeInj, trimI):
-        value = self.configPixel(enable, chargeInj, trimI)
-        # print ('writeAllRow(self=%s,row=%d,enable=%d,chargeInj=%d,trimI=%d) = 0x%x' % (self,row,enable,chargeInj,trimI,value))
-        self.StartMatrixConfig.post(0)
-        self.RowPointer.post(row)
-        self.WriteAllCol.post(value)
-        self.EndMatrixConfig.get() 
-        
-    def writeAllCol(self, col, enable, chargeInj, trimI):
-        value = self.configPixel(enable, chargeInj, trimI)
-        # print ('writeAllCol(self=%s,col=%d,enable=%d,chargeInj=%d,trimI=%d) = 0x%x' % (self,col,enable,chargeInj,trimI,value))    
-        self.StartMatrixConfig.post(0)
-        self.ColPointer.post(col)
-        self.WriteAllRow.post(value)
-        self.EndMatrixConfig.get()        
-        
+             
     def writePixel(self, row, col, enable, chargeInj, trimI):
         value = self.configPixel(enable, chargeInj, trimI)
-        print ('writePixel(self=%s,row=%d,col=%d,enable=%d,chargeInj=%d,trimI=%d) = 0x%x' % (self,row,col,enable,chargeInj,trimI,value))        
+        print ('writePixel(self=%s,row=%d,col=%d,enable=%d,chargeInj=%d,trimI=%d) = 0x%X' % (self,row,col,enable,chargeInj,trimI,value))        
         self.StartMatrixConfig.post(0)
         self.RowPointer.post(row)
         self.ColPointer.post(col)

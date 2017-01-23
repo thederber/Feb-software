@@ -36,29 +36,24 @@ class feb(pr.Device):
         saciChip = 0x400000
          
         self.add(surf.AxiVersion.create(   offset=0x00000000))
-        # self.add(surf.Xadc(                offset=0x00010000))  
-        # self.add(surf.AxiMicronN25Q.create(offset=0x00020000,hidden=True))  
-        # self.add(AtlasChess2Feb.sysReg(    offset=0x00030000))   
+        self.add(surf.Xadc(                offset=0x00010000))  
+        self.add(surf.AxiMicronN25Q.create(offset=0x00020000,hidden=True))  
+        self.add(AtlasChess2Feb.sysReg(    offset=0x00030000))    
         
-        # self.add(surf.GenericMemory(     offset=0x00040000,name='MicroblazeShareMem',elements=(2**9),hidden=True))   
-        # self.add(surf.Ltc4151(           offset=0x00050000))   
-        # self.add(surf.Sa56004(           offset=0x00050200))   
-        # self.add(surf.GenericMemory(     offset=0x00060000,name='CalI2CProm',elements=0x800,hidden=True))   
+        self.add(AtlasChess2Feb.dac(       offset=0x00100000))
+        self.add(surf.Pgp2bAxi(            offset=0x00200000,hidden=True))  
         
-        # self.add(AtlasChess2Feb.dac(       offset=0x00100000))
-        # self.add(surf.Pgp2bAxi(            offset=0x00200000,hidden=True))  
-        
-        # for i in range(3):
-            # self.add(AtlasChess2Feb.idelay( 
-                # name='idelay_%01i'%(i),
-                # offset=(0x00300000 + i*0x10000),hidden=True))
+        for i in range(3):
+            self.add(AtlasChess2Feb.idelay( 
+                name='idelay_%01i'%(i),
+                offset=(0x00300000 + i*0x10000),hidden=True))
                 
         self.add(AtlasChess2Feb.chargeInj(offset=0x00330000))   
                 
-        for i in range(1):
+        for i in range(3):
             self.add(AtlasChess2Feb.saci( 
                 name='saci_%01i'%(i),
                 offset=(saciAddr + i*saciChip)))   
                 
-        # self.add(AtlasChess2Feb.saciTest(offset=saciAddr+(3*saciChip)))
+        self.add(AtlasChess2Feb.saciTest(offset=saciAddr+(3*saciChip)))
                                
