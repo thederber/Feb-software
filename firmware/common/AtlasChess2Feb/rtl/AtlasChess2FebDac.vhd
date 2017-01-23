@@ -63,10 +63,10 @@ architecture mapping of AtlasChess2FebDac is
       3 => toSlv(integer((1.60/VREF_C)*RANGE_C), 12));  -- BL         = 1.60V
 
    constant DAC_INIT1_C : Slv12Array(3 downto 0) := (
-      0 => toSlv(integer((1.20/VREF_C)*RANGE_C), 12),   -- LVDS_VCOM  = 1.20V
-      1 => toSlv(integer((3.30/VREF_C)*RANGE_C), 12),   -- LVDS_VCTRL = 3.30V
-      2 => toSlv(integer((0.00/VREF_C)*RANGE_C), 12),   -- DAC_REFP   = 0.00V
-      3 => toSlv(integer((0.00/VREF_C)*RANGE_C), 12));  -- DAC_REFN   = 0.00V      
+      0 => toSlv(integer((1.25/VREF_C)*RANGE_C), 12),   -- LVDS_VCOM  = 1.25V = FPGA's VCOO/2
+      1 => toSlv(integer((3.30/VREF_C)*RANGE_C), 12),   -- LVDS_VCTRL = 3.30V = max. full swing
+      2 => toSlv(integer((0.00/VREF_C)*RANGE_C), 12),   -- DAC_REFP   = 0.00V = TBD
+      3 => toSlv(integer((0.00/VREF_C)*RANGE_C), 12));  -- DAC_REFN   = 0.00V = TBD     
 
    constant NUM_AXIL_MASTERS_C : natural := 2;
 

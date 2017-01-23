@@ -136,11 +136,16 @@ begin
          v.wrData(13 downto 12) := "10";  -- Normal operation
          v.wrData(11 downto 0)  := axilWriteMaster.wdata(11 downto 0);  -- DAC Value             
          -- Decode address and perform write
-         case (axilWriteMaster.awaddr(3 downto 0)) is
-            when x"0" => v.data(0) := axilWriteMaster.wdata(11 downto 0);
-            when x"4" => v.data(1) := axilWriteMaster.wdata(11 downto 0);
-            when x"8" => v.data(2) := axilWriteMaster.wdata(11 downto 0);
-            when x"C" => v.data(3) := axilWriteMaster.wdata(11 downto 0);
+         case (axilWriteMaster.awaddr(7 downto 0)) is
+            when x"00" => v.data(0) := axilWriteMaster.wdata(11 downto 0);
+            when x"04" => v.data(1) := axilWriteMaster.wdata(11 downto 0);
+            when x"08" => v.data(2) := axilWriteMaster.wdata(11 downto 0);
+            when x"0C" => v.data(3) := axilWriteMaster.wdata(11 downto 0);
+            when x"10" => 
+               -- Stop the SPI transfer
+               v.wrEn        := '0';    
+               -- Reload defaults
+               v.state                := IDLE_S;
             when others =>
                -- Stop the SPI transfer
                v.wrEn        := '0';

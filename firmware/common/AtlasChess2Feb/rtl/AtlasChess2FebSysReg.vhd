@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-12-06
+-- Last update: 2017-01-20
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -55,14 +55,16 @@ architecture rtl of AtlasChess2FebSysReg is
    constant STATUS_SIZE_C : natural := 1;
 
    type RegType is record
+      forceHardRst   : sl;
       cntRst         : sl;
       rollOverEn     : slv(STATUS_SIZE_C-1 downto 0);
       config         : AtlasChess2FebConfigType;
       axilReadSlave  : AxiLiteReadSlaveType;
       axilWriteSlave : AxiLiteWriteSlaveType;
    end record RegType;
-   
+
    constant REG_INIT_C : RegType := (
+      forceHardRst   => '0',
       cntRst         => '1',
       rollOverEn     => (others => '0'),
       config         => CHESS2_FEB_CONFIG_INIT_C,
@@ -76,13 +78,15 @@ architecture rtl of AtlasChess2FebSysReg is
    signal statusOut  : slv(STATUS_SIZE_C-1 downto 0);
    signal cntOut     : SlVectorArray(STATUS_SIZE_C-1 downto 0, 31 downto 0);
    signal refClkFreq : slv(31 downto 0);
-   
+   signal hardRst    : sl;
+
 begin
 
    --------------------- 
    -- AXI Lite Interface
    --------------------- 
-   comb : process (axilReadMaster, axilRst, axilWriteMaster, cntOut, r, refClkFreq, statusOut) is
+   comb : process (axilReadMaster, axilRst, axilWriteMaster, cntOut, r,
+                   refClkFreq, statusOut) is
       variable v      : RegType;
       variable axilEp : AxiLiteEndPointType;
       variable i      : natural;
@@ -122,6 +126,7 @@ begin
       axiSlaveRegister(axilEp, x"81C", 0, v.config.frameType);
       axiSlaveRegister(axilEp, x"820", 0, v.config.wordSize);
       axiSlaveRegister(axilEp, x"824", 0, v.config.chessClkOe);
+      axiSlaveRegister(axilEp, x"828", 0, v.forceHardRst);
 
       axiSlaveRegister(axilEp, x"F00", 0, v.rollOverEn);
       axiSlaveRegister(axilEp, x"F10", 0, v.cntRst);
@@ -148,7 +153,8 @@ begin
       -- Outputs
       axilWriteSlave <= r.axilWriteSlave;
       axilReadSlave  <= r.axilReadSlave;
-      
+      hardRst        <= r.forceHardRst or r.config.hardRst;
+
    end process comb;
 
    seq : process (axilClk) is
@@ -171,7 +177,7 @@ begin
          -- Clocks
          clkIn   => status.refClk40MHz,
          locClk  => axilClk,
-         refClk  => axilClk); 
+         refClk  => axilClk);
 
    U_SyncStatusVec : entity work.SyncStatusVector
       generic map (
@@ -179,7 +185,7 @@ begin
          OUT_POLARITY_G => '1',
          CNT_RST_EDGE_G => true,
          CNT_WIDTH_G    => 32,
-         WIDTH_G        => STATUS_SIZE_C)     
+         WIDTH_G        => STATUS_SIZE_C)
       port map (
          -- Input Status bit Signals (wrClk domain)                  
          statusIn(0)  => status.refLocked,
@@ -191,13 +197,13 @@ begin
          cntOut       => cntOut,
          -- Clocks and Reset Ports
          wrClk        => axilClk,
-         rdClk        => axilClk);      
+         rdClk        => axilClk);
 
    ---------------------------
    -- Synchronization: Outputs
    ---------------------------
    config.chessClkOe <= r.config.chessClkOe;  -- Bypass the SYNC because ASYNC to output buffer
-   config.refSelect  <= r.config.refSelect;   -- Bypass the SYNC because controls clock MUX
+   config.refSelect  <= r.config.refSelect;  -- Bypass the SYNC because controls clock MUX
    config.timingMode <= r.config.timingMode;  -- Bypass the SYNC because controls clock MUX
 
 
@@ -207,7 +213,7 @@ begin
       port map (
          clk     => timingClk320MHz,
          dataIn  => r.config.softTrig,
-         dataOut => config.softTrig);   
+         dataOut => config.softTrig);
 
    SyncOut_softRst : entity work.PwrUpRst
       generic map (
@@ -216,7 +222,7 @@ begin
       port map (
          clk    => axilClk,
          arst   => r.config.softRst,
-         rstOut => config.softRst); 
+         rstOut => config.softRst);
 
    SyncOut_hardRst : entity work.PwrUpRst
       generic map (
@@ -224,12 +230,12 @@ begin
          DURATION_G => integer(AXI_CLK_FREQ_G/1.0E+3))  -- 1 ms reset
       port map (
          clk    => axilClk,
-         arst   => r.config.hardRst,
-         rstOut => config.hardRst); 
+         arst   => hardRst,
+         rstOut => config.hardRst);
 
    SyncOut_pllRst : entity work.RstSync
       generic map (
-         TPD_G => TPD_G)   
+         TPD_G => TPD_G)
       port map (
          clk      => axilClk,
          asyncRst => r.config.pllRst,
@@ -242,7 +248,7 @@ begin
       port map (
          clk    => timingClk320MHz,
          arst   => r.config.dlyRst,
-         rstOut => config.dlyRst);      
+         rstOut => config.dlyRst);
 
    SyncOutDlyTiming : entity work.SynchronizerVector
       generic map (
@@ -251,7 +257,7 @@ begin
       port map (
          clk     => timingClk320MHz,
          dataIn  => r.config.dlyTiming,
-         dataOut => config.dlyTiming);    
+         dataOut => config.dlyTiming);
 
    SyncOutDlyChess : entity work.SynchronizerVector
       generic map (
@@ -260,7 +266,7 @@ begin
       port map (
          clk     => timingClk320MHz,
          dataIn  => r.config.dlyChess,
-         dataOut => config.dlyChess); 
+         dataOut => config.dlyChess);
 
    SyncOutDestId : entity work.SynchronizerVector
       generic map (
@@ -269,7 +275,7 @@ begin
       port map (
          clk     => timingClk320MHz,
          dataIn  => r.config.destId,
-         dataOut => config.destId);     
+         dataOut => config.destId);
 
    SyncOutFrameType : entity work.SynchronizerVector
       generic map (
@@ -278,7 +284,7 @@ begin
       port map (
          clk     => timingClk320MHz,
          dataIn  => r.config.frameType,
-         dataOut => config.frameType);  
+         dataOut => config.frameType);
 
    SyncOutWordSize : entity work.SynchronizerVector
       generic map (
@@ -287,6 +293,6 @@ begin
       port map (
          clk     => timingClk320MHz,
          dataIn  => r.config.wordSize,
-         dataOut => config.wordSize);           
+         dataOut => config.wordSize);
 
 end rtl;

@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2017-01-18
+-- Last update: 2017-01-23
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -90,6 +90,10 @@ architecture rtl of AtlasChess2FebAsicTest is
    signal cnt        : slv(15 downto 0);
    signal hitDet     : Slv14Array(2 downto 0);
    signal hitDetSync : Slv14Array(2 downto 0);
+
+   attribute dont_touch             : string;
+   attribute dont_touch of calPulse : signal is "TRUE";
+   attribute dont_touch of pulse    : signal is "TRUE";
 
 begin
 
@@ -206,11 +210,11 @@ begin
    begin
       if (rising_edge(timingClk320MHz)) then
          if (calPulse = '1') then
-            pulse <= invPulse        after TPD_G;
+            pulse <= not(invPulse)   after TPD_G;
             cnt   <= (others => '0') after TPD_G;
          else
             if (cnt = calWidth) then
-               pulse <= not(invPulse) after TPD_G;
+               pulse <= invPulse after TPD_G;
             else
                cnt <= cnt + 1 after TPD_G;
             end if;
