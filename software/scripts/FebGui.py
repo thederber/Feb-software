@@ -55,7 +55,7 @@ class MyRunControl(pyrogue.RunControl):
       self._last = int(time.time())
 
       while (self._runState == 'Running'):
-         delay = 1.0 / ({value: key for key,value in self.runRate.enum.iteritems()}[self._runRate])
+         delay = 1.0 / ({value: key for key,value in self.runRate.enum.items()}[self._runRate])
          time.sleep(delay)
          self._root.feb.sysReg.softTrig()
 

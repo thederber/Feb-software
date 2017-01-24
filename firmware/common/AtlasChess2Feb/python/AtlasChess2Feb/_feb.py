@@ -56,4 +56,8 @@ class feb(pr.Device):
                 offset=(saciAddr + i*saciChip)))   
                 
         self.add(AtlasChess2Feb.saciTest(offset=saciAddr+(3*saciChip)))
+        
+        # Prevent auto-polling of AxiVersion (need to fix this feature when data logging)
+        self.axiVersion.counter._pollInterval = 0
+        self.axiVersion.upTimeCnt._pollInterval = 0        
                                
