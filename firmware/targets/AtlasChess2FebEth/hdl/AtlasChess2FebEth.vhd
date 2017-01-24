@@ -107,7 +107,7 @@ begin
          TPD_G         => TPD_G,
          COMM_MODE_G   => true,         -- true = ETH mode, false = PGP mode
          -- ETH configuration 
-         ETH_DEV_G     => true,         -- true = Adds non-RSSI on port 8193
+         ETH_DEV_G     => false,        -- true = Adds non-RSSI on port 8193
          ETH_DHCP_G    => true,         -- true = DHCP, false = static address
          ETH_IP_ADDR_G => x"0A01A8C0")  -- 192.168.1.10 (before DHCP)            
       port map (
