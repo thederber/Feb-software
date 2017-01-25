@@ -1,11 +1,11 @@
 -------------------------------------------------------------------------------
 -- Title      : 
 -------------------------------------------------------------------------------
--- File       : AtlasChess2FebAsicTest.vhd
+-- File       : AtlasChess2FebAsicChargeInj.vhd
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2017-01-23
+-- Last update: 2017-01-24
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ use work.AxiLitePkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity AtlasChess2FebAsicTest is
+entity AtlasChess2FebAsicChargeInj is
    generic (
       TPD_G            : time            := 1 ns;
       AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);
@@ -60,9 +60,9 @@ entity AtlasChess2FebAsicTest is
       axilReadSlave   : out AxiLiteReadSlaveType;
       axilWriteMaster : in  AxiLiteWriteMasterType;
       axilWriteSlave  : out AxiLiteWriteSlaveType);
-end AtlasChess2FebAsicTest;
+end AtlasChess2FebAsicChargeInj;
 
-architecture rtl of AtlasChess2FebAsicTest is
+architecture rtl of AtlasChess2FebAsicChargeInj is
 
    type RegType is record
       calPulse       : sl;
@@ -82,14 +82,17 @@ architecture rtl of AtlasChess2FebAsicTest is
    signal r   : RegType := REG_INIT_C;
    signal rin : RegType;
 
-   signal calPulse   : sl;
-   signal invPulse   : sl;
-   signal pulse      : sl;
-   signal pulseReg   : slv(1 downto 0);
-   signal calWidth   : slv(15 downto 0);
-   signal cnt        : slv(15 downto 0);
-   signal hitDet     : Slv14Array(2 downto 0);
-   signal hitDetSync : Slv14Array(2 downto 0);
+   signal calPulse       : sl;
+   signal invPulse       : sl;
+   signal pulse          : sl;
+   signal pulseReg       : slv(1 downto 0);
+   signal calWidth       : slv(15 downto 0);
+   signal cnt            : slv(15 downto 0);
+   signal hitDet         : Slv14Array(2 downto 0);
+   signal hitDetSync     : Slv14Array(2 downto 0);
+   signal hitDetTime     : Slv8Array(2 downto 0);
+   signal hitDetTimeSync : Slv8Array(2 downto 0);
+   signal timer          : slv(7 downto 0);
 
    attribute dont_touch             : string;
    attribute dont_touch of calPulse : signal is "TRUE";
@@ -108,7 +111,8 @@ begin
    --------------------- 
    -- AXI Lite Interface
    --------------------- 
-   comb : process (axilReadMaster, axilRst, axilWriteMaster, hitDetSync, r) is
+   comb : process (axilReadMaster, axilRst, axilWriteMaster, hitDetSync,
+                   hitDetTimeSync, r) is
       variable v      : RegType;
       variable axilEp : AxiLiteEndPointType;
       variable i      : natural;
@@ -130,6 +134,11 @@ begin
       axiSlaveRegisterR(axilEp, x"00", 0, hitDetSync(0));
       axiSlaveRegisterR(axilEp, x"04", 0, hitDetSync(1));
       axiSlaveRegisterR(axilEp, x"08", 0, hitDetSync(2));
+
+      axiSlaveRegisterR(axilEp, x"00", 16, hitDetTimeSync(0));
+      axiSlaveRegisterR(axilEp, x"04", 16, hitDetTimeSync(1));
+      axiSlaveRegisterR(axilEp, x"08", 16, hitDetTimeSync(2));
+
       axiSlaveRegister(axilEp, x"10", 0, v.calPulse);
       axiSlaveRegister(axilEp, x"14", 0, v.calWidth);
       axiSlaveRegister(axilEp, x"18", 0, v.invPulse);
@@ -174,6 +183,16 @@ begin
             rd_clk => axilClk,
             dout   => hitDetSync(i));
 
+      U_hitDetTime : entity work.SynchronizerFifo
+         generic map (
+            TPD_G        => TPD_G,
+            DATA_WIDTH_G => 8)
+         port map (
+            wr_clk => timingClk320MHz,
+            din    => hitDetTime(i),
+            rd_clk => axilClk,
+            dout   => hitDetTimeSync(i));
+
    end generate GEN_VEC;
 
    ---------------------------
@@ -209,13 +228,18 @@ begin
    process (timingClk320MHz) is
    begin
       if (rising_edge(timingClk320MHz)) then
-         if (calPulse = '1') then
+         -- Check for one-shot calibration pulse
+         if (calPulse = '1') then   
+            -- Reset the registers
             pulse <= not(invPulse)   after TPD_G;
             cnt   <= (others => '0') after TPD_G;
          else
+            -- Check for max. count
             if (cnt = calWidth) then
+               -- Set the flag
                pulse <= invPulse after TPD_G;
             else
+               -- Increment the counter
                cnt <= cnt + 1 after TPD_G;
             end if;
          end if;
@@ -251,15 +275,26 @@ begin
       variable i : natural;
    begin
       if (rising_edge(timingClk320MHz)) then
-         if (calPulse = '1') then
-            hitDet <= (others => (others => '0')) after TPD_G;
-         else
+         -- Check for one-shot calibration pulse
+         if (calPulse = '1') then   
+            -- Reset the registers
+            hitDet     <= (others => (others => '0')) after TPD_G;
+            hitDetTime <= (others => (others => '0')) after TPD_G;
+            timer      <= (others => '0')             after TPD_G;
+         elsif (timer /= x"FF") then
+            -- Incremen the counter
+            timer <= timer + 1 after TPD_G;
+            -- Loop through the channels
             for i in 2 downto 0 loop
-               if (dataValid(i) = '1') and (hitDet(i)(13) = '0') then
+               -- Check for first hit after calibration pulse
+               if (dataValid(i) = '1') and (hitDet(i)(13) = '0') then 
+                  -- Latch the hit values
                   hitDet(i)(13)          <= dataValid(i) after TPD_G;
                   hitDet(i)(12)          <= multiHit(i)  after TPD_G;
                   hitDet(i)(11 downto 7) <= col(i)       after TPD_G;
                   hitDet(i)(6 downto 0)  <= row(i)       after TPD_G;
+                  -- Latch the hit time after calibration pulse
+                  hitDetTime(i)          <= timer        after TPD_G;
                end if;
             end loop;
          end if;

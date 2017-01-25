@@ -272,7 +272,7 @@ begin
          mAxisMaster     => mAxisMaster,
          mAxisSlave      => mAxisSlave);
          
-   U_Test : entity work.AtlasChess2FebAsicTest
+   U_ChargeInj : entity work.AtlasChess2FebAsicChargeInj
       generic map (
          TPD_G              => TPD_G,
          AXI_ERROR_RESP_G   => AXI_ERROR_RESP_G)  

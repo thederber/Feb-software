@@ -13,16 +13,17 @@ use ieee.std_logic_1164.all;
 
 package Version is
 
-   constant FPGA_VERSION_C : std_logic_vector(31 downto 0) := x"00000001";  -- MAKE_VERSION
+   constant FPGA_VERSION_C : std_logic_vector(31 downto 0) := x"00000002";  -- MAKE_VERSION
 
-   constant BUILD_STAMP_C : string := "AtlasChess2FebPgp: Vivado v2016.2 (x86_64) Built Mon Jan 23 15:46:29 PST 2017 by ruckman";
+   constant BUILD_STAMP_C : string := "AtlasChess2FebPgp: Vivado v2016.2 (x86_64) Built Tue Jan 24 17:07:09 PST 2017 by ruckman";
 
 end Version;
 
 -------------------------------------------------------------------------------
 -- Revision History:
 --
--- 06/01/2016 (0x00000001): Initial Build
+-- 01/24/2017 (0x00000002): Added hitDetTime registers
+-- 01/23/2017 (0x00000001): Initial Build
 --
 -------------------------------------------------------------------------------
 
