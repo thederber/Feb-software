@@ -23,5 +23,3 @@ export PYTHONPATH=${PWD}/python:${SURF_DIR}/python:${FEB_DIR}/python:${ROGUE_DIR
 # Setup library path
 export LD_LIBRARY_PATH=${ROGUE_DIR}/python::${LD_LIBRARY_PATH}
 
-# Setup library path
-export LD_LIBRARY_PATH=${ROGUE_DIR}/python::${LD_LIBRARY_PATH}
