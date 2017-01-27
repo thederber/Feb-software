@@ -1,14 +1,3 @@
-# 
-# ----------------------------------------------------------------------------
-# Title      : rogue_example makefile
-# ----------------------------------------------------------------------------
-# File       : Makefile
-# Author     : Ryan Herbst, rherbst@slac.stanford.edu
-# Created    : 2016-10-23
-# Last update: 2016-10-23
-# ----------------------------------------------------------------------------
-# Description:
-# rogue_example makefile
 # ----------------------------------------------------------------------------
 # This file is part of the rogue_example software. It is subject to 
 # the license terms in the LICENSE.txt file found in the top-level directory 
@@ -18,7 +7,6 @@
 # copied, modified, propagated, or distributed except according to the terms 
 # contained in the LICENSE.txt file.
 # ----------------------------------------------------------------------------
-# 
 
 # Python 3
 PYCONF = python3-config
@@ -47,6 +35,7 @@ all: $(LIB_OBJ) $(LIB_SHO)
 clean:
 	@rm -f $(LIB_OBJ)
 	@rm -f $(LIB_SHO)
+	cd rogue; gmake clean   
 
 # Compile sources with headers
 %.o: %.cpp %.h
@@ -58,6 +47,7 @@ clean:
 
 # Compile Shared Library
 $(LIB_SHO): $(LIB_OBJ)
+	@cd rogue; gmake all
 	@test -d $(DST) || mkdir $(DST)
 	@echo "Creating $@"; $(CC) -shared -Wl,-soname,$(SHNAME) $(LIB_OBJ) $(LFLAGS) -o $@
 
