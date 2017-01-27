@@ -516,6 +516,7 @@ begin
          dlyTiming       => config.dlyTiming,
          dlyChess        => config.dlyChess,
          -- CHESS2 RX MSG Configuration
+         debugSendCnt    => config.debugSendCnt,
          destId          => config.destId,
          opCode          => evrOpCode,
          frameType       => config.frameType,

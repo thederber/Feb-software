@@ -127,6 +127,7 @@ begin
       axiSlaveRegister(axilEp, x"820", 0, v.config.wordSize);
       axiSlaveRegister(axilEp, x"824", 0, v.config.chessClkOe);
       axiSlaveRegister(axilEp, x"828", 0, v.forceHardRst);
+      axiSlaveRegister(axilEp, x"82C", 0, v.config.debugSendCnt);
 
       axiSlaveRegister(axilEp, x"F00", 0, v.rollOverEn);
       axiSlaveRegister(axilEp, x"F10", 0, v.cntRst);
@@ -294,5 +295,14 @@ begin
          clk     => timingClk320MHz,
          dataIn  => r.config.wordSize,
          dataOut => config.wordSize);
+         
+   SyncOutVec : entity work.SynchronizerVector
+      generic map (
+         TPD_G   => TPD_G,
+         WIDTH_G => 1)
+      port map (
+         clk     => timingClk320MHz,
+         dataIn(0)  => r.config.debugSendCnt,
+         dataOut(0) => config.debugSendCnt);         
 
 end rtl;

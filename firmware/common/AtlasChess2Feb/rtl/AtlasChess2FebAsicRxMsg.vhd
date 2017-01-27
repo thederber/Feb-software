@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-12-05
+-- Last update: 2017-01-26
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -32,9 +32,9 @@ use work.Pgp2bPkg.all;
 
 entity AtlasChess2FebAsicRxMsg is
    generic (
-      TPD_G          : time                  := 1 ns;
-      COMM_MODE_G    : boolean               := false;
-      CASCADE_SIZE_G : positive              := 4);
+      TPD_G          : time     := 1 ns;
+      COMM_MODE_G    : boolean  := false;
+      CASCADE_SIZE_G : positive := 4);
    port (
       -- CHESS2 Interface
       dataValid       : in  slv(2 downto 0);
@@ -42,6 +42,7 @@ entity AtlasChess2FebAsicRxMsg is
       col             : in  Slv5Array(2 downto 0);
       row             : in  Slv7Array(2 downto 0);
       -- CHESS2 Configuration
+      debugSendCnt    : in  sl;
       destId          : in  slv(5 downto 0);
       opCode          : in  slv(7 downto 0);
       frameType       : in  slv(31 downto 0);
@@ -62,13 +63,13 @@ end AtlasChess2FebAsicRxMsg;
 architecture mapping of AtlasChess2FebAsicRxMsg is
 
    constant AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(16);
-   
+
    type StateType is (
       IDLE_S,
       HDR_S,
       CATCHUP_A_S,
       CATCHUP_B_S,
-      MOVE_S); 
+      MOVE_S);
 
    type RegType is record
       wordSize  : slv(7 downto 0);
@@ -80,7 +81,7 @@ architecture mapping of AtlasChess2FebAsicRxMsg is
       txMaster  : AxiStreamMasterType;
       state     : StateType;
    end record RegType;
-   
+
    constant REG_INIT_C : RegType := (
       wordSize  => (others => '0'),
       frame     => (others => '0'),
@@ -89,7 +90,7 @@ architecture mapping of AtlasChess2FebAsicRxMsg is
       timingMsg => (others => '0'),
       cnt       => (others => '0'),
       txMaster  => AXI_STREAM_MASTER_INIT_C,
-      state     => IDLE_S);      
+      state     => IDLE_S);
 
    signal r   : RegType := REG_INIT_C;
    signal rin : RegType;
@@ -102,8 +103,9 @@ architecture mapping of AtlasChess2FebAsicRxMsg is
 
 begin
 
-   comb : process (col, dataValid, destId, frameType, multiHit, opCode, r, row, timingMsg,
-                   timingRst320MHz, timingTrig, txCtrl, wordSize) is
+   comb : process (col, dataValid, debugSendCnt, destId, frameType, multiHit,
+                   opCode, r, row, timingMsg, timingRst320MHz, timingTrig,
+                   txCtrl, wordSize) is
       variable v    : RegType;
       variable i    : natural;
       variable data : slv(63 downto 0);
@@ -117,13 +119,17 @@ begin
          data(13+(16*i) downto (16*i)) := dataValid(i) & multiHit(i) & col(i) & row(i);
       end loop;
 
+      if (debugSendCnt = '1') then
+         data := r.cnt & r.cnt & r.cnt & r.cnt & r.cnt & r.cnt & r.cnt & r.cnt;
+      end if;
+
       -- Reset the flags
       v.txMaster.tValid := '0';
       v.txMaster.tLast  := '0';
       v.txMaster.tUser  := (others => '0');
 
       -- Wait for trigger
-      if timingTrig = '1' then
+      if (timingTrig = '1') then
          -- Increment the counter
          v.trigCnt := r.trigCnt + 1;
       end if;
@@ -131,7 +137,7 @@ begin
       -- State Machine
       case (r.state) is
          ----------------------------------------------------------------------
-         when IDLE_S =>
+         when IDLE_S =>                 -- r.cnt = 0
             -- Wait for trigger and ready to move data
             if (timingTrig = '1') and (txCtrl.pause = '0') then
                -- Send the header
@@ -143,15 +149,15 @@ begin
                ssiSetUserSof(AXIS_CONFIG_C, v.txMaster, '1');
                -- Set the hdr[0]
                v.txMaster.tData(1 downto 0)    := "00";  -- Virtual Channel ID = 0x0        
-               v.txMaster.tData(7 downto 2)    := destId;              -- Destination ID = lane + Z
-               v.txMaster.tData(31 downto 8)   := r.frame(23 downto 0);    -- Transaction ID
+               v.txMaster.tData(7 downto 2)    := destId;  -- Destination ID = lane + Z
+               v.txMaster.tData(31 downto 8)   := r.frame(23 downto 0);  -- Transaction ID
                -- Set the hdr[1]
-               v.txMaster.tData(47 downto 32)  := r.trigCnt;           -- Acquire Counter
-               v.txMaster.tData(55 downto 48)  := opCode;              -- OP Code
-               v.txMaster.tData(59 downto 56)  := "0000";              -- Element ID
+               v.txMaster.tData(47 downto 32)  := r.trigCnt;  -- Acquire Counter
+               v.txMaster.tData(55 downto 48)  := opCode;  -- OP Code
+               v.txMaster.tData(59 downto 56)  := "0000";  -- Element ID
                v.txMaster.tData(63 downto 60)  := destId(3 downto 0);  -- Destination ID = Z only
                -- Set the hdr[2]
-               v.txMaster.tData(95 downto 64)  := r.frame;             -- Frame Number
+               v.txMaster.tData(95 downto 64)  := r.frame;    -- Frame Number
                -- Set the hdr[3]
                v.txMaster.tData(127 downto 96) := timingMsg(31 downto 0);  -- Ticks
                -- Save the data and reset of the timing message
@@ -161,12 +167,12 @@ begin
                v.state                         := HDR_S;
             end if;
          ----------------------------------------------------------------------
-         when HDR_S =>
+         when HDR_S =>                  -- r.cnt = 1
             -- Send the header
             v.txMaster.tValid               := '1';
             v.txMaster.tKeep                := x"FFFF";
             -- Set the hdr[4]
-            v.txMaster.tData(31 downto 0)   := r.timingMsg;            -- Fiducials  
+            v.txMaster.tData(31 downto 0)   := r.timingMsg;   -- Fiducials  
             -- Set the hdr[5]
             v.txMaster.tData(47 downto 32)  := x"0000";  -- sbtemp[0]              
             v.txMaster.tData(63 downto 48)  := x"0000";  -- sbtemp[1]   
@@ -174,14 +180,14 @@ begin
             v.txMaster.tData(79 downto 64)  := x"0000";  -- sbtemp[2]              
             v.txMaster.tData(95 downto 80)  := x"0000";  -- sbtemp[3]               
             -- Set the hdr[7]
-            v.txMaster.tData(127 downto 96) := frameType;              -- =Frame Type         
+            v.txMaster.tData(127 downto 96) := frameType;  -- =Frame Type         
             -- Save the data
             v.tData(1)                      := data;
             v.wordSize                      := wordSize;
             -- Next state
             v.state                         := CATCHUP_A_S;
          ----------------------------------------------------------------------
-         when CATCHUP_A_S =>
+         when CATCHUP_A_S =>            -- r.cnt = 2
             -- Send the data
             v.txMaster.tValid               := '1';
             v.txMaster.tData(63 downto 0)   := r.tData(0);
@@ -206,7 +212,7 @@ begin
                v.state := CATCHUP_B_S;
             end if;
          ----------------------------------------------------------------------
-         when CATCHUP_B_S =>
+         when CATCHUP_B_S =>            -- r.cnt  =  3
             -- Send the data
             v.txMaster.tValid               := '1';
             v.txMaster.tData(63 downto 0)   := r.tData(2);
@@ -226,15 +232,12 @@ begin
                v.state          := IDLE_S;
             else
                -- Setup for continuous
-               v.cnt            := x"04";
                v.txMaster.tKeep := x"FFFF";
                -- Next state
                v.state          := MOVE_S;
             end if;
          ----------------------------------------------------------------------
          when MOVE_S =>
-            -- Increment the counter
-            v.cnt := r.cnt + 1;
             -- Check for WRD[0]
             if r.txMaster.tKeep = x"FFFF" then
                v.txMaster.tKeep              := x"00FF";
@@ -256,6 +259,15 @@ begin
       ----------------------------------------------------------------------
       end case;
 
+      -- Increment the counter
+      v.cnt := r.cnt + 1;
+
+      -- Check if next state is IDLE
+      if (v.state = IDLE_S) then
+         -- Reset the counter
+         v.cnt := x"00";
+      end if;
+
       -- Synchronous Reset
       if timingRst320MHz = '1' then
          v := REG_INIT_C;
@@ -266,7 +278,7 @@ begin
 
       -- Outputs
       extBusy <= txCtrl.pause;
-      
+
    end process comb;
 
    seq : process (timingClk320MHz) is
@@ -295,7 +307,7 @@ begin
          CASCADE_PAUSE_SEL_G => (CASCADE_SIZE_G-1),
          -- AXI Stream Port Configurations
          SLAVE_AXI_CONFIG_G  => AXIS_CONFIG_C,
-         MASTER_AXI_CONFIG_G => ite(COMM_MODE_G, ssiAxiStreamConfig(4), SSI_PGP2B_CONFIG_C)) 
+         MASTER_AXI_CONFIG_G => ite(COMM_MODE_G, ssiAxiStreamConfig(4), SSI_PGP2B_CONFIG_C))
       port map (
          -- Slave Port
          sAxisClk    => timingClk320MHz,
@@ -306,6 +318,6 @@ begin
          mAxisClk    => axisClk,
          mAxisRst    => axisRst,
          mAxisMaster => mAxisMaster,
-         mAxisSlave  => mAxisSlave);    
+         mAxisSlave  => mAxisSlave);
 
 end mapping;

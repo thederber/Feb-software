@@ -22,9 +22,9 @@
 import pyrogue as pr
 
 class saciTest(pr.Device):
-    def __init__(self, name="saciTest", memBase=None, offset=0, hidden=False):
+    def __init__(self, name="saciTest", memBase=None, offset=0, hidden=False, expand=True):
         super(self.__class__, self).__init__(name, "CHESS2 SACI Test structure Interface",
-                                             memBase, offset, hidden)
+                        memBase=memBase, offset=offset, hidden=hidden, expand=expand)
         #################################################################################################
         # Using the atlas-chess2/firmware/submodules/surf/protocols/saci/rtl/AxiLiteSaciMaster.vhd module
         # AXI_Lite_Address[31:24] = Ignored

@@ -66,7 +66,7 @@ class MyRunControl(pyrogue.RunControl):
 
 def gui(arg):
     # Set base
-    febBoard = pyrogue.Root('febBoard','Front End Board')
+    febBoard = pyrogue.Root('System','Front End Board')
 
     # Run control
     febBoard.add(MyRunControl('runControl'))
@@ -90,10 +90,7 @@ def gui(arg):
         # Create and Connect SRPv0 to VC1
         srp = rogue.protocols.srp.SrpV0()
         pyrogue.streamConnectBiDir(pgpVc1,srp)
-
-        # Add configuration stream to file as channel 0
-        pyrogue.streamConnect(febBoard,dataWriter.getChannel(0x0))
-
+        
         # Add data stream to file as channel 1
         pyrogue.streamConnect(pgpVc0,dataWriter.getChannel(0x1))
     #################################################################
@@ -102,23 +99,25 @@ def gui(arg):
         # Create the ETH interface @ IP Address = arg
         ethLink = pyrogue.protocols.UdpRssiPack(arg,8192,1400)    
     
-        # Create and Connect SRPv0 to tDest = 0x0
+        # Create and Connect SRPv0 to AxiStream.tDest = 0x0
         srp = rogue.protocols.srp.SrpV0()  
         pyrogue.streamConnectBiDir(srp,ethLink.application(0))
-        
-        # Add configuration stream to file as channel 0
-        pyrogue.streamConnect(febBoard,dataWriter.getChannel(0x0))        
-        
-        # # Add data stream to file as channel 1
-        # pyrogue.streamConnect(ethLink,dataWriter.getChannel(0x1))
+            
+        # Add data stream to file as channel 1 to tDest = 0x1
+        pyrogue.streamConnect(ethLink.application(1),dataWriter.getChannel(0x1))
     #################################################################
         
+    # # ToDo: Need to fix the auto-status polling from writing 
+    # #       to dataWriter, which is why this is commented out
+    # # Add configuration stream to file as channel 0
+    # pyrogue.streamConnect(febBoard,dataWriter.getChannel(0x0))        
+        
     # Add registers
-    febBoard.add(AtlasChess2Feb.feb(memBase=srp,offset=0x0))
+    febBoard.add(AtlasChess2Feb.feb(memBase=srp))
                
     # Create GUI
     appTop = PyQt4.QtGui.QApplication(sys.argv)
-    guiTop = pyrogue.gui.GuiTop('febBoardGui')
+    guiTop = pyrogue.gui.GuiTop('PyRogueGui')
     guiTop.resize(800, 1000)
     guiTop.addTree(febBoard)
 

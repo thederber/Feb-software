@@ -22,9 +22,9 @@
 import pyrogue as pr
 
 class idelay(pr.Device):
-    def __init__(self, name="idelay", memBase=None, offset=0, hidden=False):
+    def __init__(self, name="idelay", memBase=None, offset=0, hidden=False, expand=True):
         super(self.__class__, self).__init__(name, "Configurations the IDELAY modules",
-                                             memBase, offset, hidden)
+                        memBase=memBase, offset=offset, hidden=hidden, expand=expand)
 
         for i in range(0,14):
             self.add(pr.Variable(name='idelay%01i'%(i),

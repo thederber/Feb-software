@@ -22,9 +22,9 @@
 import pyrogue as pr
 
 class dac(pr.Device):
-    def __init__(self, name="dac", memBase=None, offset=0, hidden=False):
+    def __init__(self, name="dac", memBase=None, offset=0, hidden=False, expand=True):
         super(self.__class__, self).__init__(name, "Configurations the DAC module",
-                                             memBase, offset, hidden)
+                        memBase=memBase, offset=offset, hidden=hidden, expand=expand)
                                              
         def addPair(name, description, offset):
             """Add a Raw ADC register variable and corresponding converted value Variable"""

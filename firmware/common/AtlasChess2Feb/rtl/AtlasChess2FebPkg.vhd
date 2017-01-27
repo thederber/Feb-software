@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-12-06
+-- Last update: 2017-01-26
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -35,34 +35,36 @@ package AtlasChess2FebPkg is
    constant TIMING_SLAC_EVR_C  : TimingModeType := "10";
 
    type AtlasChess2FebConfigType is record
-      softTrig   : sl;
-      softRst    : sl;
-      hardRst    : sl;
-      pllRst     : sl;
-      destId     : slv(5 downto 0);
-      frameType  : slv(31 downto 0);
-      wordSize   : slv(7 downto 0);
-      timingMode : TimingModeType;
-      dlyRst     : sl;
-      dlyTiming  : slv(DELAY_ADDR_WIDTH_C-1 downto 0);
-      dlyChess   : slv(DELAY_ADDR_WIDTH_C-1 downto 0);
-      refSelect  : sl;
-      chessClkOe : sl;
+      softTrig     : sl;
+      softRst      : sl;
+      hardRst      : sl;
+      pllRst       : sl;
+      destId       : slv(5 downto 0);
+      frameType    : slv(31 downto 0);
+      wordSize     : slv(7 downto 0);
+      timingMode   : TimingModeType;
+      dlyRst       : sl;
+      dlyTiming    : slv(DELAY_ADDR_WIDTH_C-1 downto 0);
+      dlyChess     : slv(DELAY_ADDR_WIDTH_C-1 downto 0);
+      refSelect    : sl;
+      chessClkOe   : sl;
+      debugSendCnt : sl;
    end record;
    constant CHESS2_FEB_CONFIG_INIT_C : AtlasChess2FebConfigType := (
-      softTrig   => '0',
-      softRst    => '1',
-      hardRst    => '1',
-      pllRst     => '1',
-      destId     => (others => '0'),
-      frameType  => (others => '0'),
-      wordSize   => (others => '0'),
-      timingMode => TIMING_LEMO_TRIG_C,
-      dlyRst     => '1',
-      dlyTiming  => (others => '0'),
-      dlyChess   => (others => '0'),
-      refSelect  => '0',   -- internal 40 MHz reference
-      chessClkOe => '1');  -- enabled
+      softTrig     => '0',
+      softRst      => '1',
+      hardRst      => '1',
+      pllRst       => '1',
+      destId       => (others => '0'),
+      frameType    => (others => '0'),
+      wordSize     => (others => '0'),
+      timingMode   => TIMING_LEMO_TRIG_C,
+      dlyRst       => '1',
+      dlyTiming    => (others => '0'),
+      dlyChess     => (others => '0'),
+      refSelect    => '0',              -- internal 40 MHz reference
+      chessClkOe   => '1',              -- enabled
+      debugSendCnt => '0');
 
    type AtlasChess2FebStatusType is record
       refClk40MHz : sl;
@@ -70,6 +72,6 @@ package AtlasChess2FebPkg is
    end record;
    constant CHESS2_FEB_STATUS_INIT_C : AtlasChess2FebStatusType := (
       refClk40MHz => '0',
-      refLocked   => '0');    
+      refLocked   => '0');
 
 end package;

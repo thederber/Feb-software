@@ -74,6 +74,7 @@ entity AtlasChess2FebAsic is
       dlyTiming       : in  slv(DELAY_ADDR_WIDTH_C-1 downto 0);
       dlyChess        : in  slv(DELAY_ADDR_WIDTH_C-1 downto 0);
       -- CHESS2 RX MSG Configuration
+      debugSendCnt    : in  sl;
       destId          : in  slv(5 downto 0);
       opCode          : in  slv(7 downto 0);
       frameType       : in  slv(31 downto 0);
@@ -256,6 +257,7 @@ begin
          col             => col,
          row             => row,
          -- CHESS2 Configuration
+         debugSendCnt    => debugSendCnt,
          destId          => destId,
          opCode          => opCode,
          frameType       => frameType,

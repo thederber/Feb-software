@@ -30,17 +30,17 @@ import surf.AxiMicronN25Q
 class feb(pr.Device):
     def __init__(self, name="feb", memBase=None, offset=0, hidden=False):
         super(self.__class__, self).__init__(name, "FEB Module",
-                                             memBase, offset, hidden)
+                                             memBase=memBase, offset=offset, hidden=hidden)
         # SACI base address and address stride 
         saciAddr = 0x01000000
         saciChip = 0x400000
          
-        self.add(surf.AxiVersion.create(   offset=0x00000000))
-        self.add(surf.Xadc(                offset=0x00010000))  
+        self.add(surf.AxiVersion.create(   offset=0x00000000,expand=False))
+        self.add(surf.Xadc(                offset=0x00010000,expand=False))  
         self.add(surf.AxiMicronN25Q.create(offset=0x00020000,hidden=True))  
-        self.add(AtlasChess2Feb.sysReg(    offset=0x00030000))    
+        self.add(AtlasChess2Feb.sysReg(    offset=0x00030000,expand=False))    
         
-        self.add(AtlasChess2Feb.dac(       offset=0x00100000))
+        self.add(AtlasChess2Feb.dac(       offset=0x00100000,expand=False))
         self.add(surf.Pgp2bAxi(            offset=0x00200000,hidden=True))  
         
         for i in range(3):
@@ -48,16 +48,12 @@ class feb(pr.Device):
                 name='idelay_%01i'%(i),
                 offset=(0x00300000 + i*0x10000),hidden=True))
                 
-        self.add(AtlasChess2Feb.chargeInj(offset=0x00330000))   
+        self.add(AtlasChess2Feb.chargeInj(offset=0x00330000,expand=False))   
                 
         for i in range(3):
             self.add(AtlasChess2Feb.saci( 
                 name='saci_%01i'%(i),
-                offset=(saciAddr + i*saciChip)))   
+                offset=(saciAddr + i*saciChip),expand=False))   
                 
-        self.add(AtlasChess2Feb.saciTest(offset=saciAddr+(3*saciChip)))
-        
-        # Prevent auto-polling of AxiVersion (need to fix this feature when data logging)
-        self.axiVersion.counter._pollInterval = 0
-        self.axiVersion.upTimeCnt._pollInterval = 0        
-                               
+        self.add(AtlasChess2Feb.saciTest(offset=saciAddr+(3*saciChip),expand=False))
+   

@@ -22,9 +22,9 @@
 import pyrogue as pr
 
 class sysReg(pr.Device):
-    def __init__(self, name="sysReg", memBase=None, offset=0, hidden=False):
+    def __init__(self, name="sysReg", memBase=None, offset=0, hidden=False, expand=True):
         super(self.__class__, self).__init__(name, "System Register Module",
-                                             memBase, offset, hidden)
+                        memBase=memBase, offset=offset, hidden=hidden, expand=expand)
 
         self.add(pr.Variable(name='refLockedCnt',description='Reference clock Locked Status Counter',
                 offset=0x000, bitSize=32, bitOffset=0, base='hex', mode='RO'))                                         
@@ -69,7 +69,10 @@ class sysReg(pr.Device):
                 offset=0x824, bitSize=1, bitOffset=0, base='bool', mode='RW'))
                                 
         self.add(pr.Variable(name='forceHardReset',description='ForceHardReset',
-                offset=0x828, bitSize=1, bitOffset=0, base='bool', mode='RW'))                                
+                offset=0x828, bitSize=1, bitOffset=0, base='bool', mode='RW'))   
+
+        self.add(pr.Variable(name='debugSendCnt',description='DebugSendCnt',
+                offset=0x82C, bitSize=1, bitOffset=0, base='bool', mode='RW'))                   
                                 
         self.add(pr.Variable(name='rollOverEn',description='RollOverEn',
                 offset=0xf00, bitSize=1, bitOffset=0, base='hex', mode='RW'))

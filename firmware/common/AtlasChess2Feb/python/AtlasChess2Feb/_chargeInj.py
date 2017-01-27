@@ -22,9 +22,9 @@
 import pyrogue as pr
 
 class chargeInj(pr.Device):
-    def __init__(self, name="chargeInj", memBase=None, offset=0, hidden=False):
+    def __init__(self, name="chargeInj", memBase=None, offset=0, hidden=False, expand=True):
         super(self.__class__, self).__init__(name, "Charge Injection Module",
-                                             memBase, offset, hidden)
+                        memBase=memBase, offset=offset, hidden=hidden, expand=expand)
         for i in range(3):
             self.add(pr.Variable(
                     name='hitDet%01i'%(i), description=' ',
