@@ -21,13 +21,13 @@
 **/
 
 #include <boost/python.hpp>
-#include "StreamSink.h"
+// #include "StreamSink.h"
 
 BOOST_PYTHON_MODULE(rogue_example) {
 
    PyEval_InitThreads();
 
-   StreamSink::setup_python();
+   // StreamSink::setup_python();
 
 };
 
