@@ -66,14 +66,14 @@ class MyRunControl(pyrogue.RunControl):
 
 def gui(arg):
     # Set base
-    febBoard = pyrogue.Root('System','Front End Board')
+    system = pyrogue.Root('System','Front End Board')
 
     # Run control
-    febBoard.add(MyRunControl('runControl'))
+    system.add(MyRunControl('runControl'))
 
     # File writer
     dataWriter = pyrogue.utilities.fileio.StreamWriter('dataWriter')
-    febBoard.add(dataWriter)
+    system.add(dataWriter)
 
     #################################################################
     # Check for PGP link
@@ -97,35 +97,47 @@ def gui(arg):
     # Else it's Ethernet based
     else:
         # Create the ETH interface @ IP Address = arg
-        ethLink = pyrogue.protocols.UdpRssiPack(arg,8192,1400)    
+        ethLink = pyrogue.protocols.UdpRssiPack(host=arg,port=8192,size=1400)    
     
         # Create and Connect SRPv0 to AxiStream.tDest = 0x0
         srp = rogue.protocols.srp.SrpV0()  
         pyrogue.streamConnectBiDir(srp,ethLink.application(0))
-            
+
         # Add data stream to file as channel 1 to tDest = 0x1
         pyrogue.streamConnect(ethLink.application(1),dataWriter.getChannel(0x1))
     #################################################################
-        
-    # # ToDo: Need to fix the auto-status polling from writing 
-    # #       to dataWriter, which is why this is commented out
-    # # Add configuration stream to file as channel 0
-    # pyrogue.streamConnect(febBoard,dataWriter.getChannel(0x0))        
-        
+             
     # Add registers
-    febBoard.add(AtlasChess2Feb.feb(memBase=srp))
-               
+    system.add(AtlasChess2Feb.feb(memBase=srp))
+    
+    # Get the updated variables
+    system.readAll()
+    
+    # print ('Load the matrix')
+    # system.feb.Chess2Ctrl0.loadMatrix()
+    # system.feb.Chess2Ctrl1.loadMatrix()
+    # system.feb.Chess2Ctrl2.loadMatrix()
+    
+    #####################################################
+    # Example: Enable only one pixel for charge injection
+    #####################################################
+    # print ('Disable all pixels')
+    # system.feb.Chess2Ctrl0.writeAllPixels(enable=0,chargeInj=0)
+    # # Enable only one pixel for charge injection
+    # print ('Enable only one pixels')
+    # system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=1, col=0, row=0)
+    
     # Create GUI
     appTop = PyQt4.QtGui.QApplication(sys.argv)
     guiTop = pyrogue.gui.GuiTop('PyRogueGui')
     guiTop.resize(800, 1000)
-    guiTop.addTree(febBoard)
-
+    guiTop.addTree(system)
+    
     # Run gui
     appTop.exec_()
 
     # Stop mesh after gui exits
-    febBoard.stop()
+    system.stop()
 
 if __name__ == '__main__':
     gui(sys.argv[1])

@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-12-06
+-- Last update: 2017-01-31
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -35,11 +35,11 @@ use unisim.vcomponents.all;
 entity AtlasChess2FebCore is
    generic (
       TPD_G            : time             := 1 ns;
-      COMM_MODE_G      : boolean          := false;         -- true = ETH mode, false = PGP mode
+      COMM_MODE_G      : boolean          := false;  -- true = ETH mode, false = PGP mode
       AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C;
       -- ETH configuration
-      ETH_DEV_G        : boolean          := true;          -- true = Adds non-RSSI on port 8193
-      ETH_DHCP_G       : boolean          := true;          -- true = DHCP, false = static address
+      ETH_DEV_G        : boolean          := true;  -- true = Adds non-RSSI on port 8193
+      ETH_DHCP_G       : boolean          := true;  -- true = DHCP, false = static address
       ETH_IP_ADDR_G    : slv(31 downto 0) := x"0C02A8C0");  -- 192.168.2.12 (before DHCP) 
    port (
       -- CHESS2 ASIC Serial Ports
@@ -106,7 +106,7 @@ entity AtlasChess2FebCore is
       bootMiso        : in    sl;
       -- XADC Ports
       vPIn            : in    sl;
-      vNIn            : in    sl);      
+      vNIn            : in    sl);
 end AtlasChess2FebCore;
 
 architecture mapping of AtlasChess2FebCore is
@@ -129,7 +129,7 @@ architecture mapping of AtlasChess2FebCore is
    constant CHESS2_ADDR_C : slv(31 downto 0) := X"00300000";
    constant ETH_ADDR_C    : slv(31 downto 0) := X"00400000";
    constant SACI_ADDR_C   : slv(31 downto 0) := X"01000000";
-   
+
    constant AXIL_CROSSBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXIL_MASTERS_C-1 downto 0) := (
       SYS_INDEX_C     => (
          baseAddr     => SYS_ADDR_C,
@@ -154,7 +154,7 @@ architecture mapping of AtlasChess2FebCore is
       SACI_INDEX_C    => (
          baseAddr     => SACI_ADDR_C,
          addrBits     => 24,
-         connectivity => X"FFFF"));  
+         connectivity => X"FFFF"));
 
    signal sAxilWriteMasters : AxiLiteWriteMasterArray(NUM_AXIL_SLAVES_C-1 downto 0);
    signal sAxilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXIL_SLAVES_C-1 downto 0);
@@ -196,7 +196,7 @@ architecture mapping of AtlasChess2FebCore is
    signal timingTrig      : sl;
    signal timingMsg       : slv(63 downto 0) := (others => '0');
    signal evrOpCode       : slv(7 downto 0);
-   
+
 begin
 
    --------------
@@ -217,7 +217,7 @@ begin
 
    pwrSyncSclk <= '0';
    pwrSyncFclk <= '0';
-   
+
    ---------------
    -- Timing Clock 
    ---------------
@@ -245,11 +245,11 @@ begin
    -- PGP Front End Core
    ---------------------
    Pgp_Config : if (COMM_MODE_G = false) generate
-      
+
       U_PGP : entity work.AtlasChess2FebPgpCore
          generic map (
             TPD_G            => TPD_G,
-            AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)   
+            AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
          port map (
             -- Reference Clock and Reset
             refclk200MHz     => refclk200MHz,
@@ -278,7 +278,7 @@ begin
             pgpRxP           => gtRxP,
             pgpRxN           => gtRxN,
             pgpTxP           => gtTxP,
-            pgpTxN           => gtTxN);    
+            pgpTxN           => gtTxN);
 
       U_ETH : entity work.AxiLiteEmpty
          generic map (
@@ -290,7 +290,7 @@ begin
             axiReadMaster  => mAxilReadMasters(ETH_INDEX_C),
             axiReadSlave   => mAxilReadSlaves(ETH_INDEX_C),
             axiWriteMaster => mAxilWriteMasters(ETH_INDEX_C),
-            axiWriteSlave  => mAxilWriteSlaves(ETH_INDEX_C));              
+            axiWriteSlave  => mAxilWriteSlaves(ETH_INDEX_C));
 
    end generate;
 
@@ -298,14 +298,14 @@ begin
    -- GbE Front End Core
    ---------------------
    Eth_Config : if (COMM_MODE_G = true) generate
-      
+
       U_ETH : entity work.AtlasChess2FebEthCore
          generic map (
             TPD_G            => TPD_G,
             DEV_G            => ETH_DEV_G,
             DHCP_G           => ETH_DHCP_G,
             IP_ADDR_G        => ETH_IP_ADDR_G,
-            AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)   
+            AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
          port map (
             -- Reference Clock and Reset
             refclk200MHz     => refclk200MHz,
@@ -341,7 +341,7 @@ begin
             gtRxP            => gtRxP,
             gtRxN            => gtRxN,
             gtTxP            => gtTxP,
-            gtTxN            => gtTxN);    
+            gtTxN            => gtTxN);
 
    end generate;
 
@@ -373,7 +373,7 @@ begin
    U_Sys : entity work.AtlasChess2FebSys
       generic map (
          TPD_G            => TPD_G,
-         FSBL_G           => false,     -- not supported in standard build
+         AXI_CLK_FREQ_G   => AXIL_CLK_FREQ_C,
          AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
       port map (
          -- Timing Clock and Reset
@@ -439,7 +439,7 @@ begin
       generic map(
          TPD_G            => TPD_G,
          AXI_BASE_ADDR_G  => AXIL_CROSSBAR_CONFIG_C(TIMING_INDEX_C).baseAddr,
-         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G) 
+         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
       port map(
          -- AXI-Lite Interface
          axilClk         => axilClk,
@@ -472,7 +472,7 @@ begin
          evrRxP          => evrRxP,
          evrRxN          => evrRxN,
          evrTxP          => evrTxP,
-         evrTxN          => evrTxN);           
+         evrTxN          => evrTxN);
 
    -------------------
    -- CHESS2 RX Engine
@@ -541,9 +541,9 @@ begin
       generic map (
          TPD_G              => TPD_G,
          AXIL_ERROR_RESP_G  => AXI_ERROR_RESP_G,
-         AXIL_CLK_PERIOD_G  => (1.0/AXIL_CLK_FREQ_C),    -- In units of seconds
-         AXIL_TIMEOUT_G     => 1.0E-1,                   -- In units of seconds
-         SACI_CLK_PERIOD_G  => (1.0/10.0E+6),            -- In units of seconds        
+         AXIL_CLK_PERIOD_G  => (1.0/AXIL_CLK_FREQ_C),  -- In units of seconds
+         AXIL_TIMEOUT_G     => 1.0E-1,  -- In units of seconds
+         SACI_CLK_PERIOD_G  => (1.0/10.0E+6),  -- In units of seconds        
          SACI_CLK_FREERUN_G => false,
          SACI_NUM_CHIPS_G   => 4,
          SACI_RSP_BUSSED_G  => false)

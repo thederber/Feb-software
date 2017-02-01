@@ -28,10 +28,10 @@ class dac(pr.Device):
                                              
         def addPair(name, description, offset):
             """Add a Raw ADC register variable and corresponding converted value Variable"""
-            self.add(pr.Variable(name=name+"Raw", offset=offset, bitSize=12, bitOffset=0,
+            self.add(pr.Variable(name=name+"Raw", offset=offset, bitSize=12, bitOffset=0, units="3.3V/4095",
                                  base='hex', mode='RW', description=description))
             
-            self.add(pr.Variable(name=name, mode = 'RO', base='string',
+            self.add(pr.Variable(name=name, mode = 'RO', base='string', units='V',
                                  getFunction=dac.convtFloat, dependencies=[self.variables[name+"Raw"]]))
 
         addPair(name='dacCASC',     description='DAC CASC',         offset=0x00000)
@@ -47,4 +47,4 @@ class dac(pr.Device):
     def convtFloat(dev, var):
         value   = var.dependencies[0].get(read=False)
         fpValue = value*(3.3/4096.0)
-        return '%0.3f V'%(fpValue)            
+        return '%0.3f'%(fpValue)            

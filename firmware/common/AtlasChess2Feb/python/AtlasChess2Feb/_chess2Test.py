@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 #-----------------------------------------------------------------------------
-# Title      : PyRogue _saciTest Module
+# Title      : PyRogue _chess2Test Module
 #-----------------------------------------------------------------------------
-# File       : _saciTest.py
+# File       : _chess2Test.py
 # Author     : Larry Ruckman <ruckman@slac.stanford.edu>
 # Created    : 2016-11-09
 # Last update: 2016-11-09
 #-----------------------------------------------------------------------------
 # Description:
-# PyRogue _saciTest Module
+# PyRogue _chess2Test Module
 #-----------------------------------------------------------------------------
 # This file is part of the ATLAS CHESS2 DEV. It is subject to 
 # the license terms in the LICENSE.txt file found in the top-level directory 
@@ -21,9 +21,9 @@
 
 import pyrogue as pr
 
-class saciTest(pr.Device):
-    def __init__(self, name="saciTest", memBase=None, offset=0, hidden=False, expand=True):
-        super(self.__class__, self).__init__(name, "CHESS2 SACI Test structure Interface",
+class Chess2Test(pr.Device):
+    def __init__(self, name="Chess2Test", memBase=None, offset=0, hidden=False, expand=True):
+        super(self.__class__, self).__init__(name, "CHESS2 Test structure Interface",
                         memBase=memBase, offset=offset, hidden=hidden, expand=expand)
         #################################################################################################
         # Using the atlas-chess2/firmware/submodules/surf/protocols/saci/rtl/AxiLiteSaciMaster.vhd module

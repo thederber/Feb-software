@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 #-----------------------------------------------------------------------------
-# Title      : PyRogue _saci Module
+# Title      : PyRogue _chess2Array Module
 #-----------------------------------------------------------------------------
-# File       : _saci.py
+# File       : _chess2Array.py
 # Author     : Larry Ruckman <ruckman@slac.stanford.edu>
 # Created    : 2016-11-09
 # Last update: 2016-11-09
 #-----------------------------------------------------------------------------
 # Description:
-# PyRogue _saci Module
+# PyRogue _chess2Array Module
 #-----------------------------------------------------------------------------
 # This file is part of the ATLAS CHESS2 DEV. It is subject to 
 # the license terms in the LICENSE.txt file found in the top-level directory 
@@ -20,11 +20,30 @@
 #-----------------------------------------------------------------------------
 
 import pyrogue as pr
-
-class saci(pr.Device):
-    def __init__(self, name="saci", memBase=None, offset=0, hidden=False, expand=True):
-        super(self.__class__, self).__init__(name, "CHESS2 SACI Interface",
-                        memBase=memBase, offset=offset, hidden=hidden, expand=expand)
+                
+class matrix(pr.Device):
+    def __init__(self, name="matrix"):
+        super(self.__class__, self).__init__(name, "CHESS2 Matrix Data",
+                        memBase=None, hidden=True, expand=False)
+        # Init the variables to all ones (Note: all config bits are active LOW)
+        self._pixel     = [[0x3F for row in range(128)] for col in range(32)]
+        
+        # Create the PyRogue software variables
+        for col in range(32):
+            for row in range(128):
+                # Common string
+                pixel = 'col%02irow%03i'%(col,row)
+                # Add the software variables
+                self.add(pr.Variable(name=(pixel), 
+                        description='Pixel Configuration',
+                        base='hex', mode='RW',bitSize=6,
+                        setFunction='dev._pixel[%d][%d] = value'%(col,row),
+                        getFunction='value = dev._pixel[%d][%d]'%(col,row)))
+                        
+class Chess2Array(pr.Device):
+    def __init__(self, name="Chess2Array", memBase=None, offset=0, hidden=False, expand=True):
+        super(self.__class__, self).__init__(name, "CHESS2 Array Interface",
+                        memBase=memBase, offset=offset, hidden=hidden, expand=expand)        
         #################################################################################################
         # Using the atlas-chess2/firmware/submodules/surf/protocols/saci/rtl/AxiLiteSaciMaster.vhd module
         # AXI_Lite_Address[31:24] = Ignored
@@ -48,31 +67,26 @@ class saci(pr.Device):
         # Define the row and col bit size
         rowBitSize = 7
         colBitSize = 5
+        
+        # Create a warning message
+        warningMessage="""
+            The values should in principle enforce a functional front-end for CHESS2 
+            and should not be modified without a consultation with the designers as 
+            it could allow too much current to flow in the sensor and damage it.                                        
+            """
                 
         ######################################################
         # Define all the non-global registers (A.K.A commands)
         ######################################################
                         
         self.add(pr.Variable(name='StartMatrixConfig',description='START Matrix Configuration',
-            offset=(cmd0x8), bitSize=32, bitOffset=0, base='bool', mode='WO'))     
+            offset=(cmd0x8), bitSize=32, bitOffset=0, base='bool', mode='WO', hidden=True))     
 
         self.add(pr.Variable(name='WritePixel',description='Write Pixel',
-            offset=(cmd0x5), bitSize=6, bitOffset=0, base='hex', mode='WO'))              
+            offset=(cmd0x5), bitSize=6, bitOffset=0, base='hex', mode='WO', hidden=True))              
             
         self.add(pr.Variable(name='EndMatrixConfig',description='END Matrix Configuration',
-            offset=(cmd0x0), bitSize=32, bitOffset=0, base='bool', mode='RO'))             
-            
-        # # Untested
-        # self.add(pr.Variable(name='WriteMatrix',description='Write Matrix',
-            # offset=(cmd0x4), bitSize=6, bitOffset=0, base='bool', mode='WO'))  
-            
-        # # Untested 
-        # self.add(pr.Variable(name='WriteAllCol',description='Write All Columns',
-            # offset=(cmd0x2), bitSize=6, bitOffset=0, base='hex', mode='WO'))      
-
-        # # Untested 
-        # self.add(pr.Variable(name='WriteAllRow',description='Write All Rows',
-            # offset=(cmd0x3), bitSize=6, bitOffset=0, base='hex', mode='WO'))      
+            offset=(cmd0x0), bitSize=32, bitOffset=0, base='bool', mode='RO', hidden=True))                 
         
         #################################
         # Define all the global registers     
@@ -84,90 +98,41 @@ class saci(pr.Device):
         self.add(pr.Variable(name='ColPointer', description='Column Pointer',
             offset=(cmd0x1|(4*0x3)), bitSize=colBitSize, bitOffset=0, base='hex', mode='RW'))  
 
-        self.add(pr.Variable(name='VNLogicatt',
-            description="""
-            The values should in principle enforce a functional front-end for CHESS2 
-            and should not be modified without a consultation with the designers as 
-            it could allow too much current to flow in the sensor and damage it.                                        
-            """,              
-            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=0, base='hex', mode='RO'))  
+        self.add(pr.Variable(name='VNLogicatt', description=warningMessage,            
+            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=0, base='hex', mode='RW'))  
                                  
-        self.add(pr.Variable(name='VNLogicres',description="""
-            The values should in principle enforce a functional front-end for CHESS2 
-            and should not be modified without a consultation with the designers as 
-            it could allow too much current to flow in the sensor and damage it.                                        
-            """,              
-            offset=(cmd0x1|(4*0x5)), bitSize=2, bitOffset=5, base='hex', mode='RO'))  
+        self.add(pr.Variable(name='VNLogicres', description=warningMessage,           
+            offset=(cmd0x1|(4*0x5)), bitSize=2, bitOffset=5, base='hex', mode='RW'))  
                                  
-        self.add(pr.Variable(name='VNSFatt',description="""
-            The values should in principle enforce a functional front-end for CHESS2 
-            and should not be modified without a consultation with the designers as 
-            it could allow too much current to flow in the sensor and damage it.                                        
-            """,              
-            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=7, base='hex', mode='RO')) 
+        self.add(pr.Variable(name='VNSFatt', description=warningMessage,            
+            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=7, base='hex', mode='RW')) 
                                  
-        self.add(pr.Variable(name='VNSFres',description="""
-            The values should in principle enforce a functional front-end for CHESS2 
-            and should not be modified without a consultation with the designers as 
-            it could allow too much current to flow in the sensor and damage it.                                        
-            """,              
-            offset=(cmd0x1|(4*0x5)), bitSize=2, bitOffset=12, base='hex', mode='RO'))                              
+        self.add(pr.Variable(name='VNSFres', description=warningMessage,        
+            offset=(cmd0x1|(4*0x5)), bitSize=2, bitOffset=12, base='hex', mode='RW'))                              
 
-        self.add(pr.Variable(name='VNatt',description="""
-            The values should in principle enforce a functional front-end for CHESS2 
-            and should not be modified without a consultation with the designers as 
-            it could allow too much current to flow in the sensor and damage it.                                        
-            """,          
-            offset=(cmd0x1|(4*0x6)), bitSize=5, bitOffset=0, base='hex', mode='RO'))  
+        self.add(pr.Variable(name='VNatt', description=warningMessage,        
+            offset=(cmd0x1|(4*0x6)), bitSize=5, bitOffset=0, base='hex', mode='RW'))  
                                  
-        self.add(pr.Variable(name='VNres',description="""
-            The values should in principle enforce a functional front-end for CHESS2 
-            and should not be modified without a consultation with the designers as 
-            it could allow too much current to flow in the sensor and damage it.                                        
-            """,          
-            offset=(cmd0x1|(4*0x6)), bitSize=2, bitOffset=5, base='hex', mode='RO'))  
+        self.add(pr.Variable(name='VNres', description=warningMessage,   
+            offset=(cmd0x1|(4*0x6)), bitSize=2, bitOffset=5, base='hex', mode='RW'))  
                                  
-        self.add(pr.Variable(name='VPFBatt',description="""
-            The values should in principle enforce a functional front-end for CHESS2 
-            and should not be modified without a consultation with the designers as 
-            it could allow too much current to flow in the sensor and damage it.                                        
-            """,          
-            offset=(cmd0x1|(4*0x6)), bitSize=5, bitOffset=7, base='hex', mode='RO')) 
+        self.add(pr.Variable(name='VPFBatt', description=warningMessage,   
+            offset=(cmd0x1|(4*0x6)), bitSize=5, bitOffset=7, base='hex', mode='RW')) 
                                  
-        self.add(pr.Variable(name='VPFBres',description="""
-            The values should in principle enforce a functional front-end for CHESS2 
-            and should not be modified without a consultation with the designers as 
-            it could allow too much current to flow in the sensor and damage it.                                        
-            """,          
-            offset=(cmd0x1|(4*0x6)), bitSize=2, bitOffset=12, base='hex', mode='RO'))                              
+        self.add(pr.Variable(name='VPFBres', description=warningMessage, 
+            offset=(cmd0x1|(4*0x6)), bitSize=2, bitOffset=12, base='hex', mode='RW'))                              
 
-        self.add(pr.Variable(name='VPLoadatt',description="""
-            The values should in principle enforce a functional front-end for CHESS2 
-            and should not be modified without a consultation with the designers as 
-            it could allow too much current to flow in the sensor and damage it.                                        
-            """,             
-            offset=(cmd0x1|(4*0x7)), bitSize=5, bitOffset=0, base='hex', mode='RO'))  
+        self.add(pr.Variable(name='VPLoadatt', description=warningMessage,       
+            offset=(cmd0x1|(4*0x7)), bitSize=5, bitOffset=0, base='hex', mode='RW'))  
                                  
-        self.add(pr.Variable(name='VPLoadres',description="""
-            The values should in principle enforce a functional front-end for CHESS2 
-            and should not be modified without a consultation with the designers as 
-            it could allow too much current to flow in the sensor and damage it.                                        
-            """,          
-            offset=(cmd0x1|(4*0x7)), bitSize=2, bitOffset=5, base='hex', mode='RO'))  
+        self.add(pr.Variable(name='VPLoadres', description=warningMessage, 
+            offset=(cmd0x1|(4*0x7)), bitSize=2, bitOffset=5, base='hex', mode='RW'))  
                                  
-        self.add(pr.Variable(name='VPTrimatt',description="""
-            The values should in principle enforce a functional front-end for CHESS2 
-            and should not be modified without a consultation with the designers as 
-            it could allow too much current to flow in the sensor and damage it.                                        
-            """,               
-            offset=(cmd0x1|(4*0x7)), bitSize=5, bitOffset=7, base='hex', mode='RO')) 
+        self.add(pr.Variable(name='VPTrimatt', description=warningMessage,         
+            offset=(cmd0x1|(4*0x7)), bitSize=5, bitOffset=7, base='hex', mode='RW')) 
                                  
-        self.add(pr.Variable(name='VPTrimres',description="""
-            The values should in principle enforce a functional front-end for CHESS2 
-            and should not be modified without a consultation with the designers as 
-            it could allow too much current to flow in the sensor and damage it.                                        
-            """,          
-            offset=(cmd0x1|(4*0x7)), bitSize=2, bitOffset=12, base='hex', mode='RO'))                                
+        self.add(pr.Variable(name='VPTrimres', description=warningMessage, 
+            offset=(cmd0x1|(4*0x7)), bitSize=2, bitOffset=12, base='hex', mode='RW'))                                
 
         self.add(pr.Variable(name='CLK_bit_sel',description="""
             Hit Encoding Clock Selection:
@@ -231,8 +196,13 @@ class saci(pr.Device):
             offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=14, base='bool', mode='RW'))         
 
         self.add(pr.Variable(name='TM',description='Hit Encoding Test Mode',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=15, base='bool', mode='RW'))                                      
-    
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=15, base='bool', mode='RW'))        
+            
+        ############################    
+        # Add the software variables
+        ############################    
+        self.add(matrix())   
+
     @staticmethod
     def configPixel(enable, chargeInj, trimI):
         # Default value: disable pixel, no charge injection, all trim bits disabled
@@ -248,23 +218,54 @@ class saci(pr.Device):
         # Return the inverted value
         return((~value)&0x3F)
     
-    def writeAllPixels(self, enable, chargeInj, trimI):
-        value = self.configPixel(enable, chargeInj, trimI)
+    def setDefaults(self):
+        # print ('setDefaults(self=%s)' % (self))
+        # Configure for 40 MHz timing
+        self.CLK_bit_sel.set(0x0)
+        self.clk_dly.set(0x0)
+        self.rd_1.set(0x0)
+        self.rlt_1.set(0x2)
+        self.wrd_1.set(0x3)
+        self.wrd_2.set(0x3)
+        self.rd_2.set(0x0)
+        self.rlt_2.set(0x2)    
+    
+    def writeAllPixels(self, enable, chargeInj, trimI=0):
         # print ('writeAllPixels(self=%s,enable=%d,chargeInj=%d,trimI=%d) = 0x%x' % (self,enable,chargeInj,trimI,value))
+        # Configure for 40 MHz timing
+        self.setDefaults()    
+        value = self.configPixel(enable, chargeInj, trimI)
         self.StartMatrixConfig.post(0)
         for row in range(128): 
             for col in range(32):        
                 self.ColPointer.post(col)       
                 self.RowPointer.post(row)       
-                self.WritePixel.post(value)         
+                self.WritePixel.post(value)
+                # Update the software variable
+                self.matrix._pixel[col][row] = value
         self.EndMatrixConfig.get()       
              
-    def writePixel(self, row, col, enable, chargeInj, trimI):
+    def writePixel(self, row, col, enable, chargeInj, trimI=0):
+        # print ('writePixel(self=%s,row=%d,col=%d,enable=%d,chargeInj=%d,trimI=%d) = 0x%X' % (self,row,col,enable,chargeInj,trimI,value))        
         value = self.configPixel(enable, chargeInj, trimI)
-        print ('writePixel(self=%s,row=%d,col=%d,enable=%d,chargeInj=%d,trimI=%d) = 0x%X' % (self,row,col,enable,chargeInj,trimI,value))        
         self.StartMatrixConfig.post(0)
         self.RowPointer.post(row)
         self.ColPointer.post(col)
         self.WritePixel.post(value)
+        self.matrix._pixel[col][row] = value
+        self.EndMatrixConfig.get()
+        
+    def loadMatrix(self):
+        print ('loadMatrix(self=%s)' % (self))
+        # Configure for 40 MHz timing
+        self.setDefaults()
+        # Load the matrix with the software variables
+        self.StartMatrixConfig.post(0)
+        for row in range(128): 
+            for col in range(32):        
+                self.ColPointer.post(col)       
+                self.RowPointer.post(row)      
+                # Load the software variable
+                self.WritePixel.post(self.matrix._pixel[col][row])
         self.EndMatrixConfig.get()
         

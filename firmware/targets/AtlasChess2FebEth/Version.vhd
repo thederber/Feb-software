@@ -13,15 +13,16 @@ use ieee.std_logic_1164.all;
 
 package Version is
 
-   constant FPGA_VERSION_C : std_logic_vector(31 downto 0) := x"00000003";  -- MAKE_VERSION
+   constant FPGA_VERSION_C : std_logic_vector(31 downto 0) := x"00000004";  -- MAKE_VERSION
 
-   constant BUILD_STAMP_C : string := "AtlasChess2FebEth: Vivado v2016.2 (x86_64) Built Fri Jan 27 09:35:38 PST 2017 by ruckman";
+   constant BUILD_STAMP_C : string := "AtlasChess2FebEth: Vivado v2016.2 (x86_64) Built Tue Jan 31 16:57:44 PST 2017 by ruckman";
 
 end Version;
 
 -------------------------------------------------------------------------------
 -- Revision History:
 --
+-- 01/31/2017 (0x00000004): Fixed bug in sysReg.refClkFreq
 -- 01/25/2017 (0x00000003): Added debugSendCnt register
 -- 01/24/2017 (0x00000002): Added hitDetTime registers
 -- 01/23/2017 (0x00000001): Initial Build

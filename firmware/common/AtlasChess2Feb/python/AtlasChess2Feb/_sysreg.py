@@ -32,7 +32,7 @@ class sysReg(pr.Device):
         self.add(pr.Variable(name='refLocked',description='Reference clock Locked Status',
                 offset=0x100, bitSize=1, bitOffset=0, base='bool', mode='RO'))
                                  
-        self.add(pr.Variable(name='refClkFreq',description='Reference clock frequency (units of Hz)',
+        self.add(pr.Variable(name='refClkFreq',description='Reference clock frequency (units of Hz)', units='Hz',
                 offset=0x1FC, bitSize=32, bitOffset=0, base='uint', mode='RO'))
                                  
         self.add(pr.Variable(name='refSelect',description='0x0 = local 40 MHz OSC, 0x1 = external 40 MHz reference',                

@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-12-06
+-- Last update: 2017-01-31
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -37,10 +37,9 @@ use unisim.vcomponents.all;
 entity AtlasChess2FebSys is
    generic (
       TPD_G            : time            := 1 ns;
-      FSBL_G           : boolean         := false;
       CPU_G            : boolean         := false;  -- True=Microblaze, False=No Microblaze
       AXI_CLK_FREQ_G   : real            := 156.25E+6;
-      AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);      
+      AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);
    port (
       -- Timing Clock and Reset
       timingClk320MHz  : in    sl;
@@ -75,7 +74,7 @@ entity AtlasChess2FebSys is
       mbTxSlave        : in    AxiStreamSlaveType;
       -- XADC Ports
       vPIn             : in    sl;
-      vNIn             : in    sl); 
+      vNIn             : in    sl);
 end AtlasChess2FebSys;
 
 architecture mapping of AtlasChess2FebSys is
@@ -129,13 +128,13 @@ architecture mapping of AtlasChess2FebSys is
       CONFIG_INDEX_C   => (
          baseAddr      => CONFIG_ADDR_C,
          addrBits      => 16,
-         connectivity  => x"FFFF"));  
+         connectivity  => x"FFFF"));
 
    signal mAxilWriteMasters : AxiLiteWriteMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
    signal mAxilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0);
    signal mAxilReadMasters  : AxiLiteReadMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
    signal mAxilReadSlaves   : AxiLiteReadSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0);
-   
+
    constant PWR_I2C_C : I2cAxiLiteDevArray(0 to 1) := (
       0             => MakeI2cAxiLiteDevType(
          i2cAddress => "1101111",       -- 0xDE = LTC4151CMS#PBF
@@ -160,7 +159,7 @@ begin
    -- AXI-Lite: Microblaze Core
    ----------------------------
    GEN_CPU : if CPU_G = true generate
-      
+
       U_CPU : entity work.MicroblazeBasicCoreWrapper
          generic map (
             TPD_G           => TPD_G,
@@ -178,7 +177,7 @@ begin
             interrupt        => irqReq,
             -- Clock and Reset
             clk              => axilClk,
-            rst              => axilRst);    
+            rst              => axilRst);
 
       -----------------------------
       -- Microblaze User Interrupts
@@ -204,7 +203,7 @@ begin
             end if;
          end if;
       end process;
-      
+
    end generate GEN_CPU;
 
    GEN_N_CPU : if CPU_G = false generate
@@ -246,7 +245,7 @@ begin
          EN_DEVICE_DNA_G    => true,
          EN_DS2411_G        => false,
          EN_ICAP_G          => true,
-         AUTO_RELOAD_EN_G   => FSBL_G,
+         AUTO_RELOAD_EN_G   => false,
          AUTO_RELOAD_TIME_G => 10.0,    -- 10 seconds
          AUTO_RELOAD_ADDR_G => x"04000000")
       port map (
@@ -257,7 +256,7 @@ begin
          axiWriteSlave  => mAxilWriteSlaves(VERSION_INDEX_C),
          -- Clocks and Resets
          axiClk         => axilClk,
-         axiRst         => axilRst);           
+         axiRst         => axilRst);
 
    -----------------------
    -- AXI-Lite XADC Module
@@ -283,7 +282,7 @@ begin
       generic map (
          TPD_G            => TPD_G,
          AXI_ERROR_RESP_G => AXI_ERROR_RESP_G,
-         MEM_ADDR_MASK_G  => x"00000000",           -- Using hardware write protection
+         MEM_ADDR_MASK_G  => x"00000000",  -- Using hardware write protection
          AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G,        -- units of Hz
          SPI_CLK_FREQ_G   => (AXI_CLK_FREQ_G/8.0))  -- units of Hz
       port map (
@@ -299,26 +298,26 @@ begin
          axiWriteSlave  => mAxilWriteSlaves(BOOT_MEM_INDEX_C),
          -- Clocks and Resets
          axiClk         => axilClk,
-         axiRst         => axilRst); 
+         axiRst         => axilRst);
 
    -----------------------------------------------------
    -- Using the STARTUPE2 to access the FPGA's CCLK port
    -----------------------------------------------------
    STARTUPE2_Inst : STARTUPE2
       port map (
-         CFGCLK    => open,             -- 1-bit output: Configuration main clock output
+         CFGCLK    => open,  -- 1-bit output: Configuration main clock output
          CFGMCLK   => open,  -- 1-bit output: Configuration internal oscillator clock output
          EOS       => open,  -- 1-bit output: Active high output signal indicating the End Of Startup.
-         PREQ      => open,             -- 1-bit output: PROGRAM request to fabric output
-         CLK       => '0',              -- 1-bit input: User start-up clock input
+         PREQ      => open,  -- 1-bit output: PROGRAM request to fabric output
+         CLK       => '0',  -- 1-bit input: User start-up clock input
          GSR       => '0',  -- 1-bit input: Global Set/Reset input (GSR cannot be used for the port name)
          GTS       => '0',  -- 1-bit input: Global 3-state input (GTS cannot be used for the port name)
          KEYCLEARB => '0',  -- 1-bit input: Clear AES Decrypter Key input from Battery-Backed RAM (BBRAM)
-         PACK      => '0',              -- 1-bit input: PROGRAM acknowledge input
+         PACK      => '0',  -- 1-bit input: PROGRAM acknowledge input
          USRCCLKO  => bootSck,          -- 1-bit input: User CCLK input
-         USRCCLKTS => '0',              -- 1-bit input: User CCLK 3-state enable input
-         USRDONEO  => '1',              -- 1-bit input: User DONE pin output control
-         USRDONETS => '1');             -- 1-bit input: User DONE 3-state enable output            
+         USRCCLKTS => '0',  -- 1-bit input: User CCLK 3-state enable input
+         USRDONEO  => '1',  -- 1-bit input: User DONE pin output control
+         USRDONETS => '1');  -- 1-bit input: User DONE 3-state enable output            
 
    -----------------------------------
    -- AXI-Lite: System Register Module
@@ -369,7 +368,7 @@ begin
          axiReadMaster  => mAxilReadMasters(MEM_INDEX_C),
          axiReadSlave   => mAxilReadSlaves(MEM_INDEX_C),
          axiWriteMaster => mAxilWriteMasters(MEM_INDEX_C),
-         axiWriteSlave  => mAxilWriteSlaves(MEM_INDEX_C));               
+         axiWriteSlave  => mAxilWriteSlaves(MEM_INDEX_C));
 
    ----------------------
    -- AXI-Lite: Power I2C
@@ -392,7 +391,7 @@ begin
          axiWriteSlave  => mAxilWriteSlaves(PWR_INDEX_C),
          -- Clocks and Resets
          axiClk         => axilClk,
-         axiRst         => axilRst);         
+         axiRst         => axilRst);
 
    -----------------------
    -- AXI-Lite: CONFIG I2C
@@ -416,6 +415,6 @@ begin
          axilWriteSlave  => mAxilWriteSlaves(CONFIG_INDEX_C),
          -- Clocks and Resets
          axilClk         => axilClk,
-         axilRst         => axilRst);         
+         axilRst         => axilRst);
 
 end mapping;
