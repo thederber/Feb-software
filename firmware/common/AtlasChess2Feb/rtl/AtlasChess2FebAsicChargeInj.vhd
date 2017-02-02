@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2017-01-24
+-- Last update: 2017-02-01
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ architecture rtl of AtlasChess2FebAsicChargeInj is
 
    constant REG_INIT_C : RegType := (
       calPulse       => '0',
-      invPulse       => '0',
+      invPulse       => '1',            -- default to active LOW pulse
       calWidth       => toSlv(7, 16),
       axilReadSlave  => AXI_LITE_READ_SLAVE_INIT_C,
       axilWriteSlave => AXI_LITE_WRITE_SLAVE_INIT_C);
@@ -229,7 +229,7 @@ begin
    begin
       if (rising_edge(timingClk320MHz)) then
          -- Check for one-shot calibration pulse
-         if (calPulse = '1') then   
+         if (calPulse = '1') then
             -- Reset the registers
             pulse <= not(invPulse)   after TPD_G;
             cnt   <= (others => '0') after TPD_G;
@@ -276,7 +276,7 @@ begin
    begin
       if (rising_edge(timingClk320MHz)) then
          -- Check for one-shot calibration pulse
-         if (calPulse = '1') then   
+         if (calPulse = '1') then
             -- Reset the registers
             hitDet     <= (others => (others => '0')) after TPD_G;
             hitDetTime <= (others => (others => '0')) after TPD_G;
@@ -287,7 +287,7 @@ begin
             -- Loop through the channels
             for i in 2 downto 0 loop
                -- Check for first hit after calibration pulse
-               if (dataValid(i) = '1') and (hitDet(i)(13) = '0') then 
+               if (dataValid(i) = '1') and (hitDet(i)(13) = '0') then
                   -- Latch the hit values
                   hitDet(i)(13)          <= dataValid(i) after TPD_G;
                   hitDet(i)(12)          <= multiHit(i)  after TPD_G;

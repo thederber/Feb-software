@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2017-01-26
+-- Last update: 2017-02-01
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ package AtlasChess2FebPkg is
       pllRst       => '1',
       destId       => (others => '0'),
       frameType    => (others => '0'),
-      wordSize     => (others => '0'),
+      wordSize     => x"07",            -- sample 8 words
       timingMode   => TIMING_LEMO_TRIG_C,
       dlyRst       => '1',
       dlyTiming    => (others => '0'),

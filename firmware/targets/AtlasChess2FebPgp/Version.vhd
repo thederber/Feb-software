@@ -13,15 +13,17 @@ use ieee.std_logic_1164.all;
 
 package Version is
 
-   constant FPGA_VERSION_C : std_logic_vector(31 downto 0) := x"00000004";  -- MAKE_VERSION
+   constant FPGA_VERSION_C : std_logic_vector(31 downto 0) := x"00000005";  -- MAKE_VERSION
 
-   constant BUILD_STAMP_C : string := "AtlasChess2FebPgp: Vivado v2016.2 (x86_64) Built Tue Jan 31 17:19:49 PST 2017 by ruckman";
+   constant BUILD_STAMP_C : string := "AtlasChess2FebPgp: Vivado v2016.2 (x86_64) Built Wed Feb  1 09:10:47 PST 2017 by ruckman";
 
 end Version;
 
 -------------------------------------------------------------------------------
 -- Revision History:
 --
+-- 02/01/2017 (0x00000005): Changed default of chargeInj.invPulse to 0x1
+--                          Changed default of sysReg.wordSize to 0x7
 -- 01/31/2017 (0x00000004): Fixed bug in sysReg.refClkFreq
 -- 01/25/2017 (0x00000003): Added debugSendCnt register
 -- 01/24/2017 (0x00000002): Added hitDetTime registers
