@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2016-12-02
+-- Last update: 2017-03-02
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -27,8 +27,8 @@ use work.StdRtlPkg.all;
 
 entity AtlasChess2FebEth is
    generic (
-      TPD_G  : time    := 1 ns;
-      FSBL_G : boolean := false);
+      TPD_G        : time := 1 ns;
+      BUILD_INFO_G : BuildInfoType);
    port (
       -- CHESS2 ASIC Serial Ports
       chessDinP       : in    Slv14Array(2 downto 0);
@@ -94,7 +94,7 @@ entity AtlasChess2FebEth is
       bootMiso        : in    sl;
       -- XADC Ports
       vPIn            : in    sl;
-      vNIn            : in    sl);      
+      vNIn            : in    sl);
 end AtlasChess2FebEth;
 
 architecture top_level of AtlasChess2FebEth is
@@ -103,8 +103,8 @@ begin
 
    U_Core : entity work.AtlasChess2FebCore
       generic map (
-
          TPD_G         => TPD_G,
+         BUILD_INFO_G  => BUILD_INFO_G,
          COMM_MODE_G   => true,         -- true = ETH mode, false = PGP mode
          -- ETH configuration 
          ETH_DEV_G     => false,        -- true = Adds non-RSSI on port 8193

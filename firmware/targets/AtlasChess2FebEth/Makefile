@@ -1,3 +1,15 @@
+##########################################################################
+## Revision History:
+##
+## 01/23/2017 (0x00000001): Initial Build
+## 01/24/2017 (0x00000002): Added hitDetTime registers
+## 01/25/2017 (0x00000003): Added debugSendCnt register
+## 01/31/2017 (0x00000004): Fixed bug in sysReg.refClkFreq
+## 02/01/2017 (0x00000005): Changed default of chargeInj.invPulse to 0x1
+##                          Changed default of sysReg.wordSize to 0x7
+## 03/02/2017 (0x00000006): Updating to ruckus v1.1
+##########################################################################
+export PRJ_VERSION = 0x00000006
 
 # Define target output
 target: prom

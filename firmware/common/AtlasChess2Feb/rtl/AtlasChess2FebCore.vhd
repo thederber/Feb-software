@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2017-01-31
+-- Last update: 2017-03-02
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -35,6 +35,7 @@ use unisim.vcomponents.all;
 entity AtlasChess2FebCore is
    generic (
       TPD_G            : time             := 1 ns;
+      BUILD_INFO_G     : BuildInfoType
       COMM_MODE_G      : boolean          := false;  -- true = ETH mode, false = PGP mode
       AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C;
       -- ETH configuration
@@ -373,6 +374,7 @@ begin
    U_Sys : entity work.AtlasChess2FebSys
       generic map (
          TPD_G            => TPD_G,
+         BUILD_INFO_G     => BUILD_INFO_G,
          AXI_CLK_FREQ_G   => AXIL_CLK_FREQ_C,
          AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
       port map (

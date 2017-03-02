@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2017-01-31
+-- Last update: 2017-03-02
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -37,6 +37,7 @@ use unisim.vcomponents.all;
 entity AtlasChess2FebSys is
    generic (
       TPD_G            : time            := 1 ns;
+      BUILD_INFO_G     : BuildInfoType;
       CPU_G            : boolean         := false;  -- True=Microblaze, False=No Microblaze
       AXI_CLK_FREQ_G   : real            := 156.25E+6;
       AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);
@@ -239,6 +240,7 @@ begin
    U_AxiVersion : entity work.AxiVersion
       generic map (
          TPD_G              => TPD_G,
+         BUILD_INFO_G       => BUILD_INFO_G,
          AXI_ERROR_RESP_G   => AXI_ERROR_RESP_G,
          CLK_PERIOD_G       => (1.0/AXI_CLK_FREQ_G),
          XIL_DEVICE_G       => "7SERIES",
