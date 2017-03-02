@@ -7,7 +7,6 @@ loadRuckusTcl $::env(PROJ_DIR)/../../common/AtlasChess2Feb
 
 # Load local source Code
 loadSource -dir  "$::DIR_PATH/hdl/"
-loadSource -path "$::DIR_PATH/Version.vhd"
 
 # Load Constraints
 loadConstraints -path "$::DIR_PATH/../../common/AtlasChess2Feb/xdc/AtlasChess2Feb.xdc"
