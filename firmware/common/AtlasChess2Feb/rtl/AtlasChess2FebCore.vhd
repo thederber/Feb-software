@@ -35,7 +35,7 @@ use unisim.vcomponents.all;
 entity AtlasChess2FebCore is
    generic (
       TPD_G            : time             := 1 ns;
-      BUILD_INFO_G     : BuildInfoType
+      BUILD_INFO_G     : BuildInfoType;
       COMM_MODE_G      : boolean          := false;  -- true = ETH mode, false = PGP mode
       AXI_ERROR_RESP_G : slv(1 downto 0)  := AXI_RESP_DECERR_C;
       -- ETH configuration
