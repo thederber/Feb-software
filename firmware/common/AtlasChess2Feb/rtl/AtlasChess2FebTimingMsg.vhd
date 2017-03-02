@@ -80,7 +80,7 @@ begin
          dataIn  => timingMode,
          dataOut => timingModeSync);
 
-   comb : process (evrEn, evrTimeStamp, extTrig, pgpEn, pgpOpCode, r, timingModeSync,
+   comb : process (evrEn, evrTimeStamp, extTrig, pgpEn, pgpOpCode, r, timingModeSync, softTrig,
                    timingRst320MHz) is
       variable v : RegType;
    begin
