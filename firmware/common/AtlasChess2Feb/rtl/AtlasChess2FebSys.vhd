@@ -38,7 +38,7 @@ entity AtlasChess2FebSys is
    generic (
       TPD_G            : time            := 1 ns;
       BUILD_INFO_G     : BuildInfoType;
-      CPU_G            : boolean         := false;  -- True=Microblaze, False=No Microblaze
+      CPU_G            : boolean         := true;  -- True=Microblaze, False=No Microblaze
       AXI_CLK_FREQ_G   : real            := 156.25E+6;
       AXI_ERROR_RESP_G : slv(1 downto 0) := AXI_RESP_DECERR_C);
    port (
@@ -198,7 +198,8 @@ begin
                   irqCount <= irqCount + 1 after TPD_G;
                end if;
                -- IRQ[1]
-               if (axiWrValid = '1') and (axiWrAddr = IRQ_ADDR_C) then
+               if (axiWrValid = '1') and (axiWrAddr = 0) then -- change this line to trigger the irq on sw writes
+               --if (axiWrValid = '1') and (axiWrAddr = IRQ_ADDR_C) then
                   irqReq(1) <= '1' after TPD_G;
                end if;
             end if;

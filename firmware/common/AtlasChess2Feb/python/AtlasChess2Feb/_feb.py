@@ -41,13 +41,14 @@ class feb(pr.Device):
         self.add(surf.AxiVersion.create(   offset=0x00000000,expand=False))
         self.add(surf.Xadc(                offset=0x00010000,expand=False))  
         self.add(AtlasChess2Feb.sysReg(    offset=0x00030000,expand=False))    
+        self.add(AtlasChess2Feb.memReg(    offset=0x00040000,expand=True))    
         self.add(AtlasChess2Feb.dac(       offset=0x00100000,expand=False))                
         self.add(AtlasChess2Feb.chargeInj(offset=0x00330000,expand=False))   
                 
         for i in range(3):
             self.add(AtlasChess2Feb.Chess2Array( 
                 name='Chess2Ctrl%01i'%(i),
-                offset=(saciAddr + i*saciChip),expand=False))   
+                offset=(saciAddr + i*saciChip),enabled=False,expand=False))   
                 
-        self.add(AtlasChess2Feb.Chess2Test(offset=saciAddr+(3*saciChip),expand=False))
+        self.add(AtlasChess2Feb.Chess2Test(offset=saciAddr+(3*saciChip),enabled=False,expand=False))
         

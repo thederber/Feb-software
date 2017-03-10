@@ -6,3 +6,4 @@ from AtlasChess2Feb._idelay      import *
 from AtlasChess2Feb._sysreg      import *
 from AtlasChess2Feb._chess2Array import *
 from AtlasChess2Feb._chess2Test  import *
+from AtlasChess2Feb._memReg      import *

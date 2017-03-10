@@ -41,9 +41,9 @@ class matrix(pr.Device):
                         getFunction='value = dev._pixel[%d][%d]'%(col,row)))
                         
 class Chess2Array(pr.Device):
-    def __init__(self, name="Chess2Array", memBase=None, offset=0, hidden=False, expand=True):
+    def __init__(self, name="Chess2Array", memBase=None, offset=0, hidden=False, expand=True, enabled=False):
         super(self.__class__, self).__init__(name, "CHESS2 Array Interface",
-                        memBase=memBase, offset=offset, hidden=hidden, expand=expand)        
+                        memBase=memBase, offset=offset, hidden=hidden, expand=expand, enabled=enabled)        
         #################################################################################################
         # Using the atlas-chess2/firmware/submodules/surf/protocols/saci/rtl/AxiLiteSaciMaster.vhd module
         # AXI_Lite_Address[31:24] = Ignored
