@@ -31,6 +31,8 @@ import time
 import sys
 import PyQt4.QtGui
 
+from SCurve import makeSCurve
+
 # Custom run control
 class MyRunControl(pyrogue.RunControl):
    def __init__(self,name):
@@ -121,18 +123,27 @@ def gui(arg):
     #####################################################
     # Example: Enable only one pixel for charge injection
     #####################################################
-    # print ('Disable all pixels')
-    # system.feb.Chess2Ctrl0.writeAllPixels(enable=0,chargeInj=0)
+    #print ('Disable all pixels')
+    #system.feb.Chess2Ctrl0.writeAllPixels(enable=0,chargeInj=0)
     # # Enable only one pixel for charge injection
-    # print ('Enable only one pixels')
-    # system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=1, col=0, row=0)
-    
+    #print ('Enable only one pixels')
+    #system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=1, col=0, row=0)
+
     # Create GUI
     appTop = PyQt4.QtGui.QApplication(sys.argv)
     guiTop = pyrogue.gui.GuiTop('PyRogueGui')
     guiTop.resize(800, 1000)
     guiTop.addTree(system)
-    
+
+    system.readAll()
+#    system.feb.memReg.chargInjStartEventReg.set(0)
+    system.feb.dac.dacPIXTHRaw.set(0x7ce)
+    system.feb.dac.dacBLRaw.set(0xa2e)
+    system.feb.dac.dacBLRRaw.set(0x7c2)
+    system.readAll()
+
+#    makeSCurve( system, 1000, [0x5ce,0x6ce,0x7ce,0x8ce,0x9ce], [ (i,i) for i in range(10) ], "scurve_test.root" )
+
     # Run gui
     appTop.exec_()
 
