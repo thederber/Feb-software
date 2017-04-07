@@ -142,7 +142,7 @@ def gui(arg):
     system.feb.dac.dacBLRRaw.set(0x7c2)
     system.readAll()
 
-#    makeSCurve( system, 1000, [0x5ce,0x6ce,0x7ce,0x8ce,0x9ce], [ (i,i) for i in range(10) ], "scurve_test.root" )
+    makeSCurve( system, 1000, [0x7ce], [ (i,i) for i in range(1) ], "scurve_test_sleep.root" )
 
     # Run gui
     appTop.exec_()
