@@ -72,11 +72,11 @@ void swCallibInterruptHandler(void * data) {
 	// start testing procedure
 	//--------------------------
 	// set DAC to 0
-	Xil_Out32(DAC_TH_MEM_OFFSET, 0x00000000);
+	Xil_Out32(DAC_TH_MEM_OFFSET, 0x00000FFF);
 	// wait to settle
 	delay(100);
-	// set to full sclase
-	Xil_Out32(DAC_TH_MEM_OFFSET, 0x00000FFF);
+	// set to full scale
+	Xil_Out32(DAC_TH_MEM_OFFSET, 0x00000000);
 	// calibration injection cmd
 	Xil_Out32(CI_CMD_MEM_OFFSET, 0x00000001);
 	Xil_Out32(CI_CMD_MEM_OFFSET, 0x00000000);
