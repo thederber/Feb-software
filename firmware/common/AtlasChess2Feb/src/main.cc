@@ -20,6 +20,9 @@
 #define LOG_MEM_OFFSET (BUS_OFFSET+0x00040000)
 #define HEARTBEAT_MEM_OFFSET (BUS_OFFSET+0x00040004)
 #define CIEVENTSCOUNTER_MEM_OFFSET (BUS_OFFSET+0x00040008)
+#define CI_DAC_INIT_VALUE_MEM_OFFSET (BUS_OFFSET+0x0004000C)
+#define CI_DAC_END_VALUE_MEM_OFFSET (BUS_OFFSET+0x00040010)
+#define CI_DELAY_VALUE_MEM_OFFSET (BUS_OFFSET+0x00040014)
 #define DAC_TH_MEM_OFFSET (BUS_OFFSET+0x00100004)
 #define CI_CMD_MEM_OFFSET (BUS_OFFSET+0x00330010)
 //
@@ -56,40 +59,50 @@ void heartBeatInterruptHandler(void * data) {
 }
 
 
-
-
-void swCallibInterruptHandler(void * data) {
+void swCallibInterruptHandler(void * ciTestRequestFlag) {
 	//local variables
-	uint32_t * request = (uint32_t *)data;
-	uint32_t dacInitialValue = Xil_In32(DAC_TH_MEM_OFFSET);
-	uint32_t seq_num = 0, num_counts;
+	uint32_t request = (uint32_t)Xil_In32(CIEVENTSCOUNTER_MEM_OFFSET);
+    uint32_t * flag    = (uint32_t *)ciTestRequestFlag;
 	
 	//sanity check to see it works from the software
-	xil_printf("CallibInterruptHandler REQ %d\n", *request);
-	*request = *request + 1;
-	Xil_Out32(CIEVENTSCOUNTER_MEM_OFFSET, *request);   //
+	xil_printf("CallibInterruptHandler REQ %d\n", request);
+	request = request + 1;
+	Xil_Out32(CIEVENTSCOUNTER_MEM_OFFSET, request);   //
+    *flag = 1;
+}
+
+
+void swChargeInjectTest() {
+	//local variables
+	uint32_t dacDefaultValue = Xil_In32(DAC_TH_MEM_OFFSET);
+	uint32_t seq_num = 0, num_counts;
+    uint32_t dacInitValue = Xil_In32(CI_DAC_INIT_VALUE_MEM_OFFSET);
+    uint32_t dacEndValue = Xil_In32(CI_DAC_END_VALUE_MEM_OFFSET);
+    uint32_t dacDelayValue = Xil_In32(CI_DELAY_VALUE_MEM_OFFSET);
+	
+	//sanity check to see it works from the software
 	xil_printf("Seq. # %d\n", seq_num); seq_num = seq_num + 1;
 	//--------------------------
 	// start testing procedure
 	//--------------------------
 	// set DAC to 0
 	 
-	Xil_Out32(DAC_TH_MEM_OFFSET, 0x00000FFF);
+	Xil_Out32(DAC_TH_MEM_OFFSET, dacInitValue);
 	xil_printf("Seq. # %d\n", seq_num); seq_num = seq_num + 1;
 	// wait to settle	
-	num_counts = delay(5000);
+	MB_Sleep(dacDelayValue);
 	xil_printf("Seq. # %d, delay_counts %d\n", seq_num, num_counts); seq_num = seq_num + 1;
 	// set to full scale
-	Xil_Out32(DAC_TH_MEM_OFFSET, 0x00000000);
+	Xil_Out32(DAC_TH_MEM_OFFSET, dacEndValue);
 	// calibration injection cmd
 	Xil_Out32(CI_CMD_MEM_OFFSET, 0x00000001);
 	Xil_Out32(CI_CMD_MEM_OFFSET, 0x00000000);
 	xil_printf("Seq. # %d\n", seq_num); seq_num = seq_num + 1;
 	// wait to finish test
-	num_counts = delay(2500);
+	MB_Sleep(dacDelayValue);
 	xil_printf("Seq. # %d, delay_counts %d\n", seq_num, num_counts); seq_num = seq_num + 1;
 	// restore DAC value
-	Xil_Out32(DAC_TH_MEM_OFFSET, dacInitialValue);
+	Xil_Out32(DAC_TH_MEM_OFFSET, dacDefaultValue);
 	xil_printf("Seq. # %d\n", seq_num); seq_num = seq_num + 1;
 	
 }
@@ -101,27 +114,9 @@ void swCallibInterruptHandler(void * data) {
 //-----------------------------------------------------------------------
 // Helper functions
 //-----------------------------------------------------------------------
-//Delay function in microseconds delayTime
-int delay(uint32_t delayTime){
-	uint32_t counter = 0;
-	uint32_t delayTimeInClockCycles = 0;
-	//xil_printf("Started custom delay\n");
-    
-    // converts microseconds into number of clock cycles based on the 
-    // clock frequency available which depends on the comm. link.
-    if (TARGET_LINK == TARGET_LINK_PGP){
-        delayTimeInClockCycles = delayTime * 156;
-    } else{
-        delayTimeInClockCycles = delayTime * 125;
-    }
 
-    // wait for the requested time
-    while (counter<delayTimeInClockCycles){
-        counter = counter+1;
-    }
-    //return true when done
-    return counter;
-}
+
+
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------
 // Main function 
@@ -132,12 +127,13 @@ int main(){
 	volatile uint32_t cfgReqNo = 0;
 	volatile uint32_t heartBeatCounter = 0;
 	volatile uint32_t numOfChargeInjEvents = 0;
+    volatile uint32_t ciTestRequestFlag = 0;
 
     //setup variables and IRQ functions
     XIntc_Initialize(&intc,XPAR_AXI_INTC_0_DEVICE_ID);
     microblaze_enable_interrupts();
     XIntc_Connect(&intc,0,(XInterruptHandler)heartBeatInterruptHandler,(void*)&heartBeatCounter);
-    XIntc_Connect(&intc,1,(XInterruptHandler)swCallibInterruptHandler,(void*)&numOfChargeInjEvents);
+    XIntc_Connect(&intc,1,(XInterruptHandler)swCallibInterruptHandler,(void*)&ciTestRequestFlag);
     XIntc_Start(&intc,XIN_REAL_MODE);
     XIntc_Enable(&intc,0);
     XIntc_Enable(&intc,1);
@@ -150,6 +146,8 @@ int main(){
     Xil_Out32(BUS_OFFSET+0x4, 0x12340002);   //write in a known scratch pad register a value that shows it is alive
     xil_printf("Program started %x\n", Xil_In32(BUS_OFFSET+0x4));
     
+    // init counter reg value
+    Xil_Out32(CIEVENTSCOUNTER_MEM_OFFSET, 0);
     
     //update registers as uc is initialized
     Xil_Out32(HEARTBEAT_MEM_OFFSET, numOfChargeInjEvents);  
@@ -160,7 +158,11 @@ int main(){
     	
     	//write in a known scratch pad register a value that shows it is alive
     	Xil_Out32(BUS_OFFSET+0x4, adcReq);   
-    	delayReturn = delay(10000);
+        if (ciTestRequestFlag == 1){
+            ciTestRequestFlag = 0;
+            swChargeInjectTest();
+        }
+    	MB_Sleep(1);
     	adcReq = adcReq + 1;
     	//asm("nop");
     }
