@@ -62,31 +62,36 @@ void swCallibInterruptHandler(void * data) {
 	//local variables
 	uint32_t * request = (uint32_t *)data;
 	uint32_t dacInitialValue = Xil_In32(DAC_TH_MEM_OFFSET);
+	uint32_t seq_num = 0, num_counts;
 	
 	//sanity check to see it works from the software
 	xil_printf("CallibInterruptHandler REQ %d\n", *request);
 	*request = *request + 1;
 	Xil_Out32(CIEVENTSCOUNTER_MEM_OFFSET, *request);   //
-	
+	xil_printf("Seq. # %d\n", seq_num); seq_num = seq_num + 1;
 	//--------------------------
 	// start testing procedure
 	//--------------------------
 	// set DAC to 0
+	 
 	Xil_Out32(DAC_TH_MEM_OFFSET, 0x00000FFF);
-	// wait to settle
-	delay(100);
+	xil_printf("Seq. # %d\n", seq_num); seq_num = seq_num + 1;
+	// wait to settle	
+	num_counts = delay(5000);
+	xil_printf("Seq. # %d, delay_counts %d\n", seq_num, num_counts); seq_num = seq_num + 1;
 	// set to full scale
 	Xil_Out32(DAC_TH_MEM_OFFSET, 0x00000000);
 	// calibration injection cmd
 	Xil_Out32(CI_CMD_MEM_OFFSET, 0x00000001);
 	Xil_Out32(CI_CMD_MEM_OFFSET, 0x00000000);
+	xil_printf("Seq. # %d\n", seq_num); seq_num = seq_num + 1;
 	// wait to finish test
-	delay(100);
+	num_counts = delay(2500);
+	xil_printf("Seq. # %d, delay_counts %d\n", seq_num, num_counts); seq_num = seq_num + 1;
 	// restore DAC value
 	Xil_Out32(DAC_TH_MEM_OFFSET, dacInitialValue);
+	xil_printf("Seq. # %d\n", seq_num); seq_num = seq_num + 1;
 	
-	
-
 }
 
 
@@ -115,7 +120,7 @@ int delay(uint32_t delayTime){
         counter = counter+1;
     }
     //return true when done
-    return 0;
+    return counter;
 }
 //-----------------------------------------------------------------------
 //-----------------------------------------------------------------------

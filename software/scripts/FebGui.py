@@ -31,7 +31,7 @@ import time
 import sys
 import PyQt4.QtGui
 
-from SCurve import makeSCurve
+#from SCurve import makeSCurve
 
 # Custom run control
 class MyRunControl(pyrogue.RunControl):
@@ -142,7 +142,7 @@ def gui(arg):
     system.feb.dac.dacBLRRaw.set(0x7c2)
     system.readAll()
 
-    makeSCurve( system, 1000, [0x7ce], [ (i,i) for i in range(1) ], "scurve_test_sleep.root" )
+#    makeSCurve( system, 1000, [0x7ce], [ (i,i) for i in range(1) ], "scurve_test_sleep.root" )
 
     # Run gui
     appTop.exec_()
