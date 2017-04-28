@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2017-02-01
+-- Last update: 2017-04-28
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -90,13 +90,22 @@ architecture rtl of AtlasChess2FebAsicChargeInj is
    signal cnt            : slv(15 downto 0);
    signal hitDet         : Slv14Array(2 downto 0);
    signal hitDetSync     : Slv14Array(2 downto 0);
-   signal hitDetTime     : Slv8Array(2 downto 0);
-   signal hitDetTimeSync : Slv8Array(2 downto 0);
-   signal timer          : slv(7 downto 0);
+   signal hitDetTime     : Slv16Array(2 downto 0);
+   signal hitDetTimeSync : Slv16Array(2 downto 0);
+   signal timer          : slv(15 downto 0);
 
-   attribute dont_touch             : string;
-   attribute dont_touch of calPulse : signal is "TRUE";
-   attribute dont_touch of pulse    : signal is "TRUE";
+   attribute dont_touch                   : string;
+   attribute dont_touch of calPulse       : signal is "TRUE";
+   attribute dont_touch of invPulse       : signal is "TRUE";
+   attribute dont_touch of pulse          : signal is "TRUE";
+   attribute dont_touch of pulseReg       : signal is "TRUE";
+   attribute dont_touch of calWidth       : signal is "TRUE";
+   attribute dont_touch of cnt            : signal is "TRUE";
+   attribute dont_touch of hitDet         : signal is "TRUE";
+   attribute dont_touch of hitDetSync     : signal is "TRUE";
+   attribute dont_touch of hitDetTime     : signal is "TRUE";
+   attribute dont_touch of hitDetTimeSync : signal is "TRUE";
+   attribute dont_touch of timer          : signal is "TRUE";
 
 begin
 
@@ -186,7 +195,7 @@ begin
       U_hitDetTime : entity work.SynchronizerFifo
          generic map (
             TPD_G        => TPD_G,
-            DATA_WIDTH_G => 8)
+            DATA_WIDTH_G => 16)
          port map (
             wr_clk => timingClk320MHz,
             din    => hitDetTime(i),
@@ -281,8 +290,8 @@ begin
             hitDet     <= (others => (others => '0')) after TPD_G;
             hitDetTime <= (others => (others => '0')) after TPD_G;
             timer      <= (others => '0')             after TPD_G;
-         elsif (timer /= x"FF") then
-            -- Incremen the counter
+         elsif (timer /= x"FFFF") then
+            -- Increment the counter
             timer <= timer + 1 after TPD_G;
             -- Loop through the channels
             for i in 2 downto 0 loop

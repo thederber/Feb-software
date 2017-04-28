@@ -47,7 +47,7 @@ class chargeInj(pr.Device):
             self.add(pr.Variable(
                     name='hitDetTimeRaw%01i'%(i), units="1/320MHz",
                     description=' ',
-                    offset=(4*i), bitSize=8, bitOffset=16, base='hex', mode='RO')) 
+                    offset=(4*i), bitSize=16, bitOffset=16, base='hex', mode='RO')) 
             self.add(pr.Variable(name='hitDetTime%01i'%(i), mode = 'RO', units="ns", base='string',
                                  getFunction=self.nsTdc, dependencies=[self.variables['hitDetTimeRaw%01i'%(i)]]))                    
                 

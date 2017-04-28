@@ -7,54 +7,53 @@
 ## may be copied, modified, propagated, or distributed except according to 
 ## the terms contained in the LICENSE.txt file.
 ##############################################################################
-set VIVADO_BUILD_DIR $::env(VIVADO_BUILD_DIR)
-source -quiet ${VIVADO_BUILD_DIR}/vivado_env_var_v1.tcl
-source -quiet ${VIVADO_BUILD_DIR}/vivado_proc_v1.tcl
 
-## Open the run
+##############################
+# Get variables and procedures
+##############################
+source -quiet $::env(RUCKUS_DIR)/vivado_env_var.tcl
+source -quiet $::env(RUCKUS_DIR)/vivado_proc.tcl
+
+############################
+## Open the synthesis design
+############################
 open_run synth_1
 
-## Setup configurations
-set ilaName    u_ila_0
+###############################
+## Set the name of the ILA core
+###############################
+set ilaName u_ila_1
 
+##################
 ## Create the core
+##################
 CreateDebugCore ${ilaName}
 
+#######################
 ## Set the record depth
+#######################
 set_property C_DATA_DEPTH 1024 [get_debug_cores ${ilaName}]
 
-## Set the clock for the Core
+#################################
+## Set the clock for the ILA core
+#################################
+SetDebugCoreClk ${ilaName} {U_Core/U_Asic/U_ChargeInj/timingClk320MHz}
 
-SetDebugCoreClk ${ilaName} {U_Core/U_SACI/axilClk}
+#######################
+## Set the debug Probes
+#######################
 
-## Set the Probes
-
-ConfigProbe ${ilaName} {U_Core/U_SACI/r[chip][*]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/r[cmd][*]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/r[state][*]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/saciRsp[*]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/saciSelL[*]}
-
-ConfigProbe ${ilaName} {U_Core/U_SACI/ack}
-ConfigProbe ${ilaName} {U_Core/U_SACI/fail}
-ConfigProbe ${ilaName} {U_Core/U_SACI/axilReadMaster[arvalid]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/axilReadMaster[rready]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/axilWriteMaster[awvalid]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/axilWriteMaster[bready]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/axilWriteMaster[wvalid]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/r[axilReadSlave][arready]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/r[axilReadSlave][rvalid]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/r[axilWriteSlave][awready]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/r[axilWriteSlave][bvalid]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/r[axilWriteSlave][wready]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/r[op]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/r[req]}
-ConfigProbe ${ilaName} {U_Core/U_SACI/r[saciRst]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[0][*]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[1][*]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[2][*]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/dataValid[*]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/timer[*]}
 
 
-## Delete the last unused port
-delete_debug_port [get_debug_ports [GetCurrentProbe ${ilaName}]]
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/calPulse}
 
+##########################
 ## Write the port map file
-write_debug_probes -force ${PROJ_DIR}/images/debug_probes_${PRJ_VERSION}.ltx
+##########################
+WriteDebugProbes ${ilaName} ${PROJ_DIR}/images/debug_probes.ltx
 
