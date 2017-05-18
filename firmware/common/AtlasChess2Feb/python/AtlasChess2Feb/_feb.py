@@ -48,7 +48,7 @@ class feb(pr.Device):
         for i in range(3):
             self.add(AtlasChess2Feb.Chess2Array( 
                 name='Chess2Ctrl%01i'%(i),
-                offset=(saciAddr + i*saciChip),enabled=False,expand=False))   
+                offset=(saciAddr + i*saciChip),enabled=True,expand=False))   
                 
         self.add(AtlasChess2Feb.Chess2Test(offset=saciAddr+(3*saciChip),enabled=False,expand=False))
         

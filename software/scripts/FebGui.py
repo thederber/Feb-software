@@ -30,8 +30,13 @@ import yaml
 import time
 import sys
 import PyQt4.QtGui
+import numpy as np
 
-#from SCurve import makeSCurve
+#from SCurveNP import makeSCurve
+from SCurveNP import *
+
+
+c2_hists = []
 
 # Custom run control
 class MyRunControl(pyrogue.RunControl):
@@ -67,6 +72,9 @@ class MyRunControl(pyrogue.RunControl):
              self.runCount._updated()
 
 def gui(arg):
+    
+    hists = []
+    
     # Set base
     system = pyrogue.Root('System','Front End Board')
 
@@ -113,42 +121,79 @@ def gui(arg):
     system.add(AtlasChess2Feb.feb(memBase=srp))
     
     # Get the updated variables
-    system.readAll()
+#    system.readAll()
     
     # print ('Load the matrix')
-    # system.feb.Chess2Ctrl0.loadMatrix()
-    # system.feb.Chess2Ctrl1.loadMatrix()
-    # system.feb.Chess2Ctrl2.loadMatrix()
+#    system.feb.Chess2Ctrl0.loadMatrix()
+#    system.feb.Chess2Ctrl1.loadMatrix()
+#    system.feb.Chess2Ctrl2.loadMatrix()
     
     #####################################################
     # Example: Enable only one pixel for charge injection
     #####################################################
     #print ('Disable all pixels')
-    #system.feb.Chess2Ctrl0.writeAllPixels(enable=0,chargeInj=0)
-    # # Enable only one pixel for charge injection
+#    system.feb.Chess2Ctrl0.writeAllPixels(enable=0,chargeInj=0)
+#    system.feb.Chess2Ctrl1.writeAllPixels(enable=0,chargeInj=0)
+#    system.feb.Chess2Ctrl2.writeAllPixels(enable=0,chargeInj=0)
+    ## Enable only one pixel for charge injection
     #print ('Enable only one pixels')
-    #system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=1, col=0, row=0)
+#    system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=0, col=0, row=0, trimI= 9)
+#    system.feb.Chess2Ctrl1.writePixel(enable=1, chargeInj=1, col=0, row=0, trimI= 9)
+#    system.feb.Chess2Ctrl2.writePixel(enable=1, chargeInj=0, col=0, row=0, trimI= 9)
 
     # Create GUI
     appTop = PyQt4.QtGui.QApplication(sys.argv)
     guiTop = pyrogue.gui.GuiTop('PyRogueGui')
     guiTop.resize(800, 1000)
     guiTop.addTree(system)
-
-    system.readAll()
+    #system.root.readConfig("config/defaults.yml")
+#    system.readAll()
 #    system.feb.memReg.chargInjStartEventReg.set(0)
-    system.feb.dac.dacPIXTHRaw.set(0x7ce)
-    system.feb.dac.dacBLRaw.set(0xa2e)
+    system.feb.dac.dacPIXTHRaw.set(0x9ce)
     system.feb.dac.dacBLRRaw.set(0x7c2)
-    system.readAll()
+    system.feb.dac.dacBLRaw.set(0x5c2)
+#    system.readAll()
+    
+    system.feb.memReg.initValueReg.set(0x0)
+    system.feb.memReg.endValueReg.set(0xfff)
+    system.feb.memReg.delayValueReg.set(0x5)
 
-#    makeSCurve( system, 1000, [0x7ce], [ (i,i) for i in range(1) ], "scurve_test_sleep.root" )
+    """ Performs a test on a single pixel"""
+#    thresholds = [0x7c1]#,0xec2,0xdc2,0xcc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x5c2,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
+#    hists = makeCalibCurve2( system, nCounts=2, thresholdCuts = thresholds, pixels=[ (1,1) ], histFileName="scurve_test_sleep.root" )
+
+    """Perform tests to identify which pixels that respond to the calib test for the given parameters"""
+#    thresholds = [0x5c2]#[0x7c2,0x8c2,0x9c2]
+#    for row in range (0, 10):
+#        for col in range (0,32):
+#            hists = makeCalibCurve( system, nCounts=2, thresholdCuts = thresholds, pixels=[ (row,col) ], histFileName="scurve_test_sleep.root" )
+
+    """ Make S curve"""
+    values = [4]
+    for value in values:
+        #thresholds = [0xfc2,0xec2,0xdc2,0xcc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x5c2,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
+        #thresholds = [0x8c2,0x83e,0x7c2,0x73e,0x6c2,0x63e,0x5c2,0x53e,0x4c2,0x43e,0x3c2,0x33e,0x2c2,0x2c2,0x13e,0x1c2]
+        thresholds = [0xfc2,0xec2,0xdc2,0xcc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x6b2,0x6a2,0x692,0x682,0x672,0x662,0x652,0x642,0x632,0x622,0x612,0x602,0x5f2,0x5e2,0x5c2,0x5b2,0x5a2,0x592,0x582,0x572,0x562,0x552,0x542,0x532,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
+        hists = makeCalibCurve3( system, nCounts=10, thresholdCuts = thresholds, pixels=[ (1,21) ], histFileName="scurve_test_sleep.root" )
+        np.savetxt("chess2_scan_SCurveTest_trim15"+str(hex(value))+".csv", np.asarray(hists,dtype=np.float32),fmt = "%s", delimiter=",", header="system.feb.dac.dacBLRaw:,"+str(hex(value)))
+    #return threshold to a point where the calib pulse works
+    system.feb.dac.dacPIXTHRaw.set(0x9ce)
+
+#   values = [0xf2e, 0xe2e, 0xd2e, 0xc2e, 0xb2e, 0xa2e, 0x92e, 0x82e, 0x72e, 0x62e, 0x52e, 0x42e, 0x32e, 0x22e, 0x12e]
+ #   for value in values:
+ #       print("system.feb.dac.dacBLRaw", hex(value) )
+ #       system.feb.dac.dacBLRaw.set(value)
+        #hists = makeSCurve( system, nCounts=2, thresholdCuts = thresholds, pixels=[ (i,i) for i in range(0,1) ], histFileName="scurve_test_sleep.root" )
+#        hists = makeSCurve( system, nCounts=2, thresholdCuts = thresholds, pixels=[ (127,31) ], histFileName="scurve_test_sleep.root" )
+#        np.savetxt("chess2_scan_test_trim15"+str(hex(value))+".csv", np.asarray(hists,dtype=np.float32),fmt = "%s", delimiter=",", header="system.feb.dac.dacBLRaw:,"+str(hex(value)))
 
     # Run gui
     appTop.exec_()
 
     # Stop mesh after gui exits
     system.stop()
+    
+    return hists
 
 if __name__ == '__main__':
-    gui(sys.argv[1])
+    c2_hists = gui(sys.argv[1])

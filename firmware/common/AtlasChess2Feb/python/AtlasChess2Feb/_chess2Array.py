@@ -235,12 +235,12 @@ class Chess2Array(pr.Device):
         # Configure for 40 MHz timing
         self.setDefaults()    
         value = self.configPixel(enable, chargeInj, trimI)
-        self.StartMatrixConfig.post(0)
+        self.StartMatrixConfig.set(0)
         for row in range(128): 
             for col in range(32):        
-                self.ColPointer.post(col)       
-                self.RowPointer.post(row)       
-                self.WritePixel.post(value)
+                self.ColPointer.set(col)       
+                self.RowPointer.set(row)       
+                self.WritePixel.set(value)
                 # Update the software variable
                 self.matrix._pixel[col][row] = value
         self.EndMatrixConfig.get()       
@@ -248,10 +248,10 @@ class Chess2Array(pr.Device):
     def writePixel(self, row, col, enable, chargeInj, trimI=0):
         # print ('writePixel(self=%s,row=%d,col=%d,enable=%d,chargeInj=%d,trimI=%d) = 0x%X' % (self,row,col,enable,chargeInj,trimI,value))        
         value = self.configPixel(enable, chargeInj, trimI)
-        self.StartMatrixConfig.post(0)
-        self.RowPointer.post(row)
-        self.ColPointer.post(col)
-        self.WritePixel.post(value)
+        self.StartMatrixConfig.set(0)
+        self.RowPointer.set(row)
+        self.ColPointer.set(col)
+        self.WritePixel.set(value)
         self.matrix._pixel[col][row] = value
         self.EndMatrixConfig.get()
         
@@ -260,12 +260,12 @@ class Chess2Array(pr.Device):
         # Configure for 40 MHz timing
         self.setDefaults()
         # Load the matrix with the software variables
-        self.StartMatrixConfig.post(0)
+        self.StartMatrixConfig.set(0)
         for row in range(128): 
             for col in range(32):        
-                self.ColPointer.post(col)       
-                self.RowPointer.post(row)      
+                self.ColPointer.set(col)       
+                self.RowPointer.set(row)      
                 # Load the software variable
-                self.WritePixel.post(self.matrix._pixel[col][row])
+                self.WritePixel.set(self.matrix._pixel[col][row])
         self.EndMatrixConfig.get()
         
