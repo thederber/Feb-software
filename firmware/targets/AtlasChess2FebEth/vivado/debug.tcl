@@ -32,7 +32,7 @@ CreateDebugCore ${ilaName}
 #######################
 ## Set the record depth
 #######################
-set_property C_DATA_DEPTH 1024 [get_debug_cores ${ilaName}]
+set_property C_DATA_DEPTH 2048 [get_debug_cores ${ilaName}]
 
 #################################
 ## Set the clock for the ILA core
@@ -48,6 +48,9 @@ ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[1][*]}
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[2][*]}
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/dataValid[*]}
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/timer[*]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_Chess[0].U_Rx/chessDin[*]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_Chess[1].U_Rx/chessDin[*]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_Chess[2].U_Rx/chessDin[*]}
 
 
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/calPulse}

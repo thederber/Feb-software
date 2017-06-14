@@ -72,6 +72,8 @@ end AtlasChess2FebAsicRx;
 
 architecture mapping of AtlasChess2FebAsicRx is
 
+   attribute keep : string;
+
    signal phaseSel      : slv(13 downto 0);
    signal delayInLoad   : slv(13 downto 0);
    signal delayInData   : Slv5Array(13 downto 0);
@@ -81,6 +83,8 @@ architecture mapping of AtlasChess2FebAsicRx is
    signal delayCnt      : slv(DELAY_ADDR_WIDTH_G-1 downto 0);
    signal delayRdEn     : sl;
    signal chessClkOeL   : sl;
+
+   attribute keep of chessDin : signal is "true";
 
 begin
 

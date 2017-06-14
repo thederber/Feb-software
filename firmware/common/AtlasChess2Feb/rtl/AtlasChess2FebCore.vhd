@@ -545,7 +545,7 @@ begin
          AXIL_ERROR_RESP_G  => AXI_ERROR_RESP_G,
          AXIL_CLK_PERIOD_G  => (1.0/AXIL_CLK_FREQ_C),  -- In units of seconds
          AXIL_TIMEOUT_G     => 1.0E-1,  -- In units of seconds
-         SACI_CLK_PERIOD_G  => (1.0/10.0E+6),  -- In units of seconds        
+         SACI_CLK_PERIOD_G  => (1.0/10.0E+6),  -- In units of seconds               
          SACI_CLK_FREERUN_G => false,
          SACI_NUM_CHIPS_G   => 4,
          SACI_RSP_BUSSED_G  => false)
