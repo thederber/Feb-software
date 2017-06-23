@@ -5,4 +5,8 @@
 *.bit
 *.mcs
 *.ld
+*.gz
 
+
+# Vivado Build
+build*
