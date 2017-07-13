@@ -34,7 +34,10 @@ import numpy as np
 
 #from SCurveNP import makeSCurve
 from SCurveNP import *
+from AtlasChess2_testRoutines import *
 
+MAKE_S_CURVE = True
+MAKE_TIME_DELAY_CURVE = False
 
 c2_hists = []
 
@@ -183,35 +186,61 @@ def gui(arg):
 #            hists = makeCalibCurve( system, nCounts=2, thresholdCuts = thresholds, pixels=[ (row,col) ], histFileName="scurve_test_sleep.root" )
 
     """ Make S curve"""
-    run = 1
-    Qinj = [0, 1]
-    values = [6, 5, 4, 3, 2, 1, 0, 7, 8, 9]
-    for value in values:
-        for chargeInjectionEnbled in Qinj:
+    if (MAKE_S_CURVE):
+        system.feb.Chess2Ctrl0.VNatt.set(0x1e)
+        system.feb.Chess2Ctrl0.VNres.set(0x1)
+        run = 1
+        Qinj = [0, 1]
+        values = [6]#, 5, 4, 3, 2, 1, 0, 7, 8, 9]
+        for value in values:
+            for chargeInjectionEnbled in Qinj:
+                deltaBLToBLR = value * 120 
+                # define test Variables
+                #thresholds = [0xfc2,0xec2,0xdc2,0xcc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x5c2,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
+                #thresholds = [0x8c2,0x83e,0x7c2,0x73e,0x6c2,0x63e,0x5c2,0x53e,0x4c2,0x43e,0x3c2,0x33e,0x2c2,0x2c2,0x13e,0x1c2]
+                #thresholds = [0xbc2,0xbc2,0xbc2,0xbc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x6b2,0x6a2,0x692,0x682,0x672,0x662,0x652,0x642,0x632,0x622,0x612,0x602,0x5f2,0x5e2,0x5c2,0x5b2,0x5a2,0x592,0x582,0x572,0x562,0x552,0x542,0x532,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
+                thresholds = np.arange(0x800, 0x500, -100)
+                pixels=[ (1,1) ]
+                # create file header
+                headerText = "\n# Test that perform the BL and BLR voltage sweep. BLR is set as BL plus a delta voltage. (Note: ASIC V1.8a changed to 3.3V)"
+                headerText = headerText + "\n# pixels, " + str(pixels)
+                headerText = headerText + "\n# chargeInjectionEnbled, " + str(chargeInjectionEnbled)
+                headerText = headerText + "\n# deltaBLToBLR:," + str(deltaBLToBLR) 
+                headerText = headerText + "\n# system.feb.dac.dacPIXTHRaw:," + str(system.feb.dac.dacPIXTH._rawGet()) 
+                headerText = headerText + "\n# trim, " + str(7)
+                headerText = headerText + "\n# thresholds (raw):," + str(thresholds)
+                headerText = headerText + "\n# thresholds (volts):," + str(thresholds/1240)
+                # run test
+                hists = makeCalibCurve4( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
+                # save file
+                np.savetxt("chess2_scan_SCurveTest_06172017_run_" + str(run)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+".csv", np.asarray(hists,dtype=np.int),fmt = "%s", delimiter=",", header=headerText)
+    
+        #return threshold to a point where the calib pulse works
+        system.feb.dac.dacPIXTHRaw.set(0x9ce)
+
+
+    if (MAKE_TIME_DELAY_CURVE):
+        run = 1
+        thresholds = np.arange(0x0, 0x7FFF, 0x1000)
+        pixels=[ (1,1) ]
+        values = [3]
+        Qinj = [True, False]
+        for value in values:
             deltaBLToBLR = value * 120 
-            # define test Variables
-            #thresholds = [0xfc2,0xec2,0xdc2,0xcc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x5c2,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
-            #thresholds = [0x8c2,0x83e,0x7c2,0x73e,0x6c2,0x63e,0x5c2,0x53e,0x4c2,0x43e,0x3c2,0x33e,0x2c2,0x2c2,0x13e,0x1c2]
-            #thresholds = [0xbc2,0xbc2,0xbc2,0xbc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x6b2,0x6a2,0x692,0x682,0x672,0x662,0x652,0x642,0x632,0x622,0x612,0x602,0x5f2,0x5e2,0x5c2,0x5b2,0x5a2,0x592,0x582,0x572,0x562,0x552,0x542,0x532,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
-            thresholds = np.arange(0x800, 0x500, -2)
-            pixels=[ (1,1) ]
-            # create file header
-            headerText = "\n# Test that perform the BL and BLR voltage sweep. BLR is set as BL plus a delta voltage. (Note: ASIC V1.8a changed to 3.3V)"
-            headerText = headerText + "\n# pixels, " + str(pixels)
-            headerText = headerText + "\n# chargeInjectionEnbled, " + str(chargeInjectionEnbled)
-            headerText = headerText + "\n# deltaBLToBLR:," + str(deltaBLToBLR) 
-            headerText = headerText + "\n# system.feb.dac.dacPIXTHRaw:," + str(system.feb.dac.dacPIXTH._rawGet()) 
-            headerText = headerText + "\n# trim, " + str(7)
-            headerText = headerText + "\n# thresholds (raw):," + str(thresholds)
-            headerText = headerText + "\n# thresholds (volts):," + str(thresholds/1240)
-            # run test
-            hists = makeCalibCurve4( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
-            # save file
-            np.savetxt("chess2_scan_SCurveTest_06172017_run_" + str(run)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+".csv", np.asarray(hists,dtype=np.int),fmt = "%s", delimiter=",", header=headerText)
+            for chargeInjectionEnbled in Qinj:
 
-    #return threshold to a point where the calib pulse works
-    system.feb.dac.dacPIXTHRaw.set(0x9ce)
-
+                headerText = "\n# Test that perform the pulse width sweep (Note: ASIC V1.8a changed to 3.3V)"
+                headerText = headerText + "\n# pixels, " + str(pixels)
+                headerText = headerText + "\n# chargeInjectionEnbled, " + str(chargeInjectionEnbled)
+                headerText = headerText + "\n# deltaBLToBLR:," + str(deltaBLToBLR) 
+                headerText = headerText + "\n# system.feb.dac.dacPIXTHRaw:," + str(system.feb.dac.dacPIXTH._rawGet()) 
+                headerText = headerText + "\n# trim, " + str(7)
+                headerText = headerText + "\n# thresholds (raw):," + str(thresholds)
+                # run test
+                hists = makeDelayVsHitDetectTime( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
+                # save file
+                np.savetxt("chess2_scan_QinjDelay_06232017_run_" + str(run)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+".csv", hists, fmt = "%s",delimiter=",", header=headerText)        
+    
 #   values = [0xf2e, 0xe2e, 0xd2e, 0xc2e, 0xb2e, 0xa2e, 0x92e, 0x82e, 0x72e, 0x62e, 0x52e, 0x42e, 0x32e, 0x22e, 0x12e]
  #   for value in values:
  #       print("system.feb.dac.dacBLRaw", hex(value) )

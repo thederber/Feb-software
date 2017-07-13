@@ -71,13 +71,14 @@ class MyRunControl(pyrogue.RunControl):
              self._last = int(time.time())
              self.runCount._updated()
 
+
+# Set base, make it visible for interactive mode
+system = pyrogue.Root('System','Front End Board')
+
 def gui(arg):
     
     hists = []
     
-    # Set base
-    system = pyrogue.Root('System','Front End Board')
-
     # Run control
     system.add(MyRunControl('runControl'))
 
@@ -132,14 +133,14 @@ def gui(arg):
     # Example: Enable only one pixel for charge injection or Th swing test
     ######################################################################
     #print ('Disable all pixels')
-#    system.feb.Chess2Ctrl0.writeAllPixels(enable=0,chargeInj=1)
-#    system.feb.Chess2Ctrl1.writeAllPixels(enable=0,chargeInj=1)
-#    system.feb.Chess2Ctrl2.writeAllPixels(enable=0,chargeInj=1)
+    system.feb.Chess2Ctrl0.writeAllPixels(enable=0,chargeInj=1)
+    system.feb.Chess2Ctrl1.writeAllPixels(enable=0,chargeInj=1)
+    system.feb.Chess2Ctrl2.writeAllPixels(enable=0,chargeInj=1)
     ## Enable only one pixel for charge injection
     #print ('Enable only one pixels')
-#    system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=0, col=0, row=0, trimI= 9)
-#    system.feb.Chess2Ctrl1.writePixel(enable=1, chargeInj=1, col=0, row=0, trimI= 9)
-#    system.feb.Chess2Ctrl2.writePixel(enable=1, chargeInj=0, col=0, row=0, trimI= 9)
+    system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=0, col=1, row=1, trimI= 7)
+    system.feb.Chess2Ctrl1.writePixel(enable=1, chargeInj=0, col=1, row=1, trimI= 7)
+    system.feb.Chess2Ctrl2.writePixel(enable=1, chargeInj=0, col=1, row=1, trimI= 7)
 
 #    """ Enable only one pixel for charge injection """
 #    print ('Enable only one pixel for threshold test')
@@ -183,32 +184,32 @@ def gui(arg):
 #            hists = makeCalibCurve( system, nCounts=2, thresholdCuts = thresholds, pixels=[ (row,col) ], histFileName="scurve_test_sleep.root" )
 
     """ Make S curve"""
-    values = [6]#[6, 0, 1, 2, 3, 4, 5, 7, 8, 9]
-    for value in values:
-        deltaBLToBLR = value * 120 
-        # define test Variables
-        #thresholds = [0xfc2,0xec2,0xdc2,0xcc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x5c2,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
-        #thresholds = [0x8c2,0x83e,0x7c2,0x73e,0x6c2,0x63e,0x5c2,0x53e,0x4c2,0x43e,0x3c2,0x33e,0x2c2,0x2c2,0x13e,0x1c2]
-        #thresholds = [0xbc2,0xbc2,0xbc2,0xbc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x6b2,0x6a2,0x692,0x682,0x672,0x662,0x652,0x642,0x632,0x622,0x612,0x602,0x5f2,0x5e2,0x5c2,0x5b2,0x5a2,0x592,0x582,0x572,0x562,0x552,0x542,0x532,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
-        #thresholds = np.arange(0x800, 0x500, -2)
-        thresholds = np.arange(0x800, 0x7FE, -2)
-        chargeInjectionEnbled = 0
-        pixels=[ (1,1) ]
-        # create file header
-        headerText = "\n# Test that perform the BL and BLR voltage sweep. BLR is set as BL plus a delta voltage. (Note: ASIC V1.8a changed to 3.3V)"
-        headerText = headerText + "\n# pixels, " + str(pixels)
-        headerText = headerText + "\n# chargeInjectionEnbled, " + str(chargeInjectionEnbled)
-        headerText = headerText + "\n# deltaBLToBLR:," + str(deltaBLToBLR) 
-        headerText = headerText + "\n# system.feb.dac.dacPIXTHRaw:," + str(system.feb.dac.dacPIXTH._rawGet()) 
-        headerText = headerText + "\n# trim, " + str(7)
-        headerText = headerText + "\n# thresholds (raw):," + str(thresholds)
-        headerText = headerText + "\n# thresholds (volts):," + str(thresholds/1240)
-        # run test
-        hists = makeCalibCurve4( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
-        # save file
-        np.savetxt("chess2_scan_SCurveTest_06172017_run_1_thN_"+str(hex(value))+".csv", np.asarray(hists,dtype=np.int),fmt = "%s", delimiter=",", header=headerText)
-    #return threshold to a point where the calib pulse works
-    system.feb.dac.dacPIXTHRaw.set(0x9ce)
+#    values = [6]#[6, 0, 1, 2, 3, 4, 5, 7, 8, 9]
+#    for value in values:
+#        deltaBLToBLR = value * 120 
+#        # define test Variables
+#        #thresholds = [0xfc2,0xec2,0xdc2,0xcc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x5c2,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
+#        #thresholds = [0x8c2,0x83e,0x7c2,0x73e,0x6c2,0x63e,0x5c2,0x53e,0x4c2,0x43e,0x3c2,0x33e,0x2c2,0x2c2,0x13e,0x1c2]
+#        #thresholds = [0xbc2,0xbc2,0xbc2,0xbc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x6b2,0x6a2,0x692,0x682,0x672,0x662,0x652,0x642,0x632,0x622,0x612,0x602,0x5f2,0x5e2,0x5c2,0x5b2,0x5a2,0x592,0x582,0x572,0x562,0x552,0x542,0x532,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
+#        #thresholds = np.arange(0x800, 0x500, -2)
+#        thresholds = np.arange(0x800, 0x7FE, -2)
+#        chargeInjectionEnbled = 0
+#        pixels=[ (1,1) ]
+#        # create file header
+#        headerText = "\n# Test that perform the BL and BLR voltage sweep. BLR is set as BL plus a delta voltage. (Note: ASIC V1.8a changed to 3.3V)"
+#        headerText = headerText + "\n# pixels, " + str(pixels)
+#        headerText = headerText + "\n# chargeInjectionEnbled, " + str(chargeInjectionEnbled)
+#        headerText = headerText + "\n# deltaBLToBLR:," + str(deltaBLToBLR) 
+#        headerText = headerText + "\n# system.feb.dac.dacPIXTHRaw:," + str(system.feb.dac.dacPIXTH._rawGet()) 
+#        headerText = headerText + "\n# trim, " + str(7)
+#        headerText = headerText + "\n# thresholds (raw):," + str(thresholds)
+#        headerText = headerText + "\n# thresholds (volts):," + str(thresholds/1240)
+#        # run test
+#        hists = makeCalibCurve4( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
+#        # save file
+#        np.savetxt("chess2_scan_SCurveTest_06172017_run_1_thN_"+str(hex(value))+".csv", np.asarray(hists,dtype=np.int),fmt = "%s", delimiter=",", header=headerText)
+#    #return threshold to a point where the calib pulse works
+#    system.feb.dac.dacPIXTHRaw.set(0x9ce)
 
 #   values = [0xf2e, 0xe2e, 0xd2e, 0xc2e, 0xb2e, 0xa2e, 0x92e, 0x82e, 0x72e, 0x62e, 0x52e, 0x42e, 0x32e, 0x22e, 0x12e]
  #   for value in values:
