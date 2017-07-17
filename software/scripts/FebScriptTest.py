@@ -199,6 +199,8 @@ def gui(arg):
                 #thresholds = [0xbc2,0xbc2,0xbc2,0xbc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x6b2,0x6a2,0x692,0x682,0x672,0x662,0x652,0x642,0x632,0x622,0x612,0x602,0x5f2,0x5e2,0x5c2,0x5b2,0x5a2,0x592,0x582,0x572,0x562,0x552,0x542,0x532,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
                 thresholds = np.arange(0x800, 0x500, -2)
                 pixels=[ (1,1) ]
+                hists = makeCalibCurve4( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
+                hists1=np.asarray(hists)
                 # create file header
                 headerText = "\n# Test that perform the BL and BLR voltage sweep. BLR is set as BL plus a delta voltage. (Note: ASIC V1.8a set to 1.8V again). Running with default ASIC values"
                 headerText = headerText + "\n# pixels, " + str(pixels)
@@ -208,10 +210,10 @@ def gui(arg):
                 headerText = headerText + "\n# trim, " + str(7)
                 headerText = headerText + "\n# thresholds (raw):," + str(thresholds)
                 headerText = headerText + "\n# thresholds (volts):," + str(thresholds/1240)
-                headerText = headerText + "\n# system.feb.dac.dacBLRaw:"+'Shape:{0}:'.format(hists1.shape)
+                headerText = headerText + "\n# Shape:{0}:".format(hists1.shape)
                 # run test
-                hists = makeCalibCurve4( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
-                hists1=np.asarray(hists)
+                #hists = makeCalibCurve4( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
+               
                 # save file
                 # new csv file output style
                 np.savetxt("preamp/chess2_scan_SCurveTest_07172017_run_" + str(run)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+".csv", hists1.flatten(), header=headerText)
