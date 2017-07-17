@@ -203,9 +203,59 @@ def makeCalibCurve3(system,nCounts,thresholdCuts,pixels=None,histFileName="scurv
 
     return allHists
 
+def configAsicsPreampTest(system = []):
+    system.feb.Chess2Ctrl0.VNatt.set(0x1e)                                            
+    system.feb.Chess2Ctrl0.VNres.set(0x1)
+    system.feb.Chess2Ctrl0.VPLoadatt.set(0x1c)                                        
+    system.feb.Chess2Ctrl0.VPLoadres.set(0x2)                                         
+    system.feb.Chess2Ctrl0.VNSFatt.set(0x1f)                                          
+    system.feb.Chess2Ctrl0.VNSFres.set(0x3)
+    
+    system.feb.Chess2Ctrl1.VNatt.set(0x1e)
+    system.feb.Chess2Ctrl1.VNres.set(0x1)
+    system.feb.Chess2Ctrl1.VPLoadatt.set(0x1c)                                        
+    system.feb.Chess2Ctrl1.VPLoadres.set(0x2)                                         
+    system.feb.Chess2Ctrl1.VNSFatt.set(0x1f)                                          
+    system.feb.Chess2Ctrl1.VNSFres.set(0x3)
+    
+    system.feb.Chess2Ctrl2.VNatt.set(0x1e)
+    system.feb.Chess2Ctrl2.VNres.set(0x1)
+    system.feb.Chess2Ctrl2.VPLoadatt.set(0x1c)                                        
+    system.feb.Chess2Ctrl2.VPLoadres.set(0x2)                                         
+    system.feb.Chess2Ctrl2.VNSFatt.set(0x1f)                                          
+    system.feb.Chess2Ctrl2.VNSFres.set(0x3)
+
+def configAsicsPreampTestRestoreDefaultValues(system = []):
+    system.feb.Chess2Ctrl0.VNatt.set(0x1F)                                            
+    system.feb.Chess2Ctrl0.VNres.set(0x0)
+    system.feb.Chess2Ctrl0.VPLoadatt.set(0x1e)                                        
+    system.feb.Chess2Ctrl0.VPLoadres.set(0x1)                                         
+    system.feb.Chess2Ctrl0.VNSFatt.set(0x1b)                                          
+    system.feb.Chess2Ctrl0.VNSFres.set(0x0)
+    
+    system.feb.Chess2Ctrl1.VNatt.set(0x1F)
+    system.feb.Chess2Ctrl1.VNres.set(0x0)
+    system.feb.Chess2Ctrl1.VPLoadatt.set(0x1e) 
+    system.feb.Chess2Ctrl1.VPLoadres.set(0x1)                                         
+    system.feb.Chess2Ctrl1.VNSFatt.set(0x1b)                                          
+    system.feb.Chess2Ctrl1.VNSFres.set(0x0)
+    
+    system.feb.Chess2Ctrl2.VNatt.set(0x1F)
+    system.feb.Chess2Ctrl2.VNres.set(0x0)
+    system.feb.Chess2Ctrl2.VPLoadatt.set(0x1e) 
+    system.feb.Chess2Ctrl2.VPLoadres.set(0x1)                                         
+    system.feb.Chess2Ctrl2.VNSFatt.set(0x1b)                                          
+    system.feb.Chess2Ctrl2.VNSFres.set(0x0)
+
+
+
 
 def makeCalibCurve4(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve.root", deltaBLToBLR = 608, chargeInjectionEnbled = 0):
     allHists = []
+
+    #ASIC specific configuration selected depending on the test being run
+    #configAsicsPreampTest(system = system)
+    configAsicsPreampTestRestoreDefaultValues(system = system)
 
     pixEnable = 1
     chargeInj = not chargeInjectionEnbled  # 0 - enable / 1 - disabled
