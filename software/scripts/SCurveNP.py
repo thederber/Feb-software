@@ -281,8 +281,8 @@ def makeCalibCurve4(system,nCounts,thresholdCuts,pixels=None,histFileName="scurv
     allHists = []
 
     #ASIC specific configuration selected depending on the test being run
-    #configAsicsPreampTest(system = system)
-    configAsicsPreampTestRestoreDefaultValues(system = system)
+    configAsicsPreampTest(system = system)
+    #configAsicsPreampTestRestoreDefaultValues(system = system)
 
     pixEnable = 1
     chargeInj = not chargeInjectionEnbled  # 0 - enable / 1 - disabled
