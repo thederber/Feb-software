@@ -1,7 +1,34 @@
 ####import ROOT as R
 import numpy as np
 import matplotlib #.pyplot as plt
+import sys
 import time
+import re
+import logging
+
+def logfile(logfilename):
+    logger=logging.getLogger(__name__)
+    #LOG_FILE="testlog.log"
+    LOG_FILE=sys.argv[1]
+    logging.basicConfig(filename=LOG_FILE,level=logging.DEBUG)
+    hdlr=logging.FileHandler(LOG_FILE)
+    formatter=logging.Formatter('%(asctime)s %(message)s')
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+    logger.setLevel(logging.NOTSET)
+    return logger
+
+def load_chess2_data(filename):
+    for i in [6]:
+        file_data=open(sys.argv[1]+'0x%i.csv'%i,'r')
+        for line in file_data.readlines():
+            if ('Shape' in line):
+                shape_hist=re.findall('\d+',line)
+               # print(len(shape_hist))
+                break
+        data_1d=np.loadtxt(sys.argv[1]+'0x%i.csv'%i)
+        hists=data_1d.reshape(int(shape_hist[0]),int(shape_hist[1]),int(shape_hist[2]),int(shape_hist[3]))	
+    return hists
 
 def makeSCurve(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve.root"):
     nColumns      = 32
