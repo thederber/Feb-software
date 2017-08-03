@@ -32,9 +32,12 @@ if(len(sys.argv) < 2):
 #thresholdHexList = np.arange(0xbc2, 0, -2) # for the file'chess2_scan_NoQinjPulse_BLx_SCurveTest_trim70x%i_.csv
 #thresholdHexList = [0xfc2,0xec2,0xdc2,0xcc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x6b2,0x6a2,0x692,0x682,0x672,0x662,0x652,0x642,0x632,0x622,0x612,0x602,0x5f2,0x5e2,0x5c2,0x5b2,0x5a2,0x592,0x582,0x572,0x562,0x552,0x542,0x532,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
 #thresholdHexList = [0xfc2,0xec2,0xdc2,0xcc2]
-thresholdHexList = np.arange(0x800, 0x500, -2) # for the file 'chess2_scan_QinjPulse_BLx_SCurveTest_trim7' 
+#thresholdHexList = np.arange(0xd14, 0x400, -16)
+#thresholdHexList = np.arange(0x800, 0x500, -2) # for the file 'chess2_scan_QinjPulse_BLx_SCurveTest_trim7' 
+thresholdHexList = get_thresholds(sys.argv[1])
 thresholdList = [int(hexVal)/1241. for hexVal in thresholdHexList]
-
+minBL=min(thresholdList)
+maxBL=max(thresholdList)
 # one for each ASIC
 timingList0 = []
 timingList1 = []
@@ -63,12 +66,15 @@ for j in [6]:
 	hist1D0_fast = TH1D('fast_timeHist_asic0_trim70x%i'%(j),'fast_timeHist_asic0_trim70x%i;time;'%(j),50,0,500)
 	hist1D1_fast = TH1D('fast_timeHist_asic1_trim70x%i'%(j),'fast_timeHist_asic1_trim70x%i;time;'%(j),50,0,500)
 	hist1D2_fast = TH1D('fast_timeHist_asic2_trim70x%i'%(j),'fast_timeHist_asic2_trim70x%i;time;'%(j),50,0,500)
-	histCumul0_fast= TH2D('fast_cumulTimeHist_asic0_trim70x%i'%(j),'fast_cumTimeHist_asic0_trim70x%i;BL;time;numbHits'%(j), 50, 0.9, 1.6, 100, 0, 10000)
-	histCumul1_fast= TH2D('fast_cumulTimeHist_asic1_trim70x%i'%(j),'fast_cumTimeHist_asic1_trim70x%i;BL;time;numbHits'%(j), 50, 0.9, 1.6, 100, 0, 10000)
-	histCumul2_fast= TH2D('fast_cumulTimeHist_asic2_trim70x%i'%(j),'fast_cumTimeHist_asic2_trim70x%i;BL;time;numbHits'%(j), 50, 0.9, 1.6, 100, 0, 10000)
-	histCumul0_fast_hit= TH2D('fast_cumulTimeHist_asic0_fast_hit_trim70x%i'%(j),'fast_cumTimeHist_asic0_fast_hit_trim70x%i;BL;time;numbHits'%(j), 50, 0.9, 1.6, 100, 0, 10000)
-	histCumul1_fast_hit= TH2D('fast_cumulTimeHist_asic1_fast_hit_trim70x%i'%(j),'fast_cumTimeHist_asic1_fast_hit_trim70x%i;BL;time;numbHits'%(j), 50, 0.9, 1.6, 100, 0, 10000)
-	histCumul2_fast_hit= TH2D('fast_cumulTimeHist_asic2_fast_hit_trim70x%i'%(j),'fast_cumTimeHist_asic2_fast_hit_trim70x%i;BL;time;numbHits'%(j), 50, 0.9, 1.6, 100, 0, 10000)
+	#histCumul0_fast= TH2D('fast_cumulTimeHist_asic0_trim70x%i'%(j),'fast_cumTimeHist_asic0_trim70x%i;BL;time;numbHits'%(j), 50, 0.9, 1.6, 100, 0, 10000)
+	#histCumul1_fast= TH2D('fast_cumulTimeHist_asic1_trim70x%i'%(j),'fast_cumTimeHist_asic1_trim70x%i;BL;time;numbHits'%(j), 50, 0.9, 1.6, 100, 0, 10000)
+	#histCumul2_fast= TH2D('fast_cumulTimeHist_asic2_trim70x%i'%(j),'fast_cumTimeHist_asic2_trim70x%i;BL;time;numbHits'%(j), 50, 0.9, 1.6, 100, 0, 10000)
+	histCumul0_fast= TH2D('fast_cumulTimeHist_asic0_trim70x%i'%(j),'fast_cumTimeHist_asic0_trim70x%i;BL;time;numbHits'%(j), 100, minBL, maxBL, 100, 0, 10000)
+	histCumul1_fast= TH2D('fast_cumulTimeHist_asic1_trim70x%i'%(j),'fast_cumTimeHist_asic1_trim70x%i;BL;time;numbHits'%(j), 100, minBL, maxBL, 100, 0, 10000)
+	histCumul2_fast= TH2D('fast_cumulTimeHist_asic2_trim70x%i'%(j),'fast_cumTimeHist_asic2_trim70x%i;BL;time;numbHits'%(j), 100, minBL, maxBL, 100, 0, 10000)
+	histCumul0_fast_hit= TH2D('fast_cumulTimeHist_asic0_fast_hit_trim70x%i'%(j),'fast_cumTimeHist_asic0_fast_hit_trim70x%i;BL;time;numbHits'%(j), 50, minBL, maxBL, 100, 0, 10000)
+	histCumul1_fast_hit= TH2D('fast_cumulTimeHist_asic1_fast_hit_trim70x%i'%(j),'fast_cumTimeHist_asic1_fast_hit_trim70x%i;BL;time;numbHits'%(j), 50, minBL, maxBL, 100, 0, 10000)
+	histCumul2_fast_hit= TH2D('fast_cumulTimeHist_asic2_fast_hit_trim70x%i'%(j),'fast_cumTimeHist_asic2_fast_hit_trim70x%i;BL;time;numbHits'%(j), 50, minBL, maxBL, 100, 0, 10000)
 	X = []
 	Y = []
 	Z = []
