@@ -6,6 +6,7 @@ import time
 import re
 import logging
 
+# Generating log file
 def logfile(logfilename):
     logger=logging.getLogger(__name__)
     #LOG_FILE="testlog.log"
@@ -18,18 +19,40 @@ def logfile(logfilename):
     logger.setLevel(logging.NOTSET)
     return logger
 
+#transfer the data
 def load_chess2_data(filename):
-    for i in [6]:
-        file_data=open(sys.argv[1]+'0x%i.csv'%i,'r')
+    for i in [2]:
+        file_data=open(sys.argv[1],'r')
         for line in file_data.readlines():
             if ('Shape' in line):
                 shape_hist=re.findall('\d+',line)
                # print(len(shape_hist))
                 break
-        data_1d=np.loadtxt(sys.argv[1]+'0x%i.csv'%i)
+        data_1d=np.loadtxt(sys.argv[1])
         hists=data_1d.reshape(int(shape_hist[0]),int(shape_hist[1]),int(shape_hist[2]),int(shape_hist[3]))	
     return hists
 
+def get_thresholds(filename):
+    file_data=open(sys.argv[1],'r')
+    line_count=0
+    start=False
+    for line in file_data.readlines():
+        line_count+=1
+        if ('thresholds (raw)' in line):
+            thresholds=re.findall('\d+',line)
+            start_line=line_count
+            start=True
+        if (start):
+            if (line_count>start_line):
+                if (not (']' in line)):
+                    thresholds1=re.findall('\d+',line)
+                    thresholds.extend(thresholds1)
+                else: 
+                    thresholds1=re.findall('\d+',line)
+                    thresholds.extend(thresholds1)
+                    break
+    return thresholds
+       
 def makeSCurve(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve.root"):
     nColumns      = 32
     nRows         = 128
@@ -40,13 +63,13 @@ def makeSCurve(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve.roo
     #####tf = R.TFile(histFileName, "recreate")
     # Turn on one pixel at a time
     print("Disable all pixels")
-    system.feb.Chess2Ctrl0.writeAllPixels(enable=0,chargeInj=0)
+    system.feb.Chess2Ctrl0.writeAllPixels(enable=0,chargeInj=0) #chargeInj should be 1 in this line and following 2 lines
     system.feb.Chess2Ctrl1.writeAllPixels(enable=0,chargeInj=0)
     system.feb.Chess2Ctrl2.writeAllPixels(enable=0,chargeInj=0)
     pixels = pixels if (pixels!=None) else [ (row,col) for row in range(nRows) for col in range(nColumns) ]
     for (row,col) in pixels:
       print("Pixel: (%i,%i)"%(row,col))
-      system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=1, col=col, row=row, trimI= 15)
+      system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=1, col=col, row=row, trimI= 15) #chargeInj should be 0 in these 3 lines
       system.feb.Chess2Ctrl1.writePixel(enable=1, chargeInj=1, col=col, row=row, trimI= 15)
       system.feb.Chess2Ctrl2.writePixel(enable=1, chargeInj=1, col=col, row=row, trimI= 15)
       ####hists_row = [ R.TH1F("row_%i_%i_%i"%(i_asic,row,col),"",128,0,128) for i_asic in range(3) ]
@@ -285,7 +308,7 @@ def makeCalibCurve4(system,nCounts,thresholdCuts,pixels=None,histFileName="scurv
     #configAsicsPreampTestRestoreDefaultValues(system = system)
 
     pixEnable = 1
-    chargeInj = not chargeInjectionEnbled  # 0 - enable / 1 - disabled
+    chargeInj1 = not chargeInjectionEnbled  # 0 - enable / 1 - disabled
     trim = 7
 
     system.feb.chargeInj.pulseWidthRaw.set(0x7fff)
@@ -296,8 +319,8 @@ def makeCalibCurve4(system,nCounts,thresholdCuts,pixels=None,histFileName="scurv
     system.feb.Chess2Ctrl2.writeAllPixels(enable= 0,chargeInj= 1)
 
 
-    print("Trim, pixEnable, chargeInj: (%i,%i,%i)"%(trim, pixEnable, chargeInj))
-    hists = makeCalibCurveLoopBLx(system,nCounts,thresholdCuts,pixels,histFileName, pixEnableLogic = pixEnable, chargeInjLogic = chargeInj, pixTrimI = trim, deltaBLToBLR = deltaBLToBLR)
+    print("Trim, pixEnable, chargeInj: (%i,%i,%i)"%(trim, pixEnable, chargeInj1))
+    hists = makeCalibCurveLoopBLx(system,nCounts,thresholdCuts,pixels,histFileName, pixEnableLogic = pixEnable, chargeInjLogic = chargeInj1, pixTrimI = trim, deltaBLToBLR = deltaBLToBLR)
     allHists.append(hists)
 
     return allHists
@@ -439,6 +462,7 @@ def makeCalibCurveLoopBLx(system,nCounts,thresholdCuts,pixels=None,histFileName=
             hists_col[0].append(col_det)
             #if (row == row_det) and (col == col_det):
               ####hists[0].Fill(float(system.feb.chargeInj.hitDetTime0._rawGet()))
+            #hists[0].append(float(system.feb.chargeInj.hitDetTimeRaw0._rawGet()))
             hists[0].append(float(system.feb.chargeInj.hitDetTime0._rawGet()))
             print("row_det: ",row_det, "col_det", col_det, "system.feb.chargeInj.hitDetTime0: ", float(system.feb.chargeInj.hitDetTime0._rawGet()))
           else:
@@ -454,6 +478,7 @@ def makeCalibCurveLoopBLx(system,nCounts,thresholdCuts,pixels=None,histFileName=
             hists_col[1].append(col_det)
             #if (row == row_det) and (col == col_det):
               ####hists[1].Fill(float(system.feb.chargeInj.hitDetTime1._rawGet()))
+            #hists[1].append(float(system.feb.chargeInj.hitDetTimeRaw1._rawGet()))
             hists[1].append(float(system.feb.chargeInj.hitDetTime1._rawGet()))
             print("row_det: ",row_det, "col_det", col_det, "system.feb.chargeInj.hitDetTime1: ", float(system.feb.chargeInj.hitDetTime1._rawGet()))
           else:
@@ -469,6 +494,7 @@ def makeCalibCurveLoopBLx(system,nCounts,thresholdCuts,pixels=None,histFileName=
             hists_col[2].append(col_det)
             #if (row == row_det) and (col == col_det):
               ####hists[2].Fill(float(system.feb.chargeInj.hitDetTime2._rawGet()))
+            #hists[2].append(float(system.feb.chargeInj.hitDetTimeRaw2._rawGet()))
             hists[2].append(float(system.feb.chargeInj.hitDetTime2._rawGet()))
             print("row_det: ",row_det, "col_det", col_det, "system.feb.chargeInj.hitDetTime2: ", float(system.feb.chargeInj.hitDetTime2._rawGet()))
           else:
