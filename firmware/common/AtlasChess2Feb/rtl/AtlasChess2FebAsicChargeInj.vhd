@@ -68,6 +68,7 @@ architecture rtl of AtlasChess2FebAsicChargeInj is
       calPulse       : sl;
       invPulse       : sl;
       calWidth       : slv(15 downto 0);
+      calPulseInh    : sl;
       axilReadSlave  : AxiLiteReadSlaveType;
       axilWriteSlave : AxiLiteWriteSlaveType;
    end record RegType;
@@ -76,6 +77,7 @@ architecture rtl of AtlasChess2FebAsicChargeInj is
       calPulse       => '0',
       invPulse       => '1',            -- default to active LOW pulse
       calWidth       => toSlv(7, 16),
+      calPulseInh    => '0',            -- 
       axilReadSlave  => AXI_LITE_READ_SLAVE_INIT_C,
       axilWriteSlave => AXI_LITE_WRITE_SLAVE_INIT_C);
 
@@ -151,6 +153,7 @@ begin
       axiSlaveRegister(axilEp, x"10", 0, v.calPulse);
       axiSlaveRegister(axilEp, x"14", 0, v.calWidth);
       axiSlaveRegister(axilEp, x"18", 0, v.invPulse);
+      axiSlaveRegister(axilEp, x"1C", 0, v.calPulseInh);
 
       -- Close out the transaction
       axiSlaveDefault(axilEp, v.axilWriteSlave, v.axilReadSlave, AXI_ERROR_RESP_G);
@@ -234,19 +237,19 @@ begin
          rd_clk => timingClk320MHz,
          dout   => calWidth);
 
-   process (timingClk320MHz) is
+   process (timingClk320MHz, r) is
    begin
       if (rising_edge(timingClk320MHz)) then
          -- Check for one-shot calibration pulse
          if (calPulse = '1') then
             -- Reset the registers
-            pulse <= not(invPulse)   after TPD_G;
+            pulse <= not(invPulse) and not(r.calPulseInh(0))   after TPD_G;
             cnt   <= (others => '0') after TPD_G;
          else
             -- Check for max. count
             if (cnt = calWidth) then
                -- Set the flag
-               pulse <= invPulse after TPD_G;
+               pulse <= invPulse and not(r.calPulseInh(0)) after TPD_G;
             else
                -- Increment the counter
                cnt <= cnt + 1 after TPD_G;
