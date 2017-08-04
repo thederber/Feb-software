@@ -26,14 +26,10 @@ class chargeInj(pr.Device):
         super(self.__class__, self).__init__(name, "Charge Injection Module",
                         memBase=memBase, offset=offset, hidden=hidden, expand=expand)
                         
-        self.add(pr.Variable(name='pulseWidthRaw', units="1/320MHz",
-                description='pulse width minus one',
-                offset=0x14, bitSize=15, bitOffset=0, base='hex', mode='RW')) 
-        self.add(pr.Variable(name='pulseWidth', mode = 'RO', units="ns", base='string',
-                             getFunction=self.nsPulse, dependencies=[self.variables['pulseWidthRaw']]))  
-                
-        self.add(pr.Variable(name='invPulse',description='Invert the pulse',
-                offset=0x18, bitSize=1, bitOffset=0, base='bool', mode='RW'))   
+        self.add(pr.Variable(name='pulseWidthRaw', units="1/320MHz",description='pulse width minus one', offset=0x14, bitSize=15, bitOffset=0, base='hex', mode='RW')) 
+        self.add(pr.Variable(name='pulseWidth',    mode = 'RO', units="ns", base='string',    getFunction=self.nsPulse, dependencies=[self.variables['pulseWidthRaw']]))                
+        self.add(pr.Variable(name='invPulse',description='Invert the pulse',                             offset=0x18, bitSize=1, bitOffset=0, base='bool', mode='RW'))   
+        self.add(pr.Variable(name='calPulseInh',   description='Inhibites Qinj pulse to be sent out',    offset=0x1C, bitSize=1, bitOffset=0, base='bool', mode='RW'))   
                 
         for i in range(3):
             self.add(pr.Variable(name='hitDetValid%01i'%(i),
