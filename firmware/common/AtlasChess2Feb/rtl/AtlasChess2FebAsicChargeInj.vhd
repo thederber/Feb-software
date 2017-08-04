@@ -249,7 +249,7 @@ begin
             -- Check for max. count
             if (cnt = calWidth) then
                -- Set the flag
-               pulse <= invPulse and not(r.calPulseInh(0)) after TPD_G;
+               pulse <= invPulse and not(r.calPulseInh(0))     after TPD_G;
             else
                -- Increment the counter
                cnt <= cnt + 1 after TPD_G;
