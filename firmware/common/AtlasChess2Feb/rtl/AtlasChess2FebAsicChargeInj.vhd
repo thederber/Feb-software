@@ -243,13 +243,13 @@ begin
          -- Check for one-shot calibration pulse
          if (calPulse = '1') then
             -- Reset the registers
-            pulse <= not(invPulse) and not(r.calPulseInh(0))   after TPD_G;
+            pulse <= not(invPulse) and not(r.calPulseInh)   after TPD_G;
             cnt   <= (others => '0') after TPD_G;
          else
             -- Check for max. count
             if (cnt = calWidth) then
                -- Set the flag
-               pulse <= invPulse and not(r.calPulseInh(0))     after TPD_G;
+               pulse <= invPulse and not(r.calPulseInh)     after TPD_G;
             else
                -- Increment the counter
                cnt <= cnt + 1 after TPD_G;
