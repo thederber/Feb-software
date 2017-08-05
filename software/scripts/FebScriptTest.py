@@ -64,6 +64,7 @@ class MyRunControl(pyrogue.RunControl):
       self._runCount = 0
       self._last = int(time.time())
 
+
       while (self._runState == 'Running'):
          delay = 1.0 / ({value: key for key,value in self.runRate.enum.items()}[self._runRate])
          time.sleep(delay)
@@ -74,10 +75,10 @@ class MyRunControl(pyrogue.RunControl):
              self._last = int(time.time())
              self.runCount._updated()
 
-def gui(arg):
-    
+def gui(arg = "192.168.3.28", configFile = "default.yml" ):
+
     hists = []
-    
+    #logfile()
     # Set base
     system = pyrogue.Root('System','Front End Board')
 
@@ -156,17 +157,22 @@ def gui(arg):
     guiTop = pyrogue.gui.GuiTop('PyRogueGui')
     guiTop.resize(800, 1000)
     guiTop.addTree(system)
-    system.root.readConfig(sys.argv[2])
-#    system.readAll()
-#    system.feb.memReg.chargInjStartEventReg.set(0)
-    system.feb.dac.dacPIXTHRaw.set(0x6c2)
-    system.feb.dac.dacBLRRaw.set(0x602)
-    system.feb.dac.dacBLRaw.set(0x572)
+    system.root.readConfig("/u1/home/hanyubo/atlas-chess2/software/scripts/preamp/yml/"+sys.argv[2])
+    print("Loading config file :", sys.argv[2])
+    
+    system.root.writeConfig("/u1/home/hanyubo/atlas-chess2/software/scripts/preamp/yml/save_"+sys.argv[2])
+    print("Saving the config file :", sys.argv[2])
 #    system.readAll()
     
-    system.feb.memReg.initValueReg.set(0x0)
-    system.feb.memReg.endValueReg.set(0xfff)
-    system.feb.memReg.delayValueReg.set(0x5)
+#    system.feb.memReg.chargInjStartEventReg.set(0)
+    #system.feb.dac.dacPIXTHRaw.set(0x6c2)
+    #system.feb.dac.dacBLRRaw.set(0x602)
+    #system.feb.dac.dacBLRaw.set(0x572)
+#    system.readAll()
+    
+    #system.feb.memReg.initValueReg.set(0x0)
+    #system.feb.memReg.endValueReg.set(0xfff)
+    #system.feb.memReg.delayValueReg.set(0x5)
 
     """ Performs a test on a single pixel swing th"""
 #    thresholds = [0xfc2,0xec2,0xdc2,0xcc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x5c2,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
@@ -187,42 +193,70 @@ def gui(arg):
 
     """ Make S curve"""
     if (MAKE_S_CURVE):
-        run = 5
-        Qinj = [0, 1]
+        hitmap= False
+        run = 22
+        Qinj = [0]
         values = [6]#, 5, 4, 3, 2, 1, 0, 7, 8, 9]
+        if (hitmap):
+            logfile("/u1/atlas-chess2-Asic-tests/data/data_h/log/chess2_scan_SCurveTest_08032017_run_" + str(run)+"_chargeInjectionEnbled_"+str(Qinj)+"_thN_"+str(values)+"_hitmap.log")
+        else:
+            print("logging...")
+            logfile("/u1/atlas-chess2-Asic-tests/data/data_h/log/chess2_scan_SCurveTest_08032017_run_" + str(run)+"_chargeInjectionEnbled_"+str(Qinj)+"_thN_"+str(values)+"_BLsweep.log")
+        #logfile("preamp/log/chess2_scan_SCurveTest_07172017_run_" + str(run)+"_chargeInjectionEnbled_"+ str(Qinj[0])+str(Qinj[1]) + "_thN_"+str(hex(values))+".log")
         for value in values:
+            logging.info('Running the test with Values='+str(value))
             for chargeInjectionEnbled in Qinj:
+                logging.info("Using board: "+str(sys.argv[1]))
+                logging.info("Loading config file: "+str(sys.argv[2])) 
+                logging.info('    Running the test with Qinj='+str(chargeInjectionEnbled))
                 deltaBLToBLR = value * 120 
+                #deltaBLToBLR = value * 256 
                 # define test Variables
                 #thresholds = [0xfc2,0xec2,0xdc2,0xcc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x5c2,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
                 #thresholds = [0x8c2,0x83e,0x7c2,0x73e,0x6c2,0x63e,0x5c2,0x53e,0x4c2,0x43e,0x3c2,0x33e,0x2c2,0x2c2,0x13e,0x1c2]
                 #thresholds = [0xbc2,0xbc2,0xbc2,0xbc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x6b2,0x6a2,0x692,0x682,0x672,0x662,0x652,0x642,0x632,0x622,0x612,0x602,0x5f2,0x5e2,0x5c2,0x5b2,0x5a2,0x592,0x582,0x572,0x562,0x552,0x542,0x532,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
-                thresholds = np.arange(0x800, 0x500, -8)
-                pixels=[ (1,1) ]
-                # run test
-                hists = makeCalibCurve4( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
-                hists1=np.asarray(hists)
-
+                thresholds = np.arange(0xd14, 0x400, -8)
+                #thresholds = [0x6c2]  #BL
+                #pixels=[ (3,12),(9,25),(42,15),(85,10),(86,25)]
+                #pixels=[(42,15),(1,1),(3,12),(20,10),(85,10),(9,25),(21,26)]
+                pixels=[(42,15),(1,1)]
+                #pixels=None
+                if pixels==None:
+                    logging.info(" Testing all the pixel....")
+                if pixels!=None:
+                    logging.info("    Testing Pixel "+str(pixels))
+                for pixel_i in pixels:
+                    hists = makeCalibCurve4( system, nCounts=10, thresholdCuts = thresholds, pixels=[pixel_i], histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
+                #thresholdHexList = np.arange(0x800, 0x500, -2) # for the file 'chess2_scan_QinjPulse_BLx_SCurveTest_trim7' 
+                #hists = makeSCurve( system, nCounts=10, thresholdCut=thresholds, pixels=pixels, histFileName="scurve_test_sleep.root")
+                    hists1=np.asarray(hists)
                 # create file header
-                headerText = "\n# Test that perform the BL and BLR voltage sweep. BLR is set as BL plus a delta voltage. Running with preamp recomended values"
-                headerText = headerText + "\n# pixels, " + str(pixels)
-                headerText = headerText + "\n# chargeInjectionEnbled, " + str(chargeInjectionEnbled)
-                headerText = headerText + "\n# deltaBLToBLR:," + str(deltaBLToBLR) 
-                headerText = headerText + "\n# system.feb.dac.dacPIXTHRaw:," + str(system.feb.dac.dacPIXTH._rawGet()) 
-                headerText = headerText + "\n# trim, " + str(7)
-                headerText = headerText + "\n# thresholds (raw):," + str(thresholds)
-                headerText = headerText + "\n# thresholds (volts):," + str(thresholds/1240)
-                headerText = headerText + "\n# system.feb.dac.dacBLRaw:"+'Shape:{0}:'.format(hists1.shape)
+                    headerText = "\n# Test that perform the BL and BLR voltage sweep. BLR is set as BL plus a delta voltage. (Note: ASIC V1.8a set to 1.8V again). Running with default ASIC values"
+                    headerText = headerText + "\n# pixels, " + str(pixel_i)
+                    headerText = headerText + "\n# chargeInjectionEnbled, " + str(chargeInjectionEnbled)
+                    headerText = headerText + "\n# deltaBLToBLR:," + str(deltaBLToBLR) 
+                    headerText = headerText + "\n# system.feb.dac.dacPIXTHRaw:," + str(system.feb.dac.dacPIXTH._rawGet()) 
+                    headerText = headerText + "\n# trim, " + str(7)
+                    headerText = headerText + "\n# thresholds (raw):," + str(thresholds)
+                    #headerText = headerText + "\n# thresholds (volts):," + str(thresholds/1240)
+                    headerText = headerText + "\n# Shape:{0}:".format(hists1.shape)
+                    #  run test
+                    #logging.info(headerText)
+                    #hists = makeCalibCurve4( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
+               
                 # save file
                 # new csv file output style
-                np.savetxt("preamp/chess2_scan_SCurveTest_07182017_run_" + str(run)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+".csv", hists1.flatten(), header=headerText)
-                # new csv file output style
-                np.savetxt("preamp/chess2_scan_SCurveTest_07182017_run_" + str(run)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_oldstyle"+str(hex(value))+".csv", np.asarray(hists,dtype=np.int),fmt = "%s", delimiter=",", header=headerText)
+                    if (hitmap):
+                        np.savetxt("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata/chess2_scan_SCurveTest_07292017_run_" + str(run)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+"_hitmap.csv", hists1.flatten(), header=headerText)
+                        logging.info(headerText)
+                        logging.info("The data has been saved in \n /u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata/chess2_scan_SCurveTest_07292017_run_" + str(run)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+"_hitmap.csv")
+                    else:
+                        np.savetxt("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata/chess2_scan_SCurveTest_07292017_run_" +str(run)+ "_pixel_"+str(pixel_i)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+"_BLxsweep.csv", hists1.flatten(), header=headerText)
+                        logging.info(headerText)
+                        logging.info("The data has been saved in \n /u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata/chess2_scan_SCurveTest_07292017_run_" +str(run)+ "_pixel_"+str(pixel_i)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+"_BLxsweep.csv")
     
-        #return threshold to a point where the calib pulse works
-        system.feb.dac.dacPIXTHRaw.set(0x9ce)
-
-
+    
+    system.root.writeConfig("/u1/home/hanyubo/atlas-chess2/software/scripts/preamp/yml/save_2"+sys.argv[2])
     if (MAKE_TIME_DELAY_CURVE):
         run = 1
         thresholds = np.arange(0x0, 0x7FFF, 0x1000)
@@ -243,7 +277,7 @@ def gui(arg):
                 # run test
                 hists = makeDelayVsHitDetectTime( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
                 # save file
-                np.savetxt("chess2_scan_QinjDelay_06232017_run_" + str(run)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+".csv", hists, fmt = "%s",delimiter=",", header=headerText)        
+                np.savetxt("chess2_scan_QinjDelay_07272017_run_" + str(run)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+".csv", hists, fmt = "%s",delimiter=",", header=headerText)        
     
 #   values = [0xf2e, 0xe2e, 0xd2e, 0xc2e, 0xb2e, 0xa2e, 0x92e, 0x82e, 0x72e, 0x62e, 0x52e, 0x42e, 0x32e, 0x22e, 0x12e]
  #   for value in values:
@@ -262,4 +296,5 @@ def gui(arg):
     return hists
 
 if __name__ == '__main__':
-    c2_hists = gui(sys.argv[1])
+    c2_hists = gui(arg = sys.argv[1], configFile = sys.argv[2] )
+   

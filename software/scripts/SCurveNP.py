@@ -8,15 +8,10 @@ import logging
 
 # Generating log file
 def logfile(logfilename):
-    logger=logging.getLogger(__name__)
-    #LOG_FILE="testlog.log"
-    LOG_FILE=sys.argv[1]
-    logging.basicConfig(filename=LOG_FILE,level=logging.DEBUG)
-    hdlr=logging.FileHandler(LOG_FILE)
-    formatter=logging.Formatter('%(asctime)s %(message)s')
-    hdlr.setFormatter(formatter)
-    logger.addHandler(hdlr)
-    logger.setLevel(logging.NOTSET)
+    logger=logging.getLogger()
+    LOG_FILE=logfilename
+    LOG_FORMAT="%(asctime)s : %(funcName)s: %(message)s"
+    logging.basicConfig(filename=LOG_FILE,level=logging.DEBUG, format=LOG_FORMAT)
     return logger
 
 #transfer the data
@@ -57,6 +52,7 @@ def makeSCurve(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve.roo
     nColumns      = 32
     nRows         = 128
     allHists = []
+    logging.info("Using makeCurve......")
     ####R.TH1.AddDirectory(R.kFALSE)
 #    thresholdCuts = [0x7ce]
     # system.root.readConfig("chess2_config.yml") --- should be in the driver script
@@ -178,6 +174,7 @@ def makeCalibCurve(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve
 
     pixEnableLogic = 1
     chargeInjLogic = 0
+    logging.info("Using makeCalibCurve......")
     print("Disable all pixels")
     system.feb.Chess2Ctrl0.writeAllPixels(enable= not pixEnableLogic,chargeInj= not chargeInjLogic)
     system.feb.Chess2Ctrl1.writeAllPixels(enable= not pixEnableLogic,chargeInj= not chargeInjLogic)
@@ -216,6 +213,7 @@ def makeCalibCurve(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve
 
 def makeCalibCurve2(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve.root"):
     allHists = []
+    logging.info("Using makeCalibCurve2......")
 
     pixEnableLogic = 1
     chargeInjLogic = 0
@@ -302,7 +300,7 @@ def configAsicsPreampTestRestoreDefaultValues(system = []):
 
 def makeCalibCurve4(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve.root", deltaBLToBLR = 608, chargeInjectionEnbled = 0):
     allHists = []
-
+    logging.info("Using makeCalibCurve4......")
     #ASIC specific configuration selected depending on the test being run
     configAsicsPreampTest(system = system)
     #configAsicsPreampTestRestoreDefaultValues(system = system)
@@ -312,6 +310,7 @@ def makeCalibCurve4(system,nCounts,thresholdCuts,pixels=None,histFileName="scurv
     trim = 7
 
     system.feb.chargeInj.pulseWidthRaw.set(0x7fff)
+    system.feb.chargeInj.calPulseInh.set(chargeInj1)
 
     print("Disable all pixels")
     system.feb.Chess2Ctrl0.writeAllPixels(enable= 0,chargeInj= 1)
@@ -329,6 +328,7 @@ def makeCalibCurveLoop(system,nCounts,thresholdCuts,pixels=None,histFileName="sc
     nColumns      = 32
     nRows         = 128
     allHists = []
+    logging.info("Using makeCalibCurveLoop......")
 
 
     # Turn on one pixel at a time
@@ -414,6 +414,7 @@ def makeCalibCurveLoopBLx(system,nCounts,thresholdCuts,pixels=None,histFileName=
     nColumns      = 32
     nRows         = 128
     allHists = []
+    logging.info(" Using makeCalibCurveLoopBLx......")
     
 
     # Turn on one pixel at a time
@@ -511,6 +512,7 @@ def makeCalibCurveLoopTH(system,nCounts,thresholdCuts,pixels=None,histFileName="
     nColumns      = 32
     nRows         = 128
     allHists = []
+    logging.info("  Using makeCalibCurveLoopTH......")
 
 
     # Turn on one pixel at a time
@@ -601,6 +603,7 @@ def makeCalibCurveLoopTH(system,nCounts,thresholdCuts,pixels=None,histFileName="
 
 def swingTHvsBL(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve.root"):
     allHists = []
+    logging.info("Using swingTHvsBL......")
 
     pixEnable = 1
     chargeInj = 1
@@ -660,6 +663,7 @@ def SwingThLoopBLx(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve
     nColumns      = 32
     nRows         = 128
     allHists = []
+    logging.info("Using SwingThLoopBLx......")
 
     pixels = pixels if (pixels!=None) else [ (row,col) for row in range(nRows) for col in range(nColumns) ]
     for (row,col) in pixels:
