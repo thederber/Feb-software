@@ -68,6 +68,7 @@ architecture rtl of AtlasChess2FebAsicChargeInj is
       calPulse       : sl;
       invPulse       : sl;
       calWidth       : slv(15 downto 0);
+      calDelay       : slv(15 downto 0);
       calPulseInh    : sl;
       axilReadSlave  : AxiLiteReadSlaveType;
       axilWriteSlave : AxiLiteWriteSlaveType;
@@ -77,6 +78,7 @@ architecture rtl of AtlasChess2FebAsicChargeInj is
       calPulse       => '0',
       invPulse       => '1',            -- default to active LOW pulse
       calWidth       => toSlv(7, 16),
+      calDelay       => toSlv(7, 16),
       calPulseInh    => '0',            -- 
       axilReadSlave  => AXI_LITE_READ_SLAVE_INIT_C,
       axilWriteSlave => AXI_LITE_WRITE_SLAVE_INIT_C);
@@ -87,8 +89,10 @@ architecture rtl of AtlasChess2FebAsicChargeInj is
    signal calPulse       : sl;
    signal invPulse       : sl;
    signal pulse          : sl;
+   signal pulseDelayed   : sl;
    signal pulseReg       : slv(1 downto 0);
    signal calWidth       : slv(15 downto 0);
+   signal calDelay       : slv(15 downto 0);
    signal cnt            : slv(15 downto 0);
    signal hitDet         : Slv14Array(2 downto 0);
    signal hitDetSync     : Slv14Array(2 downto 0);
@@ -102,6 +106,7 @@ architecture rtl of AtlasChess2FebAsicChargeInj is
    attribute dont_touch of pulse          : signal is "TRUE";
    attribute dont_touch of pulseReg       : signal is "TRUE";
    attribute dont_touch of calWidth       : signal is "TRUE";
+   attribute dont_touch of calDelay       : signal is "TRUE";
    attribute dont_touch of cnt            : signal is "TRUE";
    attribute dont_touch of hitDet         : signal is "TRUE";
    attribute dont_touch of hitDetSync     : signal is "TRUE";
@@ -150,10 +155,11 @@ begin
       axiSlaveRegisterR(axilEp, x"04", 16, hitDetTimeSync(1));
       axiSlaveRegisterR(axilEp, x"08", 16, hitDetTimeSync(2));
 
-      axiSlaveRegister(axilEp, x"10", 0, v.calPulse);
-      axiSlaveRegister(axilEp, x"14", 0, v.calWidth);
-      axiSlaveRegister(axilEp, x"18", 0, v.invPulse);
-      axiSlaveRegister(axilEp, x"1C", 0, v.calPulseInh);
+      axiSlaveRegister(axilEp, x"10", 0,  v.calPulse);
+      axiSlaveRegister(axilEp, x"14", 0,  v.calWidth);
+      axiSlaveRegister(axilEp, x"14", 16, v.calDelay);
+      axiSlaveRegister(axilEp, x"18", 0,  v.invPulse);
+      axiSlaveRegister(axilEp, x"1C", 0,  v.calPulseInh);
 
       -- Close out the transaction
       axiSlaveDefault(axilEp, v.axilWriteSlave, v.axilReadSlave, AXI_ERROR_RESP_G);
@@ -237,6 +243,16 @@ begin
          rd_clk => timingClk320MHz,
          dout   => calWidth);
 
+   U_calDelay : entity work.SynchronizerFifo
+      generic map (
+         TPD_G        => TPD_G,
+         DATA_WIDTH_G => 16)
+      port map (
+         wr_clk => axilClk,
+         din    => r.calDelay,
+         rd_clk => timingClk320MHz,
+         dout   => calDelay);
+
    process (timingClk320MHz, r) is
    begin
       if (rising_edge(timingClk320MHz)) then
@@ -250,28 +266,65 @@ begin
             if (cnt = calWidth) then
                -- Set the flag
                pulse <= invPulse and not(r.calPulseInh)     after TPD_G;
-            else
-               -- Increment the counter
-               cnt <= cnt + 1 after TPD_G;
+            end if;
+
+            -- Increment the counter
+            cnt <= cnt + 1 after TPD_G;
+
+         end if;
+
+         -- Check for one-shot calibration pulse
+         if (calPulse = '1') then
+            -- Set the flag
+            pulseDelayed <= invPulse and not(r.calPulseInh)     after TPD_G;
+         else
+            if (cnt = clcDelay) then
+               -- Reset the registers
+               pulseDelayed <= not(invPulse) and not(r.calPulseInh)   after TPD_G;
+            end if;
+            -- Check for max. count
+            if (cnt = (calDelay + calWidth)) then
+               -- Set the flag
+               pulseDelayed <= invPulse and not(r.calPulseInh)     after TPD_G;
             end if;
          end if;
+
       end if;
    end process;
+
+
+
 
    GEN_ODDR :
    for i in 1 downto 0 generate
 
-      U_ODDR : ODDR
-         generic map(
-            DDR_CLK_EDGE => "SAME_EDGE")
-         port map (
-            C  => timingClk320MHz,
-            Q  => pulseReg(i),
-            CE => '1',
-            D1 => pulse,
-            D2 => pulse,
-            R  => '0',
-            S  => '0');
+      ODDR_0 :  if (i=0) generate
+         U_ODDR : ODDR
+            generic map(
+               DDR_CLK_EDGE => "SAME_EDGE")
+            port map (
+               C  => timingClk320MHz,
+               Q  => pulseReg(i),
+               CE => '1',
+               D1 => pulseDelayed,
+               D2 => pulseDelayed,
+               R  => '0',
+               S  => '0');
+      end generate;
+
+      ODDR_1 :  if (i=1) generate
+         U_ODDR : ODDR
+            generic map(
+               DDR_CLK_EDGE => "SAME_EDGE")
+            port map (
+               C  => timingClk320MHz,
+               Q  => pulseReg(i),
+               CE => '1',
+               D1 => pulse,
+               D2 => pulse,
+               R  => '0',
+               S  => '0');
+      end generate;
 
       U_OBUF : OBUF
          port map (
