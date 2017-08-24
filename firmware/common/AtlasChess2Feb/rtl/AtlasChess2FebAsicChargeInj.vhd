@@ -260,7 +260,7 @@ begin
           -- Check for one-shot calibration pulse
           if (calPulse = '1') then
             cnt   <= (others => '0') after TPD_G;
-         else if cnt /= x"FFFF" then
+         elsif cnt /= x"FFFF" then
             -- Increment the counter
             cnt <= cnt + 1 after TPD_G;
          end if;
