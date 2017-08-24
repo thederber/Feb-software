@@ -278,7 +278,7 @@ begin
             -- Set the flag
             pulseDelayed <= invPulse and not(r.calPulseInh)     after TPD_G;
          else
-            if (cnt = clcDelay) then
+            if (cnt = calDelay) then
                -- Reset the registers
                pulseDelayed <= not(invPulse) and not(r.calPulseInh)   after TPD_G;
             end if;
