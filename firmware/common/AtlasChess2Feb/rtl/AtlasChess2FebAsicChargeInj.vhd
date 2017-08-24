@@ -256,21 +256,25 @@ begin
    process (timingClk320MHz, r) is
    begin
       if (rising_edge(timingClk320MHz)) then
-         -- Check for one-shot calibration pulse
+
+          -- Check for one-shot calibration pulse
+          if (calPulse = '1') then
+            cnt   <= (others => '0') after TPD_G;
+         else if cnt /= x"FFFF" then
+            -- Increment the counter
+            cnt <= cnt + 1 after TPD_G;
+         end if;
+
          if (calPulse = '1') then
             -- Reset the registers
             pulse <= not(invPulse) and not(r.calPulseInh)   after TPD_G;
-            cnt   <= (others => '0') after TPD_G;
+         
          else
             -- Check for max. count
             if (cnt = calWidth) then
                -- Set the flag
                pulse <= invPulse and not(r.calPulseInh)     after TPD_G;
             end if;
-
-            -- Increment the counter
-            cnt <= cnt + 1 after TPD_G;
-
          end if;
 
          -- Check for one-shot calibration pulse
