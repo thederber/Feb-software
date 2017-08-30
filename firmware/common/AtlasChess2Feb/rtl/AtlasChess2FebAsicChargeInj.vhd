@@ -324,8 +324,8 @@ begin
                C  => timingClk320MHz,
                Q  => pulseReg(i),
                CE => '1',
-               D1 => pulse,
-               D2 => pulse,
+               D1 => pulseDelayed,
+               D2 => pulseDelayed,
                R  => '0',
                S  => '0');
       end generate;
