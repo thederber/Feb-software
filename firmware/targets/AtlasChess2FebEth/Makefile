@@ -9,9 +9,10 @@ export GIT_BYPASS = 0
 ## 02/01/2017 (0x00000005): Changed default of chargeInj.invPulse to 0x1
 ##                          Changed default of sysReg.wordSize to 0x7
 ## 03/02/2017 (0x00000006): Updating to ruckus v1.1
-## 08/23/2017 (0x00000006): Adding charge inj pulse delay.
+## 08/23/2017 (0x00000007): Adding charge inj pulse delay.
+## 08/23/2017 (0x00000008): Increasing the number of detected hit to 8.
 ##########################################################################
-export PRJ_VERSION = 0x00000007
+export PRJ_VERSION = 0x00000008
 
 # Define target output
 target: prom
