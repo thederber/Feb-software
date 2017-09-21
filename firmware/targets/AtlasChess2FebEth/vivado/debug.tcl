@@ -48,6 +48,7 @@ ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[1][*]}
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[2][*]}
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/dataValid[*]}
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/timer[*]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDetIndex[*]}
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_Chess[0].U_Rx/chessDin[*]}
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_Chess[1].U_Rx/chessDin[*]}
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_Chess[2].U_Rx/chessDin[*]}

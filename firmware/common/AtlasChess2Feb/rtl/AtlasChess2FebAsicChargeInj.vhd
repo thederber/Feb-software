@@ -94,10 +94,11 @@ architecture rtl of AtlasChess2FebAsicChargeInj is
    signal calWidth       : slv(15 downto 0);
    signal calDelay       : slv(15 downto 0);
    signal cnt            : slv(15 downto 0);
-   signal hitDet         : Slv14Array(2 downto 0);
-   signal hitDetSync     : Slv14Array(2 downto 0);
-   signal hitDetTime     : Slv16Array(2 downto 0);
-   signal hitDetTimeSync : Slv16Array(2 downto 0);
+   signal hitDet         : Slv112Array(2 downto 0);
+   signal hitDetSync     : Slv112Array(2 downto 0);
+   signal hitDetTime     : Slv128Array(2 downto 0);
+   signal hitDetTimeSync : Slv128Array(2 downto 0);
+   signal hitDetIndex    : Slv3Array(2 downto 0);
    signal timer          : slv(15 downto 0);
 
    attribute dont_touch                   : string;
@@ -112,6 +113,7 @@ architecture rtl of AtlasChess2FebAsicChargeInj is
    attribute dont_touch of hitDetSync     : signal is "TRUE";
    attribute dont_touch of hitDetTime     : signal is "TRUE";
    attribute dont_touch of hitDetTimeSync : signal is "TRUE";
+   attribute dont_touch of hitDetIndex    : signal is "TRUE";
    attribute dont_touch of timer          : signal is "TRUE";
 
 begin
@@ -147,13 +149,55 @@ begin
       end if;
 
       -- Mapping registers     
-      axiSlaveRegisterR(axilEp, x"00", 0, hitDetSync(0));
-      axiSlaveRegisterR(axilEp, x"04", 0, hitDetSync(1));
-      axiSlaveRegisterR(axilEp, x"08", 0, hitDetSync(2));
+      axiSlaveRegisterR(axilEp, x"00", 0, hitDetSync(0)(14*0 + 13 downto 14*0));
+      axiSlaveRegisterR(axilEp, x"04", 0, hitDetSync(1)(14*0 + 13 downto 14*0));
+      axiSlaveRegisterR(axilEp, x"08", 0, hitDetSync(2)(14*0 + 13 downto 14*0));
+      axiSlaveRegisterR(axilEp, x"20", 0, hitDetSync(0)(14*1 + 13 downto 14*1));
+      axiSlaveRegisterR(axilEp, x"24", 0, hitDetSync(1)(14*1 + 13 downto 14*1));
+      axiSlaveRegisterR(axilEp, x"28", 0, hitDetSync(2)(14*1 + 13 downto 14*1));
+      axiSlaveRegisterR(axilEp, x"30", 0, hitDetSync(0)(14*2 + 13 downto 14*2));
+      axiSlaveRegisterR(axilEp, x"34", 0, hitDetSync(1)(14*2 + 13 downto 14*2));
+      axiSlaveRegisterR(axilEp, x"38", 0, hitDetSync(2)(14*2 + 13 downto 14*2));
+      axiSlaveRegisterR(axilEp, x"40", 0, hitDetSync(0)(14*3 + 13 downto 14*3));
+      axiSlaveRegisterR(axilEp, x"44", 0, hitDetSync(1)(14*3 + 13 downto 14*3));
+      axiSlaveRegisterR(axilEp, x"48", 0, hitDetSync(2)(14*3 + 13 downto 14*3));
+      axiSlaveRegisterR(axilEp, x"50", 0, hitDetSync(0)(14*4 + 13 downto 14*4));
+      axiSlaveRegisterR(axilEp, x"54", 0, hitDetSync(1)(14*4 + 13 downto 14*4));
+      axiSlaveRegisterR(axilEp, x"58", 0, hitDetSync(2)(14*4 + 13 downto 14*4));
+      axiSlaveRegisterR(axilEp, x"60", 0, hitDetSync(0)(14*5 + 13 downto 14*5));
+      axiSlaveRegisterR(axilEp, x"64", 0, hitDetSync(1)(14*5 + 13 downto 14*5));
+      axiSlaveRegisterR(axilEp, x"68", 0, hitDetSync(2)(14*5 + 13 downto 14*5));
+      axiSlaveRegisterR(axilEp, x"70", 0, hitDetSync(0)(14*6 + 13 downto 14*6));
+      axiSlaveRegisterR(axilEp, x"74", 0, hitDetSync(1)(14*6 + 13 downto 14*6));
+      axiSlaveRegisterR(axilEp, x"78", 0, hitDetSync(2)(14*6 + 13 downto 14*6));
+      axiSlaveRegisterR(axilEp, x"80", 0, hitDetSync(0)(14*7 + 13 downto 14*7));
+      axiSlaveRegisterR(axilEp, x"84", 0, hitDetSync(1)(14*7 + 13 downto 14*7));
+      axiSlaveRegisterR(axilEp, x"88", 0, hitDetSync(2)(14*7 + 13 downto 14*7));
 
-      axiSlaveRegisterR(axilEp, x"00", 16, hitDetTimeSync(0));
-      axiSlaveRegisterR(axilEp, x"04", 16, hitDetTimeSync(1));
-      axiSlaveRegisterR(axilEp, x"08", 16, hitDetTimeSync(2));
+      axiSlaveRegisterR(axilEp, x"00", 16, hitDetTimeSync(0)(16*0 + 15 downto 16*0));
+      axiSlaveRegisterR(axilEp, x"04", 16, hitDetTimeSync(1)(16*0 + 15 downto 16*0));
+      axiSlaveRegisterR(axilEp, x"08", 16, hitDetTimeSync(2)(16*0 + 15 downto 16*0));
+      axiSlaveRegisterR(axilEp, x"20", 16, hitDetTimeSync(0)(16*1 + 15 downto 16*1));
+      axiSlaveRegisterR(axilEp, x"24", 16, hitDetTimeSync(1)(16*1 + 15 downto 16*1));
+      axiSlaveRegisterR(axilEp, x"28", 16, hitDetTimeSync(2)(16*1 + 15 downto 16*1));
+      axiSlaveRegisterR(axilEp, x"30", 16, hitDetTimeSync(0)(16*2 + 15 downto 16*2));
+      axiSlaveRegisterR(axilEp, x"34", 16, hitDetTimeSync(1)(16*2 + 15 downto 16*2));
+      axiSlaveRegisterR(axilEp, x"38", 16, hitDetTimeSync(2)(16*2 + 15 downto 16*2));
+      axiSlaveRegisterR(axilEp, x"40", 16, hitDetTimeSync(0)(16*3 + 15 downto 16*3));
+      axiSlaveRegisterR(axilEp, x"44", 16, hitDetTimeSync(1)(16*3 + 15 downto 16*3));
+      axiSlaveRegisterR(axilEp, x"48", 16, hitDetTimeSync(2)(16*3 + 15 downto 16*3));
+      axiSlaveRegisterR(axilEp, x"50", 16, hitDetTimeSync(0)(16*4 + 15 downto 16*4));
+      axiSlaveRegisterR(axilEp, x"54", 16, hitDetTimeSync(1)(16*4 + 15 downto 16*4));
+      axiSlaveRegisterR(axilEp, x"58", 16, hitDetTimeSync(2)(16*4 + 15 downto 16*4));
+      axiSlaveRegisterR(axilEp, x"60", 16, hitDetTimeSync(0)(16*5 + 15 downto 16*5));
+      axiSlaveRegisterR(axilEp, x"64", 16, hitDetTimeSync(1)(16*5 + 15 downto 16*5));
+      axiSlaveRegisterR(axilEp, x"68", 16, hitDetTimeSync(2)(16*5 + 15 downto 16*5));
+      axiSlaveRegisterR(axilEp, x"70", 16, hitDetTimeSync(0)(16*6 + 15 downto 16*6));
+      axiSlaveRegisterR(axilEp, x"74", 16, hitDetTimeSync(1)(16*6 + 15 downto 16*6));
+      axiSlaveRegisterR(axilEp, x"78", 16, hitDetTimeSync(2)(16*6 + 15 downto 16*6));
+      axiSlaveRegisterR(axilEp, x"80", 16, hitDetTimeSync(0)(16*7 + 15 downto 16*7));
+      axiSlaveRegisterR(axilEp, x"84", 16, hitDetTimeSync(1)(16*7 + 15 downto 16*7));
+      axiSlaveRegisterR(axilEp, x"88", 16, hitDetTimeSync(2)(16*7 + 15 downto 16*7));
 
       axiSlaveRegister(axilEp, x"10", 0,  v.calPulse);
       axiSlaveRegister(axilEp, x"14", 0,  v.calWidth);
@@ -194,7 +238,7 @@ begin
       U_hitDetSync : entity work.SynchronizerFifo
          generic map (
             TPD_G        => TPD_G,
-            DATA_WIDTH_G => 14)
+            DATA_WIDTH_G => 112)
          port map (
             wr_clk => timingClk320MHz,
             din    => hitDet(i),
@@ -204,7 +248,7 @@ begin
       U_hitDetTime : entity work.SynchronizerFifo
          generic map (
             TPD_G        => TPD_G,
-            DATA_WIDTH_G => 16)
+            DATA_WIDTH_G => 128)
          port map (
             wr_clk => timingClk320MHz,
             din    => hitDetTime(i),
@@ -350,6 +394,7 @@ begin
             hitDet     <= (others => (others => '0')) after TPD_G;
             hitDetTime <= (others => (others => '0')) after TPD_G;
             timer      <= (others => '0')             after TPD_G;
+            hitDetIndex<= (others => (others => '0')) after TPD_G;
          elsif (timer /= x"FFFF") then
             -- Increment the counter
             timer <= timer + 1 after TPD_G;
@@ -358,12 +403,14 @@ begin
                -- Check for first hit after calibration pulse
                if (dataValid(i) = '1') and (hitDet(i)(13) = '0') then
                   -- Latch the hit values
-                  hitDet(i)(13)          <= dataValid(i) after TPD_G;
-                  hitDet(i)(12)          <= multiHit(i)  after TPD_G;
-                  hitDet(i)(11 downto 7) <= col(i)       after TPD_G;
-                  hitDet(i)(6 downto 0)  <= row(i)       after TPD_G;
+                  hitDet(i)(14*hitDetIndex(i) + 13)                                  <= dataValid(i)         after TPD_G;
+                  hitDet(i)(14*hitDetIndex(i) + 12)                                  <= multiHit(i)          after TPD_G;
+                  hitDet(i)(14*hitDetIndex(i) + 11 downto 14*hitDetIndex(i) + 7)     <= col(i)               after TPD_G;
+                  hitDet(i)(14*hitDetIndex(i) + 6  downto 14*hitDetIndex(i) + 0)     <= row(i)               after TPD_G;
                   -- Latch the hit time after calibration pulse
-                  hitDetTime(i)          <= timer        after TPD_G;
+                  hitDetTime(i)(16*hitDetIndex(i) + 15 downto 16*hitDetIndex(i) + 0) <= timer                after TPD_G;
+                  -- Increment hit index
+                  hitDetIndex(i)                                                     <= hitDetIndex(i) + '1' after TPD_G;
                end if;
             end loop;
          end if;
