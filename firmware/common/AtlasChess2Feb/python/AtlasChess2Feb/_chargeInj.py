@@ -30,24 +30,25 @@ class chargeInj(pr.Device):
         self.add(pr.Variable(name='pulseWidth',    mode = 'RO', units="ns", base='string',    getFunction=self.nsPulse, dependencies=[self.variables['pulseWidthRaw']]))                
         self.add(pr.Variable(name='pulseDelayRaw', units="1/320MHz",description='pulse delay minus one', offset=0x14, bitSize=15, bitOffset=16, base='hex', mode='RW'))
         self.add(pr.Variable(name='pulseDelay',    mode = 'RO', units="ns", base='string',    getFunction=self.nsPulse, dependencies=[self.variables['pulseDelayRaw']]))
-        self.add(pr.Variable(name='invPulse',description='Invert the pulse',                             offset=0x18, bitSize=1, bitOffset=0, base='bool', mode='RW'))   
+        self.add(pr.Variable(name='invPulse',      description='Invert the pulse',                       offset=0x18, bitSize=1, bitOffset=0, base='bool', mode='RW'))   
         self.add(pr.Variable(name='calPulseInh',   description='Inhibites Qinj pulse to be sent out',    offset=0x1C, bitSize=1, bitOffset=0, base='bool', mode='RW'))   
-                
+
         for i in range(3):
-            self.add(pr.Variable(name='hitDetValid%01i'%(i),
-                    offset=(4*i), bitSize=1, bitOffset=13, base='bool', mode='RO')) 
-            self.add(pr.Variable(name='hitDetFlag%01i'%(i),
-                    offset=(4*i), bitSize=1, bitOffset=12, base='bool', mode='RO')) 
-            self.add(pr.Variable(name='hitDetCol%01i'%(i),
-                    offset=(4*i), bitSize=5, bitOffset=7, base='hex', mode='RO')) 
-            self.add(pr.Variable(name='hitDetRow%01i'%(i),
-                    offset=(4*i), bitSize=7, bitOffset=0, base='hex', mode='RO'))                     
-            self.add(pr.Variable(
-                    name='hitDetTimeRaw%01i'%(i), units="1/320MHz",
-                    description=' ',
-                    offset=(4*i), bitSize=16, bitOffset=16, base='hex', mode='RO')) 
-            self.add(pr.Variable(name='hitDetTime%01i'%(i), mode = 'RO', units="ns", base='string',
-                                 getFunction=self.nsTdc, dependencies=[self.variables['hitDetTimeRaw%01i'%(i)]]))                    
+            self.add(pr.Variable(name='hitDetValid%01i_%01i'%(i,0), offset=(4*i), bitSize=1, bitOffset=13, base='bool', mode='RO')) 
+            self.add(pr.Variable(name='hitDetFlag%01i_%01i'%(i,0),  offset=(4*i), bitSize=1, bitOffset=12, base='bool', mode='RO')) 
+            self.add(pr.Variable(name='hitDetCol%01i_%01i'%(i,0),   offset=(4*i), bitSize=5, bitOffset=7,  base='hex',  mode='RO')) 
+            self.add(pr.Variable(name='hitDetRow%01i_%01i'%(i,0),   offset=(4*i), bitSize=7, bitOffset=0, base='hex', mode='RO'))                     
+            self.add(pr.Variable(name='hitDetTimeRaw%01i_%01i'%(i,0), units="1/320MHz", description=' ', offset=(4*i), bitSize=16, bitOffset=16, base='hex', mode='RO')) 
+            self.add(pr.Variable(name='hitDetTime%01i_%01i'%(i,0), mode = 'RO', units="ns", base='string', getFunction=self.nsTdc, dependencies=[self.variables['hitDetTimeRaw%01i_%01i'%(i,0)]]))                    
+                
+        for j in range(1,8):
+            for i in range(3):
+                self.add(pr.Variable(name='hitDetValid%01i_%01i'%(i,j), offset=(4*i+((j+1)*16)), bitSize=1, bitOffset=13, base='bool', mode='RO')) 
+                self.add(pr.Variable(name='hitDetFlag%01i_%01i'%(i,j),  offset=(4*i+((j+1)*16)), bitSize=1, bitOffset=12, base='bool', mode='RO')) 
+                self.add(pr.Variable(name='hitDetCol%01i_%01i'%(i,j),   offset=(4*i+((j+1)*16)), bitSize=5, bitOffset=7,  base='hex',  mode='RO')) 
+                self.add(pr.Variable(name='hitDetRow%01i_%01i'%(i,j),   offset=(4*i+((j+1)*16)), bitSize=7, bitOffset=0, base='hex', mode='RO'))                     
+                self.add(pr.Variable(name='hitDetTimeRaw%01i_%01i'%(i,j), units="1/320MHz", description=' ', offset=(4*i+((j+1)*16)), bitSize=16, bitOffset=16, base='hex', mode='RO')) 
+                self.add(pr.Variable(name='hitDetTime%01i_%01i'%(i,j), mode = 'RO', units="ns", base='string', getFunction=self.nsTdc, dependencies=[self.variables['hitDetTimeRaw%01i_%01i'%(i,j)]]))                    
                 
                 
         self.add(pr.Variable(name = "calPulseVar", description = "Calibration Pulse",
