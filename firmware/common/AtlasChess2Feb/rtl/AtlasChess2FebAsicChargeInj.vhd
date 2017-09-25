@@ -401,79 +401,88 @@ begin
             -- Loop through the channels
             for i in 2 downto 0 loop
                -- Check for first hit after calibration pulse
-               if (dataValid(i) = '1') and (hitDet(i)(13) = '0') then
+               if (dataValid(i) = '1')  then
                   case hitDetIndex(i) is 
                      when "000" =>
                         -- Latch the hit values
-                        hitDet(i)(14*0 + 13)                        <= dataValid(i)            after TPD_G;
-                        hitDet(i)(14*0 + 12)                        <= multiHit(i)             after TPD_G;
-                        hitDet(i)(14*0 + 11 downto 14*0 + 7)        <= col(i)                  after TPD_G;
-                        hitDet(i)(14*0 + 6  downto 14*0 + 0)        <= row(i)                  after TPD_G;
-                        -- Latch the hit time after calibration pulse
-                        hitDetTime(i)(16*0 + 15 downto 16*0 + 0)    <= timer                   after TPD_G;
-
+                        if  hitDet(i)(14*0 + 13) = '0' then -- this if prevents overwritting the values
+                            hitDet(i)(14*0 + 13)                        <= dataValid(i)            after TPD_G;
+                            hitDet(i)(14*0 + 12)                        <= multiHit(i)             after TPD_G;
+                            hitDet(i)(14*0 + 11 downto 14*0 + 7)        <= col(i)                  after TPD_G;
+                            hitDet(i)(14*0 + 6  downto 14*0 + 0)        <= row(i)                  after TPD_G;
+                            -- Latch the hit time after calibration pulse
+                            hitDetTime(i)(16*0 + 15 downto 16*0 + 0)    <= timer                   after TPD_G;
+                        end if;
                      when "001" =>
                         -- Latch the hit values
-                        hitDet(i)(14*1 + 13)                        <= dataValid(i)            after TPD_G;
-                        hitDet(i)(14*1 + 12)                        <= multiHit(i)             after TPD_G;
-                        hitDet(i)(14*1 + 11 downto 14*1 + 7)        <= col(i)                  after TPD_G;
-                        hitDet(i)(14*1 + 6  downto 14*1 + 0)        <= row(i)                  after TPD_G;
-                        -- Latch the hit time after calibration pulse
-                        hitDetTime(i)(16*1 + 15 downto 16*1 + 0)    <= timer                   after TPD_G;
-
+                        if hitDet(i)(14*1 + 13) = '0' then
+                           hitDet(i)(14*1 + 13)                        <= dataValid(i)            after TPD_G;
+                           hitDet(i)(14*1 + 12)                        <= multiHit(i)             after TPD_G;
+                           hitDet(i)(14*1 + 11 downto 14*1 + 7)        <= col(i)                  after TPD_G;
+                           hitDet(i)(14*1 + 6  downto 14*1 + 0)        <= row(i)                  after TPD_G;
+                           -- Latch the hit time after calibration pulse
+                           hitDetTime(i)(16*1 + 15 downto 16*1 + 0)    <= timer                   after TPD_G;
+                        end if;
                      when "010" =>
                         -- Latch the hit values
-                        hitDet(i)(14*2 + 13)                        <= dataValid(i)            after TPD_G;
-                        hitDet(i)(14*2 + 12)                        <= multiHit(i)             after TPD_G;
-                        hitDet(i)(14*2 + 11 downto 14*2 + 7)        <= col(i)                  after TPD_G;
-                        hitDet(i)(14*2 + 6  downto 14*2 + 0)        <= row(i)                  after TPD_G;
-                        -- Latch the hit time after calibration pulse
-                        hitDetTime(i)(16*2 + 15 downto 16*2 + 0)    <= timer                   after TPD_G;
-
+                        if hitDet(i)(14*2 + 13) = '0' then
+                           hitDet(i)(14*2 + 13)                        <= dataValid(i)            after TPD_G;
+                           hitDet(i)(14*2 + 12)                        <= multiHit(i)             after TPD_G;
+                           hitDet(i)(14*2 + 11 downto 14*2 + 7)        <= col(i)                  after TPD_G;
+                           hitDet(i)(14*2 + 6  downto 14*2 + 0)        <= row(i)                  after TPD_G;
+                           -- Latch the hit time after calibration pulse
+                           hitDetTime(i)(16*2 + 15 downto 16*2 + 0)    <= timer                   after TPD_G;
+                        end if;
                      when "011" =>
                         -- Latch the hit values
-                        hitDet(i)(14*3 + 13)                        <= dataValid(i)            after TPD_G;
-                        hitDet(i)(14*3 + 12)                        <= multiHit(i)             after TPD_G;
-                        hitDet(i)(14*3 + 11 downto 14*3 + 7)        <= col(i)                  after TPD_G;
-                        hitDet(i)(14*3 + 6  downto 14*3 + 0)        <= row(i)                  after TPD_G;
-                        -- Latch the hit time after calibration pulse
-                        hitDetTime(i)(16*3 + 15 downto 16*3 + 0)    <= timer                   after TPD_G;
-
+                        if hitDet(i)(14*3 + 13) = '0' then
+                           hitDet(i)(14*3 + 13)                        <= dataValid(i)            after TPD_G;
+                           hitDet(i)(14*3 + 12)                        <= multiHit(i)             after TPD_G;
+                           hitDet(i)(14*3 + 11 downto 14*3 + 7)        <= col(i)                  after TPD_G;
+                           hitDet(i)(14*3 + 6  downto 14*3 + 0)        <= row(i)                  after TPD_G;
+                           -- Latch the hit time after calibration pulse
+                           hitDetTime(i)(16*3 + 15 downto 16*3 + 0)    <= timer                   after TPD_G;
+                        end if;
                      when "100" =>
                         -- Latch the hit values
-                        hitDet(i)(14*4 + 13)                        <= dataValid(i)            after TPD_G;
-                        hitDet(i)(14*4 + 12)                        <= multiHit(i)             after TPD_G;
-                        hitDet(i)(14*4 + 11 downto 14*4 + 7)        <= col(i)                  after TPD_G;
-                        hitDet(i)(14*4 + 6  downto 14*4 + 0)        <= row(i)                  after TPD_G;
-                        -- Latch the hit time after calibration pulse
-                        hitDetTime(i)(16*4 + 15 downto 16*4 + 0)    <= timer                   after TPD_G;
-
+                        if hitDet(i)(14*4 + 13) = '0' then
+                           hitDet(i)(14*4 + 13)                        <= dataValid(i)            after TPD_G;
+                           hitDet(i)(14*4 + 12)                        <= multiHit(i)             after TPD_G;
+                           hitDet(i)(14*4 + 11 downto 14*4 + 7)        <= col(i)                  after TPD_G;
+                           hitDet(i)(14*4 + 6  downto 14*4 + 0)        <= row(i)                  after TPD_G;
+                           -- Latch the hit time after calibration pulse
+                           hitDetTime(i)(16*4 + 15 downto 16*4 + 0)    <= timer                   after TPD_G;
+                        end if;
                      when "101" =>
                         -- Latch the hit values
-                        hitDet(i)(14*5 + 13)                        <= dataValid(i)            after TPD_G;
-                        hitDet(i)(14*5 + 12)                        <= multiHit(i)             after TPD_G;
-                        hitDet(i)(14*5 + 11 downto 14*5 + 7)        <= col(i)                  after TPD_G;
-                        hitDet(i)(14*5 + 6  downto 14*5 + 0)        <= row(i)                  after TPD_G;
-                        -- Latch the hit time after calibration pulse
-                        hitDetTime(i)(16*5 + 15 downto 16*5 + 0)    <= timer                   after TPD_G;
-
+                        if hitDet(i)(14*5 + 13) = '0' then
+                           hitDet(i)(14*5 + 13)                        <= dataValid(i)            after TPD_G;
+                           hitDet(i)(14*5 + 12)                        <= multiHit(i)             after TPD_G;
+                           hitDet(i)(14*5 + 11 downto 14*5 + 7)        <= col(i)                  after TPD_G;
+                           hitDet(i)(14*5 + 6  downto 14*5 + 0)        <= row(i)                  after TPD_G;
+                           -- Latch the hit time after calibration pulse
+                           hitDetTime(i)(16*5 + 15 downto 16*5 + 0)    <= timer                   after TPD_G;
+                        end if;
                      when "110" =>
                         -- Latch the hit values
-                        hitDet(i)(14*6 + 13)                        <= dataValid(i)            after TPD_G;
-                        hitDet(i)(14*6 + 12)                        <= multiHit(i)             after TPD_G;
-                        hitDet(i)(14*6 + 11 downto 14*6 + 7)        <= col(i)                  after TPD_G;
-                        hitDet(i)(14*6 + 6  downto 14*6 + 0)        <= row(i)                  after TPD_G;
-                        -- Latch the hit time after calibration pulse
-                        hitDetTime(i)(16*6 + 15 downto 16*6 + 0)    <= timer                   after TPD_G;
-
+                        if hitDet(i)(14*6 + 13) = '0' then
+                           hitDet(i)(14*6 + 13)                        <= dataValid(i)            after TPD_G;
+                           hitDet(i)(14*6 + 12)                        <= multiHit(i)             after TPD_G;
+                           hitDet(i)(14*6 + 11 downto 14*6 + 7)        <= col(i)                  after TPD_G;
+                           hitDet(i)(14*6 + 6  downto 14*6 + 0)        <= row(i)                  after TPD_G;
+                           -- Latch the hit time after calibration pulse
+                           hitDetTime(i)(16*6 + 15 downto 16*6 + 0)    <= timer                   after TPD_G;
+                        end if;
                      when "111" =>
                         -- Latch the hit values
-                        hitDet(i)(14*7 + 13)                        <= dataValid(i)            after TPD_G;
-                        hitDet(i)(14*7 + 12)                        <= multiHit(i)             after TPD_G;
-                        hitDet(i)(14*7 + 11 downto 14*7 + 7)        <= col(i)                  after TPD_G;
-                        hitDet(i)(14*7 + 6  downto 14*7 + 0)        <= row(i)                  after TPD_G;
-                        -- Latch the hit time after calibration pulse
-                        hitDetTime(i)(16*7 + 15 downto 16*7 + 0)    <= timer                   after TPD_G;
+                        if hitDet(i)(14*7 + 13) = '0' then
+                           hitDet(i)(14*7 + 13)                        <= dataValid(i)            after TPD_G;
+                           hitDet(i)(14*7 + 12)                        <= multiHit(i)             after TPD_G;
+                           hitDet(i)(14*7 + 11 downto 14*7 + 7)        <= col(i)                  after TPD_G;
+                           hitDet(i)(14*7 + 6  downto 14*7 + 0)        <= row(i)                  after TPD_G;
+                           -- Latch the hit time after calibration pulse
+                           hitDetTime(i)(16*7 + 15 downto 16*7 + 0)    <= timer                   after TPD_G;
+                        end if;
                   end case;
 
                   -- Increment hit index

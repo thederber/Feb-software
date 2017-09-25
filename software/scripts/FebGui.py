@@ -133,14 +133,26 @@ def gui(arg):
     # Example: Enable only one pixel for charge injection or Th swing test
     ######################################################################
     #print ('Disable all pixels')
-#    system.feb.Chess2Ctrl0.writeAllPixels(enable=0,chargeInj=1)
-#    system.feb.Chess2Ctrl1.writeAllPixels(enable=0,chargeInj=1)
-#    system.feb.Chess2Ctrl2.writeAllPixels(enable=0,chargeInj=1)
+    system.feb.Chess2Ctrl0.writeAllPixels(enable=0,chargeInj=1)
+    system.feb.Chess2Ctrl1.writeAllPixels(enable=0,chargeInj=1)
+    system.feb.Chess2Ctrl2.writeAllPixels(enable=0,chargeInj=1)
     ## Enable only one pixel for charge injection
     #print ('Enable only one pixels')
-#    system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=0, col=1, row=1, trimI= 7)
-#    system.feb.Chess2Ctrl1.writePixel(enable=1, chargeInj=0, col=1, row=1, trimI= 7)
-#    system.feb.Chess2Ctrl2.writePixel(enable=1, chargeInj=0, col=1, row=1, trimI= 7)
+    system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=0, col=1, row=1, trimI= 7)
+    system.feb.Chess2Ctrl1.writePixel(enable=1, chargeInj=0, col=1, row=1, trimI= 7)
+    system.feb.Chess2Ctrl2.writePixel(enable=1, chargeInj=0, col=1, row=1, trimI= 7)
+
+    system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=0, col=1, row=11, trimI= 7)
+    system.feb.Chess2Ctrl1.writePixel(enable=1, chargeInj=0, col=1, row=11, trimI= 7)
+    system.feb.Chess2Ctrl2.writePixel(enable=1, chargeInj=0, col=1, row=11, trimI= 7)
+
+    system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=0, col=1, row=21, trimI= 7)
+    system.feb.Chess2Ctrl1.writePixel(enable=1, chargeInj=0, col=1, row=21, trimI= 7)
+    system.feb.Chess2Ctrl2.writePixel(enable=1, chargeInj=0, col=1, row=21, trimI= 7)
+
+    system.feb.Chess2Ctrl0.writePixel(enable=1, chargeInj=0, col=1, row=31, trimI= 7)
+    system.feb.Chess2Ctrl1.writePixel(enable=1, chargeInj=0, col=1, row=31, trimI= 7)
+    system.feb.Chess2Ctrl2.writePixel(enable=1, chargeInj=0, col=1, row=31, trimI= 7)
 
 #    """ Enable only one pixel for charge injection """
 #    print ('Enable only one pixel for threshold test')

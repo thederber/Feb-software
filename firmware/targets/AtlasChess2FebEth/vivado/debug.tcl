@@ -43,9 +43,15 @@ SetDebugCoreClk ${ilaName} {U_Core/U_Asic/U_ChargeInj/timingClk320MHz}
 ## Set the debug Probes
 #######################
 
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[0][*]}
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[1][*]}
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[2][*]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[0][13:0]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[1][13:0]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[2][13:0]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[0][27:14]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[1][27:14]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[2][27:14]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[0][41:28]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[1][41:28]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[2][41:28]}
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/dataValid[*]}
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/timer[*]}
 ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDetIndex[*]}
