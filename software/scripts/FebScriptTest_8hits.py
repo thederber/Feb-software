@@ -36,7 +36,7 @@ import json
 import csv
 import copyreg
 #from SCurveNP import makeSCurve
-from SCurveNP_8hits_BL_json2 import *
+from SCurveNP_json import *
 from AtlasChess2_testRoutines import *
 #from csv_newplotter_h_8hit import *
 MAKE_S_CURVE = True
