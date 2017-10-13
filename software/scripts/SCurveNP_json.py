@@ -11,10 +11,9 @@ import json
 import scipy.io as sio
 # Generating log file
 class timep:
-    def __init__(self,pixel1,matrix1,index1,threshold1,time1):
+    def __init__(self,pixel1,matrix1,threshold1,time1):
         self.pixel=pixel1
         self.matrix=matrix1
-        self.index=index1
         self.threshold=threshold1
         self.time=time1
 
@@ -332,8 +331,8 @@ def makeCalibCurve4(system,nCounts,thresholdCuts,pixels=None,histFileName="scurv
     #system.feb.chargeInj.pulseWidthRaw.set(0x7fff)
     system.feb.chargeInj.calPulseInh.set(chargeInj1)
     #set VNSF=3#muA
-    #system.feb.Chess2Ctrl0.VNSFatt.set(0x1c)                                          
-    #system.feb.Chess2Ctrl0.VNSFres.set(0x3)
+    system.feb.Chess2Ctrl0.VNSFatt.set(0x1c)                                          
+    system.feb.Chess2Ctrl0.VNSFres.set(0x3)
     
     print("Disable all pixels")
     system.feb.Chess2Ctrl0.writeAllPixels(enable= 0,chargeInj= 1,trimI= trim)
@@ -690,16 +689,14 @@ def makeCalibCurveLoopBLx(system,nCounts,thresholdCuts,pixels=None,histFileName=
     else:
         return allHists
 
-def get_allHists(pixels,matrix,hits,thresholdCuts):
+def get_allHists(pixels,matrix,thresholdCuts):
     allHist={}.fromkeys(pixels)
     for pixel in pixels:
         allHist[pixel]={}.fromkeys(matrix)
         for matri in matrix:
-            allHist[pixel][matri]={}.fromkeys(hits)
-            for hit in hits:
-                allHist[pixel][matri][hit]={}.fromkeys(thresholdCuts)
-                for threshold in thresholdCuts:
-                    allHist[pixel][matri][hit][threshold]=[]
+            allHist[pixel][matri]={}.fromkeys(thresholdCuts)
+            for threshold in thresholdCuts:
+                allHist[pixel][matri][threshold]=[]
     return allHist
 
 def save_f(file_name,hists):
@@ -717,10 +714,10 @@ def save_f_pickle(file_name,hists):
     file_pickle.close()    
 
 def dic2timep(dic):
-    return timep(dic['pixel'],dic['matrix'],dic['index'],dic['threshold'],dic['time'])
+    return timep(dic['pixel'],dic['matrix'],dic['threshold'],dic['time'])
 
 def timep2dic(timep):
-    return {'pixel':timep.pixel,'matrix':timep.matrix,'index':timep.index,'threshold':timep.threshold,'time':timep.time}
+    return {'pixel':timep.pixel,'matrix':timep.matrix,'threshold':timep.threshold,'time':timep.time}
 
 def save_f_json(file_name,hists):
     with open(file_name+'.json','w',encoding='utf-8') as f:
@@ -731,9 +728,8 @@ def save_timep(hists):
     for key in hists:
         for key1 in hists[key]:
             for key2 in hists[key][key1]:
-                for key3 in hists[key][key1][key2]:
-                    if hists[key][key1][key2][key3]: 
-                        one=timep(key,key1,key2,key3,hists[key][key1][key2][key3])
+                if hists[key][key1][key2]: 
+                        one=timep(key,key1,key2,hists[key][key1][key2])
                         allhist.append(one)
     return allhist
 
@@ -748,7 +744,7 @@ def makeCalibCurveLoopBLx_8hits(system,nCounts,thresholdCuts,pixels=None,histFil
     logging.info(" Using makeCalibCurveLoopBLx_8hits......")
     matrix=[0,1,2]
     hits=[0,1,2,3,4,5,6,7]
-    allHists=get_allHists(pixels,matrix,thresholdCuts,hits)
+    allHists=get_allHists(pixels,matrix,thresholdCuts)
     pixels = pixels if (pixels!=None) else [ (row,col) for row in range(nRows) for col in range(nColumns) ]
     BLRValue  = BL_v + deltaBLToBLR
     system.feb.dac.dacBLRRaw.set(BLRValue)
@@ -776,21 +772,21 @@ def makeCalibCurveLoopBLx_8hits(system,nCounts,thresholdCuts,pixels=None,histFil
                         row_det = int(eval(get_funct('row_det',matrix_i,hit)))
                         col_det = int(eval(get_funct('col_det',matrix_i,hit)))
                         if (row_det,col_det) in pixels:
-                            allHists[(row_det,col_det)][matrix_i][threshold][hit].append(float(eval(get_funct('time_det',matrix_i,hit))))
+                            allHists[(row_det,col_det)][matrix_i][threshold].append(float(eval(get_funct('time_det',matrix_i,hit))))
                             print("row_det: ",row_det, "col_det:", col_det, "system.feb.chargeInj.hitDetTime"+str(matrix_i)+"_"+str(hit)+":", float(eval(get_funct('time_det',matrix_i,hit))))
                     matrix_i=1
                     if eval(get_funct('Valid',matrix_i,hit)):
                         row_det = int(eval(get_funct('row_det',matrix_i,hit)))
                         col_det = int(eval(get_funct('col_det',matrix_i,hit)))
                         if (row_det,col_det) in pixels:
-                            allHists[(row_det,col_det)][matrix_i][threshold][hit].append(float(eval(get_funct('time_det',matrix_i,hit))))
+                            allHists[(row_det,col_det)][matrix_i][threshold].append(float(eval(get_funct('time_det',matrix_i,hit))))
                             print("row_det: ",row_det, "col_det:", col_det, "system.feb.chargeInj.hitDetTime"+str(matrix_i)+"_"+str(hit)+":", float(eval(get_funct('time_det',matrix_i,hit))))
                     matrix_i=2
                     if eval(get_funct('Valid',matrix_i,hit)):
                         row_det = int(eval(get_funct('row_det',matrix_i,hit)))
                         col_det = int(eval(get_funct('col_det',matrix_i,hit)))
                         if (row_det,col_det) in pixels:
-                            allHists[(row_det,col_det)][matrix_i][threshold][hit].append(float(eval(get_funct('time_det',matrix_i,hit))))
+                            allHists[(row_det,col_det)][matrix_i][threshold].append(float(eval(get_funct('time_det',matrix_i,hit))))
                             print("row_det: ",row_det, "col_det:", col_det, "system.feb.chargeInj.hitDetTime"+str(matrix_i)+"_"+str(hit)+":", float(eval(get_funct('time_det',matrix_i,hit))))
     allhist=save_timep(allHists)
     return allhist
