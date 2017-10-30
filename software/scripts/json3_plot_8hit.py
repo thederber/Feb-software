@@ -3,7 +3,7 @@ import pickle
 import csv
 import json
 from ROOT import *
-from ROOT import gROOT, TCanvas, TF1, TFile, TTree, gRandom, TH1F, TLorentzVector
+from ROOT import gROOT, TCanvas, TF1, TFile, TTree, gRandom, TH1F, TLorentzVector, TGraphErrors, TGraph
 from ROOT import TPad, TPaveText, TLegend, THStack
 from ROOT import gBenchmark, gStyle, gROOT, gPad
 import sys
@@ -68,8 +68,10 @@ def plot(name_f_json,projection=1):
     pixels=[(20,20)]
     matrix=[0,1,2]
     hits=(0,1,2,3,4,5,6,7)
-    #thresholdCuts = range(0x0, 0x800, 0x8)
-    thresholdCuts = range(0x45c, 0x4d9, 0x10)
+    th_l=0x0
+    th_h=0x800
+    th_delta=0x8
+    thresholdCuts = range(th_l, th_h, th_delta)
     data_dic={}
     pulse_end=pulse_start+pulse_width
     fast_range=1500
@@ -82,30 +84,67 @@ def plot(name_f_json,projection=1):
             p1=a.pixel[0]
             p2=a.pixel[1]
             data_dic[(p1,p2)][a.matrix][a.index][a.threshold]=a.time
-   
-#        rootf=TFile('f_pickle_'+str(key)+'.root',"RECREATE")   
     for key in data_dic: #pixel
         print(key)
-        rootf = TFile(name_f_json+'cut.root',"RECREATE")   
+        rootf = TFile(name_f_json+'cut.root',"RECREATE") 
         for key1 in data_dic[key]: #matrix
+            h="hitnumber_pixel_"+str(key)+"_asic"+str(key1)+"_THsweep"
+            h=TH1D(h,";Hit;Hits number",8,0,8)  
             h_name_all="cumulTimeHist_pixel_"+str(key)+"_asic"+str(key1)+"_THsweep"
+            #h_name_g="cumulTimeHist_pixel_"+str(key)+"_asic"+str(key1)+"_THsweep_g"
             a=[]
             for key3 in data_dic[key][key1][1]: #threshold
                 a.append(key3)
             a1=[float(b)/1241. for b in a]
-            hist_name_all=TH2D(h_name_all,";Threshold [V];Time [ns]", 200, min(a1), max(a1), 2000, 0, time_scale)
+            hist_name_all=TH2D(h_name_all,";Threshold [V];Time [ns]", (th_h-th_l)/th_delta, min(a1), max(a1), 2000, 0, time_scale)
             for key2 in data_dic[key][key1]:  #index
                 h_name="cumulTimeHist_pixel_"+str(key)+"_asic"+str(key1)+"_hit_"+str(key2)+"_THsweep"
-                hist_name=TH2D(h_name,";Threshold [V];Time [ns]", 200, min(a1), max(a1), 800, 0, time_scale)
-            #h_name="cumulTimeHist_pixel_"+str(key)+"_asic"+str(key1)+"_THsweep"
-            #hist_name=TH2D(h_name,";Threshold [V];Time [ns]", 200, min(a1), max(a1), 800, 0, time_scale)
-                for key3 in data_dic[key][key1][key2]: #threhsold
-                       for val_i in range(len(data_dic[key][key1][key2][key3])):
-                           timev=data_dic[key][key1][key2][key3][val_i]
-                           if timev>30000:
-                               hist_name.Fill(float(key3)/1241,timev)
-                               hist_name_all.Fill(float(key3)/1241,timev)
+                hist_name=TH2D(h_name,";Threshold [V];Time [ns]", (th_h-th_l)/th_delta, min(a1), max(a1), 800, 0, time_scale)
+                g_x=[]
+                g_y=[]
+                g_ex=[]
+                g_ey=[]
+                a=data_dic[key][key1][key2].keys()
+                a.sort()
+                for key3 in a: #threhsold
+                #for key3 in data_dic[key][key1][key2]: #threhsold
+                    t_aftercut=[]
+                    for val_i in range(len(data_dic[key][key1][key2][key3])):
+                        timev=data_dic[key][key1][key2][key3][val_i]
+                        #if timev>0:
+                        if timev>40000:
+                            t_aftercut.append(timev)
+                            hist_name.Fill(float(key3)/1241,timev)
+                            hist_name_all.Fill(float(key3)/1241,timev)
+                            h.Fill(key2)
+                    if len(t_aftercut)!=0:
+                        t_aftercut_a=np.array(t_aftercut)
+                        g_x.append(float(key3)/1241)
+                        #print(float(key3)/1241)
+                        g_y.append(np.mean(t_aftercut_a))
+                        g_ey.append(np.std(t_aftercut_a))
+                        g_ex.append(0)
                 hist_name.Write()
+                g_ax=np.array(g_x)
+                g_ay=np.array(g_y)
+                g_aex=np.array(g_ex)
+                g_aey=np.array(g_ey)
+                #hist_name_g=TGraph(len(g_ax),g_ax,g_ay)
+#                #hist_name_g="cumulTimeHist_pixel_"+str(key)+"_asic"+str(key1)+"_hit_"+str(key2)+"_THsweep_g"
+                if len(g_ax)!=0:
+                    graph_g=TGraph(len(g_ax),g_ax,g_ay)
+                    graph_g.SetName("cumulTimeHist_pixel_"+str(key)+"_asic"+str(key1)+"_hit_"+str(key2)+"_THsweep_graph")
+                    graph_g.SetTitle(";Threshold [V];Time [ns]")
+                    graph_g.SetMarkerStyle(20);
+                    graph_g.SetMarkerSize(0.6);
+                    graph_g.Write()
+                    hist_name_g=TGraphErrors(len(g_ax),g_ax,g_ay,g_aex,g_aey)
+                    hist_name_g.SetName("cumulTimeHist_pixel_"+str(key)+"_asic"+str(key1)+"_hit_"+str(key2)+"_THsweep_g")
+                    hist_name_g.SetTitle(";Threshold [V];Time [ns]")
+                    hist_name_g.SetFillColor(1);
+                    hist_name_g.SetMarkerStyle(20);
+                    hist_name_g.SetMarkerSize(0.6);
+                    hist_name_g.Write()
                 if projection:
                     cut1=[min(a1),0]
                     cut2=[max(a1),140000]
@@ -113,7 +152,13 @@ def plot(name_f_json,projection=1):
                     proj_y=get_proj_Y(hist_name,h_name,cut1,cut2,0,time_scale)
                     proj_x.Write()
                     proj_y.Write()
+                #hist_name_g="cumulTimeHist_pixel_"+str(key)+"_asic"+str(key1)+"_THsweep_g"
+                #hist_name_g=TGraphErrors(n,g_ax,g_aex,g_ay,g_aey)
+                #hist_name_g=TGraphErrors(n,g_ax,g_aex,g_ay,g_aey)
+                #hist_name_g.SetTitle("cumulTimeHist_pixel_"+str(key)+"_asic"+str(key1)+"_THsweep_g")
+                #hist_name_g=TGraphErrors(h_name_g,";Threshold [V];Time [ns]",n,g_x,g_y,g_ex,g_ey)
             hist_name_all.Write()
+            h.Write()
             if projection:
                 cut1=[min(a1),0]
                 cut2=[max(a1),140000]
@@ -149,10 +194,13 @@ def get_proj_Y(hist_name,file_name,cut1,cut2,miny,maxy):
     proj_y=hist_name.ProjectionY("_py",0,-1,"[cut]") 
     #proj_y=hist_name.ProjectionY(hist_name,Xcut1,Xcut2) 
     return proj_y
-for bl in [1117]:
-#for bl in [1280,1365,1489]:
+
+#for bl in [8,310,434,576]:
+#for bl in [1489]:
 #for bl in [8,310,434,576,744,868,930,993,1117]:
+for bl in [8,310,434,576,744,868,930,993,1117,1280,1365]:
 #for bl in [8,310,434,576,744,868,930,993,1117,1280,1365,1489]:
-    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-28/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_test_BL_"+str(bl)+"_chargeInjectionEnbled_0_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
-    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-28/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_test_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
+    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-28/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_1event_0.3_BL_"+str(bl)+"_chargeInjectionEnbled_0_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
+    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_2_BL_"+str(bl)+"_chargeInjectionEnbled_0_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
+    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_2_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
      
