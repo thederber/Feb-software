@@ -36,7 +36,7 @@ import json
 import csv
 import copyreg
 #from SCurveNP import makeSCurve
-from SCurveNP_json import *
+from SCurveNP_8hits_BL_json3 import *
 from AtlasChess2_testRoutines import *
 #from csv_newplotter_h_8hit import *
 MAKE_S_CURVE = True
@@ -162,11 +162,11 @@ def gui(arg = "192.168.3.28", configFile = "default.yml" ):
     guiTop = pyrogue.gui.GuiTop('PyRogueGui')
     guiTop.resize(800, 1000)
     guiTop.addTree(system)
-    system.root.readConfig("/u1/home/hanyubo/atlas-chess2/software/scripts/preamp/yml/"+sys.argv[2])
+    system.root.readConfig(sys.argv[2])
     print("Loading config file :", sys.argv[2])
     
-   # system.root.writeConfig("/u1/home/hanyubo/atlas-chess2/software/scripts/preamp/yml/save_"+sys.argv[2])
-   # print("Saving the config file :", sys.argv[2])
+    #system.root.writeConfig("/u1/home/hanyubo/atlas-chess2/software/scripts/preamp/yml/save_"+sys.argv[2])
+    #print("Saving the config file :", sys.argv[2])
 #    system.readAll()
     
 #    system.feb.memReg.chargInjStartEventReg.set(0)
@@ -199,22 +199,44 @@ def gui(arg = "192.168.3.28", configFile = "default.yml" ):
     """ Make S curve"""
     if (MAKE_S_CURVE):
         run = 1
-        Qinj = [0,1]
-        a1='28' #daughter board name 
-        BL_value=[0x8,0X136,0X1b2,0x240,0x2e8,0x364,0x3a2] #BL
+        Qinj = [1,0]
+        a1='28'
+        #set VNSF=0.026#muA
+        #system.feb.Chess2Ctrl0.VNSFatt.set(0x16)
+        #system.feb.Chess2Ctrl0.VNSFres.set(0x2)
+        #system.feb.Chess2Ctrl1.VNSFatt.set(0x16)
+        #system.feb.Chess2Ctrl1.VNSFres.set(0x2)
+        #system.feb.Chess2Ctrl2.VNSFatt.set(0x16)
+        #system.feb.Chess2Ctrl2.VNSFres.set(0x2)
+        #set VNSF=0.090#muA
+        #system.feb.Chess2Ctrl0.VNSFatt.set(0x17)
+        #system.feb.Chess2Ctrl0.VNSFres.set(0x3)
+        #system.feb.Chess2Ctrl1.VNSFatt.set(0x17)
+        #system.feb.Chess2Ctrl1.VNSFres.set(0x3)
+        #system.feb.Chess2Ctrl2.VNSFatt.set(0x17)
+        #system.feb.Chess2Ctrl2.VNSFres.set(0x3)
+        #set VNSF=0.361#muA
+        #system.feb.Chess2Ctrl0.VNSFatt.set(0x19)
+        #system.feb.Chess2Ctrl0.VNSFres.set(0x3)
+        #system.feb.Chess2Ctrl1.VNSFatt.set(0x19)
+        #system.feb.Chess2Ctrl1.VNSFres.set(0x3)
+        #system.feb.Chess2Ctrl2.VNSFatt.set(0x19)
+        #system.feb.Chess2Ctrl2.VNSFres.set(0x3)
+        BL_value=[0x5d1] #BL
+        #BL_value=[0x8,0x136,0x1b2,0x240,0x2e8,0x364,0x3a2,0x3e1,0x45d,0x500,0x555,0x5d1] #BL
         values = [6]#, 5, 4, 3, 2, 1, 0, 7, 8, 9]
-        #a=sys.argv[1] 
-        InvPulse=False
-        #InvPulse=True #origin
+        a=sys.argv[1]
+        #InvPulse=False
+        InvPulse=True #origin
         PulseDelay=0x2bbf
         PulseWidth=0x12bf
         system.feb.chargeInj.pulseWidthRaw.set(PulseWidth)
         #system.feb.chargeInj.pulseDelayRaw.set(0xc7f) #10000ns`
         system.feb.chargeInj.pulseDelayRaw.set(PulseDelay) #35000ns`
-        system.feb.chargeInj.invPulse.set(InvPulse) #False-inverse  
-        print(a1)
-        #print("logging...")
+        system.feb.chargeInj.invPulse.set(InvPulse) 
+        #print(a1)
         logfile("chess2_scan_SCurveTest_"+today1+"_board_"+str(sys.argv[1])+"_run_" + str(run)+"_chargeInjectionEnbled_"+str(Qinj)+"_thN_"+str(values)+"_PulseDelay_"+str(PulseDelay)+"_PXTHsweep.log")
+        #logfile("/u1/atlas-chess2-Asic-tests/data/data_h/log/chess2_scan_SCurveTest_"+today1+"_board_"+str(sys.argv[1])+"_run_" + str(run)+"_chargeInjectionEnbled_"+str(Qinj)+"_thN_"+str(values)+"_PulseDelay_"+str(PulseDelay)+"_PXTHsweep.log")
         #logfile("preamp/log/chess2_scan_SCurveTest_07172017_run_" + str(run)+"_chargeInjectionEnbled_"+ str(Qinj[0])+str(Qinj[1]) + "_thN_"+str(hex(values))+".log")
         for value in values:
             logging.info('Running the test with Values='+str(value))
@@ -223,7 +245,19 @@ def gui(arg = "192.168.3.28", configFile = "default.yml" ):
                 logging.info("Loading config file: "+str(sys.argv[2])) 
                 logging.info('    Running the test with Qinj='+str(chargeInjectionEnbled))
                 deltaBLToBLR = value * 120 
+                #deltaBLToBLR = 0xce5 
+                # define test Variables
+                #thresholds = [0xfc2,0xec2,0xdc2,0xcc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x5c2,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
+                #thresholds = [0x8c2,0x83e,0x7c2,0x73e,0x6c2,0x63e,0x5c2,0x53e,0x4c2,0x43e,0x3c2,0x33e,0x2c2,0x2c2,0x13e,0x1c2]
+                #thresholds = [0xbc2,0xbc2,0xbc2,0xbc2,0xbc2,0xac2,0x9c2,0x8c2,0x7c2,0x6c2,0x6b2,0x6a2,0x692,0x682,0x672,0x662,0x652,0x642,0x632,0x622,0x612,0x602,0x5f2,0x5e2,0x5c2,0x5b2,0x5a2,0x592,0x582,0x572,0x562,0x552,0x542,0x532,0x4c2,0x3c2,0x2c2,0x1c2,0x0c2]
                 thresholds =range(0x0, 0x800, 0x8)
+                #thresholds = range(0x45c, 0x4d9, 0x10)
+                #thresholds = np.arange(0x45c, 0x4d9, 0x10)
+                #thresholds = [0x6b2]  #BL
+                #pixels=[ (3,12),(9,25),(42,15),(85,10),(86,25)]
+                #pixels=[(21,21),(21,20)]
+                #pixels=[(20,20),(19,19),(80,2),(61,3)]
+                #pixels=[(1,20),(10,2),(11,5),(61,3),(61,6)]
                 #pixels=[(15,5),(20,20),(120,30),(110,3),(80,2),(11,5),(61,3),(10,2)]
                 #pixels=[(19,19)]
                 pixels=[(20,20)]
@@ -233,6 +267,12 @@ def gui(arg = "192.168.3.28", configFile = "default.yml" ):
               #  for pixel_i in pixels:
                 for BL_value_i in BL_value:
                     hists = makeCalibCurve4( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled, BL=BL_value_i)
+                #thresholdHexList = np.arange(0x800, 0x500, -2) # for the file 'chess2_scan_QinjPulse_BLx_SCurveTest_trim7' 
+                #hists = makeSCurve( system, nCounts=10, thresholdCut=thresholds, pixels=pixels, histFileName="scurve_test_sleep.root")
+                    #hists1=np.asarray(hists)
+                    #print(hists1.shape)
+                    #print(hists1)
+                # create file header
                     headerText = "\n# Test that perform the BL and BLR voltage sweep. BLR is set as BL plus a delta voltage. (Note: ASIC V1.8a set to 1.8V again). Running with default ASIC values"
                     headerText = headerText + "\n# pixels, " + str(pixels)
                     headerText = headerText + "\n# chargeInjectionEnbled, " + str(chargeInjectionEnbled)
@@ -247,12 +287,17 @@ def gui(arg = "192.168.3.28", configFile = "default.yml" ):
                     #headerText = headerText + "\n# Shape:{0}:".format(hists1.shape)
                     #print(hists1.shape)
                         #  run test
-                    logging.info(headerText)
-                    save_name="/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-"+a1+"/chess2_scan_SCurveTest_"+today1+"_board_"+str(sys.argv[1])+"_run_" +str(run)+"_BL_"+str(BL_value_i)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+"_PulseDelay_"+str(PulseDelay)+"_PXTHsweep"
+                        #logging.info(headerText)
+                        #hists = makeCalibCurve4( system, nCounts=100, thresholdCuts = thresholds, pixels=pixels, histFileName="scurve_test_sleep.root", deltaBLToBLR = deltaBLToBLR, chargeInjectionEnbled = chargeInjectionEnbled)
+               
+                # save file
+                # new csv file output style
+                    save_name="chess2_scan_SCurveTest_10132017_board_"+str(sys.argv[1])+"_run_" +str(run)+"_BL_"+str(BL_value_i)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+"_PulseDelay_"+str(PulseDelay)+"_PXTHsweep"
+                   # save_name="/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-"+a1+"/chess2_scan_SCurveTest_"+today1+"_board_"+str(sys.argv[1])+"_run_" +str(run)+"_BL_"+str(BL_value_i)+"_chargeInjectionEnbled_"+ str(chargeInjectionEnbled) + "_thN_"+str(hex(value))+"_PulseDelay_"+str(PulseDelay)+"_PXTHsweep"
+                    #save_f_pickle(save_name+"p",hists)
                     save_f_json(save_name,hists)
                     logging.info(headerText)
-                    logging.info("The data has been saved ")
-                    #plot(save_name+"csv",1)
+                    logging.info(save_name+".json")
                     
     
     system.root.writeConfig("/u1/home/hanyubo/atlas-chess2/software/scripts/preamp/yml/save_2"+sys.argv[2])
