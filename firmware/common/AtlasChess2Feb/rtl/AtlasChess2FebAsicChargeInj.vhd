@@ -44,6 +44,7 @@ entity AtlasChess2FebAsicChargeInj is
       lvdsTxSel       : out sl;
       acMode          : out sl;
       bitSel          : out sl;
+      extInjSigTrg    : out sl;
       injSig          : out slv(1 downto 0);
       -- CHESS2 Interface
       dataValid       : in  slv(2 downto 0);
@@ -336,7 +337,7 @@ begin
                pulseDelayed <= invPulse and not(r.calPulseInh)     after TPD_G;
             end if;
          end if;
-
+         extInjSigTrg    <= pulseDelayed;
       end if;
    end process;
 
