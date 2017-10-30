@@ -146,10 +146,20 @@ architecture mapping of AtlasChess2FebAsic is
    signal col       : Slv5Array(2 downto 0);
    signal row       : Slv7Array(2 downto 0);
 
+   signal injSig_i  : slv(1 downto 0);
+   signal extBusy_i : sl;      
+
    attribute IODELAY_GROUP                 : string;
    attribute IODELAY_GROUP of U_IDELAYCTRL : label is IODELAY_GROUP_G;
    
 begin
+
+   -- routing signals
+   injSig <= injSig_i;
+
+   -- change extBusy signal functionality to enable external signal gen trigger
+   --extBusy <= extBusy_i;
+   extBusy <= injSig_i(0) or injSig_i(1);
 
    U_IDELAYCTRL : IDELAYCTRL
       port map (
@@ -270,7 +280,7 @@ begin
          -- AXI Stream Interface
          axisClk         => axisClk,
          axisRst         => axisRst,
-         extBusy         => extBusy,
+         extBusy         => extBusy_i,
          mAxisMaster     => mAxisMaster,
          mAxisSlave      => mAxisSlave);
          
@@ -287,7 +297,7 @@ begin
          lvdsTxSel       => lvdsTxSel,
          acMode          => acMode,
          bitSel          => bitSel,
-         injSig          => injSig,
+         injSig          => injSig_i,
          -- CHESS2 Interface
          dataValid       => dataValid,
          multiHit        => multiHit,
