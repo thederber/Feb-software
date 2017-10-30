@@ -331,16 +331,6 @@ def makeCalibCurve4(system,nCounts,thresholdCuts,pixels=None,histFileName="scurv
 
     #system.feb.chargeInj.pulseWidthRaw.set(0x7fff)
     system.feb.chargeInj.calPulseInh.set(chargeInj1)
-    #set VNSF=3#muA
-    #system.feb.Chess2Ctrl0.VNSFatt.set(0x1c)                                             system.feb.Chess2Ctrl0.VNSFres.set(0x3)
-    
-    #set VNSF=0.327#muA
-    #system.feb.Chess2Ctrl0.VNSFatt.set(0x19)
-    #system.feb.Chess2Ctrl0.VNSFres.set(0x1)
-    
-    #set VNSF=0.18#muA
-    system.feb.Chess2Ctrl0.VNSFatt.set(0x18)
-    system.feb.Chess2Ctrl0.VNSFres.set(0x3)
 
     print("Disable all pixels")
     system.feb.Chess2Ctrl0.writeAllPixels(enable= 0,chargeInj= 1,trimI= trim)
@@ -768,7 +758,9 @@ def makeCalibCurveLoopBLx_8hits(system,nCounts,thresholdCuts,pixels=None,histFil
         system.feb.Chess2Ctrl1.writePixel(enable=pixEnableLogic, chargeInj=chargeInjLogic, col=col, row=row, trimI= pixTrimI)
         system.feb.Chess2Ctrl2.writePixel(enable=pixEnableLogic, chargeInj=chargeInjLogic, col=col, row=row, trimI= pixTrimI)
         print("enable Pixel: (%i,%i)"%(row,col))
+        #a=thresholdCuts[1]
     for threshold in thresholdCuts:
+        #threshold=a
         print("Thresholds (system.feb.dac.dacPIXTHRaw): ",  hex(threshold))
         system.feb.dac.dacPIXTHRaw.set(threshold)
         time.sleep(1.0)
