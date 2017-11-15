@@ -65,7 +65,7 @@ def plot(name_f_json,projection=1):
     sweep_type='threshold'
     time_scale=140000
     # one for each ASIC
-    pixels=[(20,20)]
+    pixels=[(1,0)]
     matrix=[0,1,2]
     hits=(0,1,2,3,4,5,6,7)
     th_l=0x0
@@ -86,8 +86,8 @@ def plot(name_f_json,projection=1):
             data_dic[(p1,p2)][a.matrix][a.index][a.threshold]=a.time
     for key in data_dic: #pixel
         print(key)
-        rootf = TFile(name_f_json+'cut.root',"RECREATE") 
-        for key1 in data_dic[key]: #matrix
+        rootf = TFile(name_f_json+'.root',"RECREATE") 
+        for key1 in data_dic[key]: #matri2x
             h="hitnumber_pixel_"+str(key)+"_asic"+str(key1)+"_THsweep"
             h=TH1D(h,";Hit;Hits number",8,0,8)  
             h_name_all="cumulTimeHist_pixel_"+str(key)+"_asic"+str(key1)+"_THsweep"
@@ -112,7 +112,8 @@ def plot(name_f_json,projection=1):
                     for val_i in range(len(data_dic[key][key1][key2][key3])):
                         timev=data_dic[key][key1][key2][key3][val_i]
                         #if timev>0:
-                        if timev>40000:
+                        #if (timev<35000):
+                        if timev>0:
                             t_aftercut.append(timev)
                             hist_name.Fill(float(key3)/1241,timev)
                             hist_name_all.Fill(float(key3)/1241,timev)
@@ -196,11 +197,17 @@ def get_proj_Y(hist_name,file_name,cut1,cut2,miny,maxy):
     return proj_y
 
 #for bl in [8,310,434,576]:
-#for bl in [1489]:
-#for bl in [8,310,434,576,744,868,930,993,1117]:
-for bl in [8,310,434,576,744,868,930,993,1117,1280,1365]:
+#for bl in [930,1365]:
+for bl in [930]:
 #for bl in [8,310,434,576,744,868,930,993,1117,1280,1365,1489]:
-    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-28/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_1event_0.3_BL_"+str(bl)+"_chargeInjectionEnbled_0_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
-    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_2_BL_"+str(bl)+"_chargeInjectionEnbled_0_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
-    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_2_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
+#for bl in [310,434,576,744,868,930,993,1117,1280,1365,1489]:
+#for bl in [1117,1280,1365,1489]:
+#for bl in [930,993,1117,1280,1365,1489]:
+    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-28/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_59_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
+    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_11152017_board_192.168.3.28_run_15_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
+    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_11152017_board_192.168.3.28_run_14_BL_"+str(bl)+"_chargeInjectionEnbled_0_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
+    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_5_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
+    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_5_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
+    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_6_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
+    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_7_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
      
