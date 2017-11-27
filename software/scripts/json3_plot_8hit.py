@@ -59,13 +59,15 @@ def dic2timep(dic):
 #        print(a.matrix)
 #        print(a.threshold)
 #        print(a.time)
+#def plot(name_f_json,pixels,projection=1):    
 def plot(name_f_json,projection=1):    
     pulse_start=35000
     pulse_width=15000
     sweep_type='threshold'
     time_scale=140000
     # one for each ASIC
-    pixels=[(1,0)]
+    #pixels=[(0,1)]
+    pixels=get_pixels(name_f_json+'.json')
     matrix=[0,1,2]
     hits=(0,1,2,3,4,5,6,7)
     th_l=0x0
@@ -199,15 +201,6 @@ def get_proj_Y(hist_name,file_name,cut1,cut2,miny,maxy):
 #for bl in [8,310,434,576]:
 #for bl in [930,1365]:
 for bl in [930]:
-#for bl in [8,310,434,576,744,868,930,993,1117,1280,1365,1489]:
-#for bl in [310,434,576,744,868,930,993,1117,1280,1365,1489]:
-#for bl in [1117,1280,1365,1489]:
-#for bl in [930,993,1117,1280,1365,1489]:
-    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-28/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_59_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
-    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_11152017_board_192.168.3.28_run_15_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
-    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_11152017_board_192.168.3.28_run_14_BL_"+str(bl)+"_chargeInjectionEnbled_0_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
-    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_5_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
-    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_5_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
-    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_6_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
-    #plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_10132017_board_192.168.3.28_run_7_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep",1)  
+    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_11152017_board_192.168.3.28_run_29_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep_50ns_6p_v1",1)
+    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_11152017_board_192.168.3.28_run_29_BL_"+str(bl)+"_chargeInjectionEnbled_0_thN_0x6_PulseDelay_11199_PXTHsweep_50ns_6p_v1",1)
      
