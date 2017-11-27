@@ -86,9 +86,9 @@ def plot(name_f_json,projection=1):
             p1=a.pixel[0]
             p2=a.pixel[1]
             data_dic[(p1,p2)][a.matrix][a.index][a.threshold]=a.time
+    rootf = TFile(name_f_json+'.root',"RECREATE") 
     for key in data_dic: #pixel
         print(key)
-        rootf = TFile(name_f_json+'.root',"RECREATE") 
         for key1 in data_dic[key]: #matri2x
             h="hitnumber_pixel_"+str(key)+"_asic"+str(key1)+"_THsweep"
             h=TH1D(h,";Hit;Hits number",8,0,8)  
@@ -170,7 +170,7 @@ def plot(name_f_json,projection=1):
                 proj_x_all.Write()
                 proj_y_all.Write()
             
-        rootf.Close()     
+    rootf.Close()     
             
 def cut_area(cut_point1,cut_point2,x_name='threshold',y_name='time'):
     cut=TCutG("cut",4)
@@ -201,6 +201,6 @@ def get_proj_Y(hist_name,file_name,cut1,cut2,miny,maxy):
 #for bl in [8,310,434,576]:
 #for bl in [930,1365]:
 for bl in [930]:
-    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_11152017_board_192.168.3.28_run_29_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep_50ns_6p_v1",1)
-    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_11152017_board_192.168.3.28_run_29_BL_"+str(bl)+"_chargeInjectionEnbled_0_thN_0x6_PulseDelay_11199_PXTHsweep_50ns_6p_v1",1)
+    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_11152017_board_192.168.3.28_run_29_BL_"+str(bl)+"_chargeInjectionEnbled_1_thN_0x6_PulseDelay_11199_PXTHsweep_50ns_7p_v1",1)
+    plot("/u1/atlas-chess2-Asic-tests/data/data_h/pre-ampdata-02/chess2_scan_SCurveTest_11152017_board_192.168.3.28_run_29_BL_"+str(bl)+"_chargeInjectionEnbled_0_thN_0x6_PulseDelay_11199_PXTHsweep_50ns_7p_v1",1)
      
