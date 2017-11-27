@@ -28,7 +28,7 @@ def logfile(logfilename):
 #transfer the data
 def load_chess2_data(filename):
     for i in [2]:
-        file_data=open(sys.argv[1],'r')
+        file_data=open(filename,'r')
         for line in file_data.readlines():
             if ('Shape' in line):
                 shape_hist=re.findall('\d+',line)
@@ -37,7 +37,27 @@ def load_chess2_data(filename):
         data_1d=np.loadtxt(sys.argv[1])
         hists=data_1d.reshape(int(shape_hist[0]),int(shape_hist[1]),int(shape_hist[2]),int(shape_hist[3]))	
     return hists
-
+def get_pixels(filename):
+    file_data=open(filename,'r')
+    pixels=[]
+    for line in file_data.readlines():
+        a=re.findall('"pixel":..........',line)
+        #a=re.findall('"pixel"',line)
+        b=len(a)
+        a1_i=0
+        a1=[]
+        for b_i in range(b):
+            if b_i==0:
+                a1.append(a[b_i])
+            else:
+                if a[b_i]!=a1[-1]:
+                    a1.append(a[b_i])
+        for i in range(len(a1)):
+            pixel_i=re.findall(r"\d+\:?\d*",a1[i])
+            p_2=(int(pixel_i[0]),int(pixel_i[1]))
+            pixels.append(p_2)
+        print(pixels)
+    return pixels
 def get_values(filename):
     file_data=open(sys.argv[1],'r')
     line_count=0
