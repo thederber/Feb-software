@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2017-03-02
+-- Last update: 2018-01-16
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -107,7 +107,9 @@ entity AtlasChess2FebCore is
       bootMiso        : in    sl;
       -- XADC Ports
       vPIn            : in    sl;
-      vNIn            : in    sl);
+      vNIn            : in    sl;
+      -- Control signal
+      bufferControl   : out slv(31 downto 0));
 end AtlasChess2FebCore;
 
 architecture mapping of AtlasChess2FebCore is
@@ -115,7 +117,7 @@ architecture mapping of AtlasChess2FebCore is
    constant AXIL_CLK_FREQ_C : real := ite(COMM_MODE_G, 125.0E+6, 156.25E+6);
 
    constant NUM_AXIL_SLAVES_C  : natural := 2;
-   constant NUM_AXIL_MASTERS_C : natural := 6;
+   constant NUM_AXIL_MASTERS_C : natural := 7;
 
    constant SYS_INDEX_C    : natural := 0;
    constant DAC_INDEX_C    : natural := 1;
@@ -123,6 +125,7 @@ architecture mapping of AtlasChess2FebCore is
    constant CHESS2_INDEX_C : natural := 3;
    constant ETH_INDEX_C    : natural := 4;
    constant SACI_INDEX_C   : natural := 5;
+   constant IOBUFF_INDEX_C : natural := 6;
 
    constant SYS_ADDR_C    : slv(31 downto 0) := X"00000000";
    constant DAC_ADDR_C    : slv(31 downto 0) := X"00100000";
@@ -130,6 +133,7 @@ architecture mapping of AtlasChess2FebCore is
    constant CHESS2_ADDR_C : slv(31 downto 0) := X"00300000";
    constant ETH_ADDR_C    : slv(31 downto 0) := X"00400000";
    constant SACI_ADDR_C   : slv(31 downto 0) := X"01000000";
+   constant IOBUFF_ADDR_C : slv(31 downto 0) := X"00500000";
 
    constant AXIL_CROSSBAR_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXIL_MASTERS_C-1 downto 0) := (
       SYS_INDEX_C     => (
@@ -154,6 +158,10 @@ architecture mapping of AtlasChess2FebCore is
          connectivity => X"FFFF"),
       SACI_INDEX_C    => (
          baseAddr     => SACI_ADDR_C,
+         addrBits     => 24,
+         connectivity => X"FFFF"),
+      IOBUFF_INDEX_C  => (
+         baseAddr     => IOBUFF_ADDR_C,
          addrBits     => 24,
          connectivity => X"FFFF"));
 
@@ -200,6 +208,7 @@ architecture mapping of AtlasChess2FebCore is
 
 begin
 
+  
    --------------
    -- Misc. Ports
    --------------
@@ -343,7 +352,6 @@ begin
             gtRxN            => gtRxN,
             gtTxP            => gtTxP,
             gtTxN            => gtTxN);
-
    end generate;
 
    --------------------------
@@ -562,5 +570,20 @@ begin
          axilReadSlave   => mAxilReadSlaves(SACI_INDEX_C),
          axilWriteMaster => mAxilWriteMasters(SACI_INDEX_C),
          axilWriteSlave  => mAxilWriteSlaves(SACI_INDEX_C));
+
+   U_BUFFIO_CTRL: entity work.AtlasChess2FebBufferControl 
+   generic map (
+      TPD_G            => TPD_G,
+      AXI_ERROR_RESP_G => AXI_ERROR_RESP_G)
+   port map(
+      -- Control signal
+      bufferControl   => bufferControl,
+      -- AXI-Lite Interface
+      axilClk         => axilClk,
+      axilRst         => axilRst,
+      axilReadMaster  => mAxilReadMasters(IOBUFF_INDEX_C),
+      axilReadSlave   => mAxilReadSlaves(IOBUFF_INDEX_C),
+      axilWriteMaster => mAxilWriteMasters(IOBUFF_INDEX_C),
+      axilWriteSlave  => mAxilWriteSlaves(IOBUFF_INDEX_C));
 
 end mapping;

@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2017-03-02
+-- Last update: 2018-01-16
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -24,6 +24,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 use work.StdRtlPkg.all;
+
+library unisim;
+use unisim.vcomponents.all;
 
 entity AtlasChess2FebEth is
    generic (
@@ -99,8 +102,61 @@ end AtlasChess2FebEth;
 
 architecture top_level of AtlasChess2FebEth is
 
+
+  signal bufferControl : slv(31 downto 0);
+  signal testClksig :sl;
+  
 begin
 
+  -----------------------------------------------------------------------------
+  -- adding buffers to manually turn off pins
+  -----------------------------------------------------------------------------
+   OBUFT_inst : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => testClk,     -- Buffer output (connect directly to top-level port)
+      I => testClksig,     -- Buffer input
+      T => bufferControl(0)      -- 3-state enable input 
+   );
+
+--   IBUF_IBUFDISABLE_inst : IBUF_IBUFDISABLE
+--   generic map (
+--      IBUF_LOW_PWR => "TRUE", -- Low power (TRUE) vs. performance (FALSE) setting for referenced I/O standards
+--      IOSTANDARD => "DEFAULT", -- Specify the input I/O standard
+--      USE_IBUFDISABLE => "TRUE") -- Set to "TRUE" to enable IBUFDISABLE feature
+--   port map (
+--      O => O,     -- Buffer output
+--      I => I,     -- Buffer input (connect directly to top-level port)
+--      IBUFDISABLE => IBUFDISABLE -- Buffer disable input, low=disable
+--   );
+
+--   OBUFTDS_inst : OBUFTDS
+--   generic map (
+--      IOSTANDARD => "DEFAULT")
+--   port map (
+--      O => O,     -- Diff_p output (connect directly to top-level port)
+--      OB => OB,   -- Diff_n output (connect directly to top-level port)
+--      I => I,     -- Buffer input
+--      T => T      -- 3-state enable input
+--   );
+
+--   IBUFDS_IBUFDISABLE_inst : IBUFDS_IBUFDISABLE
+--   generic map (
+--      DIFF_TERM => "FALSE", -- Differential Termination 
+--      IBUF_LOW_PWR => "TRUE", -- Low power (TRUE) vs. performance (FALSE) setting for referenced I/O standards
+--      IOSTANDARD => "DEFAULT", -- Specify the input I/O standard
+--      USE_IBUFDISABLE => "TRUE") -- Set to "TRUE" to enable IBUFDISABLE feature
+--   port map (
+--      O => O,  -- Buffer output
+--      I => I,  -- Diff_p buffer input (connect directly to top-level port)
+--      IB => IB, -- Diff_n buffer input (connect directly to top-level port)
+--      IBUFDISABLE => IBUFDISABLE -- Buffer disable input, low=disable
+-- );
+
+   
    U_Core : entity work.AtlasChess2FebCore
       generic map (
          TPD_G         => TPD_G,
@@ -118,7 +174,7 @@ begin
          chessClk320MHzN => chessClk320MHzN,
          chessClk40MHz   => chessClk40MHz,
          -- Test Structure Ports
-         testClk         => testClk,
+         testClk         => testClksig,
          dacEnL          => dacEnL,
          term100         => term100,
          term300         => term300,
@@ -175,6 +231,7 @@ begin
          bootMiso        => bootMiso,
          -- XADC Ports
          vPIn            => vPIn,
-         vNIn            => vNIn);
+         vNIn            => vNIn,
+         bufferControl => bufferControl);
 
 end top_level;
