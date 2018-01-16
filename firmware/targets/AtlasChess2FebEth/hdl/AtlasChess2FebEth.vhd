@@ -247,12 +247,12 @@ begin
          chessClk40MHz   => chessClk40MHz,
          -- Test Structure Ports
          testClk         => testClksig,
-         dacEnL          => dacEnL,
-         term100         => term100,
-         term300         => term300,
-         lvdsTxSel       => lvdsTxSel,
-         acMode          => acMode,
-         bitSel          => bitSel,
+         dacEnL          => dacEnLsig,
+         term100         => term100sig,
+         term300         => term300sig,
+         lvdsTxSel       => lvdsTxSelsig,
+         acMode          => acModesig,
+         bitSel          => bitSelsig,
          injSig          => injSig,
          -- SACI Ports
          saciClk         => saciClk,
