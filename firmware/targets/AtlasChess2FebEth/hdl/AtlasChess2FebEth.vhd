@@ -104,14 +104,20 @@ architecture top_level of AtlasChess2FebEth is
 
 
   signal bufferControl : slv(31 downto 0);
-  signal testClksig :sl;
+  signal testClksig    : sl;
+  signal dacEnLsig     : sl;
+  signal term100sig    : sl;
+  signal term300sig    : sl;
+  signal lvdsTxSelsig  : sl;
+  signal acModesig     : sl;
+  signal bitSelsig     : sl;
   
 begin
 
   -----------------------------------------------------------------------------
   -- adding buffers to manually turn off pins
   -----------------------------------------------------------------------------
-   OBUFT_inst : OBUFT
+   OBUFT_testClk : OBUFT
    generic map (
       DRIVE => 12,
       IOSTANDARD => "DEFAULT",
@@ -120,6 +126,72 @@ begin
       O => testClk,     -- Buffer output (connect directly to top-level port)
       I => testClksig,     -- Buffer input
       T => bufferControl(0)      -- 3-state enable input 
+   );
+
+   OBUFT_dacEnL : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => dacEnL,     -- Buffer output (connect directly to top-level port)
+      I => dacEnLsig,     -- Buffer input
+      T => bufferControl(1)      -- 3-state enable input 
+   );
+
+   OBUFT_term100 : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => term100,     -- Buffer output (connect directly to top-level port)
+      I => term100sig,     -- Buffer input
+      T => bufferControl(2)      -- 3-state enable input 
+   );
+
+   OBUFT_term300 : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => term300,     -- Buffer output (connect directly to top-level port)
+      I => term300sig,     -- Buffer input
+      T => bufferControl(3)      -- 3-state enable input 
+   );
+
+   OBUFT_lvdsTxSel : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => lvdsTxSel,     -- Buffer output (connect directly to top-level port)
+      I => lvdsTxSelsig,     -- Buffer input
+      T => bufferControl(4)      -- 3-state enable input 
+   );
+
+   OBUFT_acModes : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => acMode,     -- Buffer output (connect directly to top-level port)
+      I => acModesig,     -- Buffer input
+      T => bufferControl(5)      -- 3-state enable input 
+   );
+
+   OBUFT_bitSel : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => bitSel,     -- Buffer output (connect directly to top-level port)
+      I => bitSelsig,     -- Buffer input
+      T => bufferControl(6)      -- 3-state enable input 
    );
 
 --   IBUF_IBUFDISABLE_inst : IBUF_IBUFDISABLE
