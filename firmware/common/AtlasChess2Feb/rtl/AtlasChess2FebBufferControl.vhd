@@ -90,7 +90,6 @@ begin
      
       -- Mapping registers     
       axiSlaveRegister (axilEp, x"00", 0, v.bufferControlReg);
-      axiSlaveRegister (axilEp, x"00", 0, v.bufferControlReg1);
 
       -- Close out the transaction
       axiSlaveDefault(axilEp, v.axilWriteSlave, v.axilReadSlave, AXI_ERROR_RESP_G);
