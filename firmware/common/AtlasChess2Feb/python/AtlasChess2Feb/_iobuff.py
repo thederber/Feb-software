@@ -27,6 +27,7 @@ class iobuff(pr.Device):
                         memBase=memBase, offset=offset, hidden=hidden, expand=expand)
                                              
         """Add a bit to every buffer"""
+        self.add(pr.Variable(name="IOBuffer", offset=offset, bitSize=31, bitOffset=0, base='hex', mode='RW', description=""))
         self.add(pr.Variable(name="IOBuffer_testClk", offset=offset, bitSize=1, bitOffset=0, base='bool', mode='RW', description=""))
         self.add(pr.Variable(name="IOBuffer_dacEnL", offset=offset, bitSize=1, bitOffset=1, base='bool', mode='RW', description=""))
         self.add(pr.Variable(name="IOBuffer_term100", offset=offset, bitSize=1, bitOffset=2, base='bool', mode='RW', description=""))

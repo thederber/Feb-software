@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2018-01-16
+-- Last update: 2018-01-17
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -81,12 +81,16 @@ begin
       -- Latch the current value
       v := r;
 
-      v.axilReadSlave.rdata := (others => '0');
       -- Determine the transaction type
       axiSlaveWaitTxn(axilEp, axilWriteMaster, axilReadMaster, v.axilWriteSlave, v.axilReadSlave);
+
+      if (axilReadMaster.rready = '1') then
+         v.axilReadSlave.rdata := (others => '0');
+      end if;
      
       -- Mapping registers     
       axiSlaveRegister (axilEp, x"00", 0, v.bufferControlReg);
+      axiSlaveRegister (axilEp, x"00", 0, v.bufferControlReg1);
 
       -- Close out the transaction
       axiSlaveDefault(axilEp, v.axilWriteSlave, v.axilReadSlave, AXI_ERROR_RESP_G);
