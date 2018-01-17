@@ -111,6 +111,11 @@ architecture top_level of AtlasChess2FebEth is
   signal lvdsTxSelsig  : sl;
   signal acModesig     : sl;
   signal bitSelsig     : sl;
+  signal saciClksig    : sl;
+  signal saciCmdsig    : sl;
+  signal saciRstLsig   : sl;  
+  signal saciSelLsig   : slv(3 downto 0);
+
   
 begin
 
@@ -194,6 +199,83 @@ begin
       T => bufferControl(6)      -- 3-state enable input 
    );
 
+   OBUFT_saciClk : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => saciClk,     -- Buffer output (connect directly to top-level port)
+      I => saciClksig,     -- Buffer input
+      T => bufferControl(7)      -- 3-state enable input 
+   );
+   
+   OBUFT_saciCmd : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => saciCmd,     -- Buffer output (connect directly to top-level port)
+      I => saciCmdsig,     -- Buffer input
+      T => bufferControl(8)      -- 3-state enable input 
+   );
+   
+   OBUFT_saciRstL : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => saciRstL,     -- Buffer output (connect directly to top-level port)
+      I => saciRstLsig,     -- Buffer input
+      T => bufferControl(9)      -- 3-state enable input 
+   );
+
+   OBUFT_saciSelL_0 : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => saciSelL(0),     -- Buffer output (connect directly to top-level port)
+      I => saciSelLsig(0),     -- Buffer input
+      T => bufferControl(10)      -- 3-state enable input 
+   );
+
+   OBUFT_saciSelL_1 : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => saciSelL(1),     -- Buffer output (connect directly to top-level port)
+      I => saciSelLsig(1),     -- Buffer input
+      T => bufferControl(11)      -- 3-state enable input 
+   );
+
+   OBUFT_saciSelL_2 : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => saciSelL(2),     -- Buffer output (connect directly to top-level port)
+      I => saciSelLsig(2),     -- Buffer input
+      T => bufferControl(12)      -- 3-state enable input 
+   );
+
+   OBUFT_saciSelL_3 : OBUFT
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => saciSelL(3),     -- Buffer output (connect directly to top-level port)
+      I => saciSelLsig(3),     -- Buffer input
+      T => bufferControl(13)      -- 3-state enable input 
+   );
+  
 --   IBUF_IBUFDISABLE_inst : IBUF_IBUFDISABLE
 --   generic map (
 --      IBUF_LOW_PWR => "TRUE", -- Low power (TRUE) vs. performance (FALSE) setting for referenced I/O standards
@@ -255,10 +337,10 @@ begin
          bitSel          => bitSelsig,
          injSig          => injSig,
          -- SACI Ports
-         saciClk         => saciClk,
-         saciCmd         => saciCmd,
-         saciRstL        => saciRstL,
-         saciSelL        => saciSelL,
+         saciClk         => saciClksig,
+         saciCmd         => saciCmdsig,
+         saciRstL        => saciRstLsig,
+         saciSelL        => saciSelLsig,
          saciRsp         => saciRsp,
          -- DAC Ports
          dacSlowCsL      => dacSlowCsL,
