@@ -42,7 +42,7 @@ class feb(pr.Device):
         self.add(surf.Xadc(                offset=0x00010000,expand=False))  
         self.add(AtlasChess2Feb.sysReg(    offset=0x00030000,expand=False))    
         self.add(AtlasChess2Feb.memReg(    offset=0x00040000,expand=True))    
-        self.add(AtlasChess2Feb.iobuff(    offset=0x00050000,expand=False))    
+        self.add(AtlasChess2Feb.iobuff(    offset=0x00500000,expand=False))    
         self.add(AtlasChess2Feb.dac(       offset=0x00100000,expand=False))                
         self.add(AtlasChess2Feb.chargeInj( offset=0x00330000,expand=False))   
                 
