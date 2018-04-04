@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-02
--- Last update: 2018-04-03
+-- Last update: 2018-04-04
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -309,39 +309,6 @@ begin
    ---------------------------------------
    -- TDEST = 0x0: Register access control   
    ---------------------------------------
-   --U_SRPv0 : entity work.SrpV0AxiLite
-   --   generic map (
-   --      TPD_G               => TPD_G,
-   --      RESP_THOLD_G        => 1,
-   --      SLAVE_READY_EN_G    => true,
-   --      EN_32BIT_ADDR_G     => true,
-   --      BRAM_EN_G           => true,
-   --      XIL_DEVICE_G        => "7SERIES",
-   --      USE_BUILT_IN_G      => false,
-   --      ALTERA_SYN_G        => false,
-   --      ALTERA_RAM_G        => "M9K",
-   --      GEN_SYNC_FIFO_G     => true,
-   --      FIFO_ADDR_WIDTH_G   => 9,
-   --      FIFO_PAUSE_THRESH_G => 2**8,
-   --      AXI_STREAM_CONFIG_G => AXIS_CONFIG_C(0))            
-   --   port map (
-   --      -- Streaming Slave (Rx) Interface (sAxisClk domain) 
-   --      sAxisClk            => ethClk,
-   --      sAxisRst            => ethRst,
-   --      sAxisMaster         => rssiObMasters(0),
-   --      sAxisSlave          => rssiObSlaves(0),
-   --      -- Streaming Master (Tx) Data Interface (mAxisClk domain)
-   --      mAxisClk            => ethClk,
-   --      mAxisRst            => ethRst,
-   --      mAxisMaster         => rssiIbMasters(0),
-   --      mAxisSlave          => rssiIbSlaves(0),
-   --      -- AXI Lite Bus (axiLiteClk domain)
-   --      axiLiteClk          => ethClk,
-   --      axiLiteRst          => ethRst,
-   --      mAxiLiteReadMaster  => mAxilReadMasters(0),
-   --      mAxiLiteReadSlave   => mAxilReadSlaves(0),
-   --      mAxiLiteWriteMaster => mAxilWriteMasters(0),
-   --      mAxiLiteWriteSlave  => mAxilWriteSlaves(0));       
    U_SRPv3 : entity work.SrpV3AxiLite
       generic map (
          TPD_G               => TPD_G,
@@ -399,41 +366,30 @@ begin
    -- Non-RSSI Development Path 
    ----------------------------   
    GEN_DEBUG_SRP : if (DEV_G = true) generate
-      
-      U_SRPv0_Debug : entity work.SrpV0AxiLite
-         generic map (
-            TPD_G               => TPD_G,
-            RESP_THOLD_G        => 1,
-            SLAVE_READY_EN_G    => true,
-            EN_32BIT_ADDR_G     => true,
-            BRAM_EN_G           => true,
-            XIL_DEVICE_G        => "7SERIES",
-            USE_BUILT_IN_G      => false,
-            ALTERA_SYN_G        => false,
-            ALTERA_RAM_G        => "M9K",
-            GEN_SYNC_FIFO_G     => true,
-            FIFO_ADDR_WIDTH_G   => 9,
-            FIFO_PAUSE_THRESH_G => 2**8,
-            AXI_STREAM_CONFIG_G => EMAC_AXIS_CONFIG_C)            
-         port map (
-            -- Streaming Slave (Rx) Interface (sAxisClk domain) 
-            sAxisClk            => ethClk,
-            sAxisRst            => ethRst,
-            sAxisMaster         => obServerMasters(1),
-            sAxisSlave          => obServerSlaves(1),
-            -- Streaming Master (Tx) Data Interface (mAxisClk domain)
-            mAxisClk            => ethClk,
-            mAxisRst            => ethRst,
-            mAxisMaster         => ibServerMasters(1),
-            mAxisSlave          => ibServerSlaves(1),
-            -- AXI Lite Bus (axiLiteClk domain)
-            axiLiteClk          => ethClk,
-            axiLiteRst          => ethRst,
-            mAxiLiteReadMaster  => mAxilReadMasters(1),
-            mAxiLiteReadSlave   => mAxilReadSlaves(1),
-            mAxiLiteWriteMaster => mAxilWriteMasters(1),
-            mAxiLiteWriteSlave  => mAxilWriteSlaves(1));        
-
+      U_SRPv3_Debug : entity work.SrpV3AxiLite
+        generic map (
+          TPD_G               => TPD_G,
+          SLAVE_READY_EN_G    => true,
+          GEN_SYNC_FIFO_G     => false,
+          AXI_STREAM_CONFIG_G => EMAC_AXIS_CONFIG_C)
+        port map (
+          -- Streaming Slave (Rx) Interface (sAxisClk domain) 
+          sAxisClk         => ethClk,
+          sAxisRst         => ethRst,
+          sAxisMaster      => obServerMasters(1),
+          sAxisSlave       => obServerSlaves(1),
+          -- Streaming Master (Tx) Data Interface (mAxisClk domain)
+          mAxisClk         => ethClk,
+          mAxisRst         => ethRst,
+          mAxisMaster      => ibServerMasters(1),
+          mAxisSlave       => ibServerSlaves(1),
+          -- Master AXI-Lite Interface (axilClk domain)
+          axilClk          => ethClk,
+          axilRst          => ethRst,
+          mAxilReadMaster  => mAxilReadMasters(1),
+          mAxilReadSlave   => mAxilReadSlaves(1),
+          mAxilWriteMaster => mAxilWriteMasters(1),
+          mAxilWriteSlave  => mAxilWriteSlaves(1));
 
       U_XBAR : entity work.AxiLiteCrossbar
          generic map (

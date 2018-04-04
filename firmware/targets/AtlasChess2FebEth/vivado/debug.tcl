@@ -45,7 +45,7 @@ SetDebugCoreClk ${ilaName} {U_Core/axilClk}
 #######################
 
 ConfigProbe ${ilaName} {U_Core/ethReady}
-ConfigProbe ${ilaName} {U_Core/rssiStatus}
+ConfigProbe ${ilaName} {U_Core/rssiStatus[*]}
 ConfigProbe ${ilaName} {U_Core/chessMaster[*]}
 #ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[0][*]}
 #ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[1][*]}

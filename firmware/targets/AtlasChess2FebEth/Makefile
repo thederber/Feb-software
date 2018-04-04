@@ -12,7 +12,7 @@ export GIT_BYPASS = 1
 ## 08/23/2017 (0x00000007): Adding charge inj pulse delay.
 ## 08/23/2017 (0x00000008): Increasing the number of detected hit to 8.
 ##########################################################################
-export PRJ_VERSION = 0x00000009
+export PRJ_VERSION = 0x0000000A
 
 # Define target output
 target: prom

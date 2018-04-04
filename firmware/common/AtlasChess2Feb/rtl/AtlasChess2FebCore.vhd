@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2018-04-03
+-- Last update: 2018-04-04
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -205,6 +205,11 @@ architecture mapping of AtlasChess2FebCore is
    signal timingTrig      : sl;
    signal timingMsg       : slv(63 downto 0) := (others => '0');
    signal evrOpCode       : slv(7 downto 0);
+
+   attribute dont_touch                   : string;
+   attribute dont_touch of ethReady       : signal is "TRUE";
+   attribute dont_touch of rssiStatus     : signal is "TRUE";
+   attribute dont_touch of chessMaster    : signal is "TRUE";
 
 begin
 
