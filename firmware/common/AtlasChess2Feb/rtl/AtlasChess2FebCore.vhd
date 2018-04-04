@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-01
--- Last update: 2018-01-16
+-- Last update: 2018-04-03
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -550,7 +550,6 @@ begin
    U_SACI : entity work.AxiLiteSaciMaster
       generic map (
          TPD_G              => TPD_G,
-         AXIL_ERROR_RESP_G  => AXI_ERROR_RESP_G,
          AXIL_CLK_PERIOD_G  => (1.0/AXIL_CLK_FREQ_C),  -- In units of seconds
          AXIL_TIMEOUT_G     => 1.0E-1,  -- In units of seconds
          SACI_CLK_PERIOD_G  => (1.0/10.0E+6),  -- In units of seconds               

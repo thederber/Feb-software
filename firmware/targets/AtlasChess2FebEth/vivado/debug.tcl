@@ -37,24 +37,28 @@ set_property C_DATA_DEPTH 2048 [get_debug_cores ${ilaName}]
 #################################
 ## Set the clock for the ILA core
 #################################
-SetDebugCoreClk ${ilaName} {U_Core/U_Asic/U_ChargeInj/timingClk320MHz}
+#SetDebugCoreClk ${ilaName} {U_Core/U_Asic/U_ChargeInj/timingClk320MHz}
+SetDebugCoreClk ${ilaName} {U_Core/axilClk}
 
 #######################
 ## Set the debug Probes
 #######################
 
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[0][*]}
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[1][*]}
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[2][*]}
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/dataValid[*]}
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/timer[*]}
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDetIndex[*]}
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_Chess[0].U_Rx/chessDin[*]}
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_Chess[1].U_Rx/chessDin[*]}
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_Chess[2].U_Rx/chessDin[*]}
+ConfigProbe ${ilaName} {U_Core/ethReady}
+ConfigProbe ${ilaName} {U_Core/rssiStatus}
+ConfigProbe ${ilaName} {U_Core/chessMaster[*]}
+#ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[0][*]}
+#ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[1][*]}
+#ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[2][*]}
+#ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/dataValid[*]}
+#ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/timer[*]}
+#ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDetIndex[*]}
+#ConfigProbe ${ilaName} {U_Core/U_Asic/U_Chess[0].U_Rx/chessDin[*]}
+#ConfigProbe ${ilaName} {U_Core/U_Asic/U_Chess[1].U_Rx/chessDin[*]}
+#ConfigProbe ${ilaName} {U_Core/U_Asic/U_Chess[2].U_Rx/chessDin[*]}
 
 
-ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/calPulse}
+#ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/calPulse}
 
 ##########################
 ## Write the port map file

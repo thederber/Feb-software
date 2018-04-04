@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2017-03-02
+-- Last update: 2018-04-03
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -242,7 +242,6 @@ begin
       generic map (
          TPD_G              => TPD_G,
          BUILD_INFO_G       => BUILD_INFO_G,
-         AXI_ERROR_RESP_G   => AXI_ERROR_RESP_G,
          CLK_PERIOD_G       => (1.0/AXI_CLK_FREQ_G),
          XIL_DEVICE_G       => "7SERIES",
          EN_DEVICE_DNA_G    => true,
@@ -284,7 +283,6 @@ begin
    U_BootProm : entity work.AxiMicronN25QCore
       generic map (
          TPD_G            => TPD_G,
-         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G,
          MEM_ADDR_MASK_G  => x"00000000",  -- Using hardware write protection
          AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G,        -- units of Hz
          SPI_CLK_FREQ_G   => (AXI_CLK_FREQ_G/8.0))  -- units of Hz
@@ -381,7 +379,6 @@ begin
          TPD_G            => TPD_G,
          DEVICE_MAP_G     => PWR_I2C_C,
          I2C_SCL_FREQ_G   => 400.0E+3,  -- units of Hz
-         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G,
          AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G)
       port map (
          -- I2C Ports
@@ -405,7 +402,6 @@ begin
          ADDR_WIDTH_G     => 13,
          I2C_ADDR_G       => "1010000",
          I2C_SCL_FREQ_G   => 400.0E+3,  -- units of Hz
-         AXI_ERROR_RESP_G => AXI_ERROR_RESP_G,
          AXI_CLK_FREQ_G   => AXI_CLK_FREQ_G)
       port map (
          -- I2C Ports

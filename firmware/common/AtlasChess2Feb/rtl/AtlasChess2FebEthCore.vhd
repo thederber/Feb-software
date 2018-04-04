@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-02
--- Last update: 2016-12-02
+-- Last update: 2018-04-03
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -309,40 +309,63 @@ begin
    ---------------------------------------
    -- TDEST = 0x0: Register access control   
    ---------------------------------------
-   U_SRPv0 : entity work.SrpV0AxiLite
+   --U_SRPv0 : entity work.SrpV0AxiLite
+   --   generic map (
+   --      TPD_G               => TPD_G,
+   --      RESP_THOLD_G        => 1,
+   --      SLAVE_READY_EN_G    => true,
+   --      EN_32BIT_ADDR_G     => true,
+   --      BRAM_EN_G           => true,
+   --      XIL_DEVICE_G        => "7SERIES",
+   --      USE_BUILT_IN_G      => false,
+   --      ALTERA_SYN_G        => false,
+   --      ALTERA_RAM_G        => "M9K",
+   --      GEN_SYNC_FIFO_G     => true,
+   --      FIFO_ADDR_WIDTH_G   => 9,
+   --      FIFO_PAUSE_THRESH_G => 2**8,
+   --      AXI_STREAM_CONFIG_G => AXIS_CONFIG_C(0))            
+   --   port map (
+   --      -- Streaming Slave (Rx) Interface (sAxisClk domain) 
+   --      sAxisClk            => ethClk,
+   --      sAxisRst            => ethRst,
+   --      sAxisMaster         => rssiObMasters(0),
+   --      sAxisSlave          => rssiObSlaves(0),
+   --      -- Streaming Master (Tx) Data Interface (mAxisClk domain)
+   --      mAxisClk            => ethClk,
+   --      mAxisRst            => ethRst,
+   --      mAxisMaster         => rssiIbMasters(0),
+   --      mAxisSlave          => rssiIbSlaves(0),
+   --      -- AXI Lite Bus (axiLiteClk domain)
+   --      axiLiteClk          => ethClk,
+   --      axiLiteRst          => ethRst,
+   --      mAxiLiteReadMaster  => mAxilReadMasters(0),
+   --      mAxiLiteReadSlave   => mAxilReadSlaves(0),
+   --      mAxiLiteWriteMaster => mAxilWriteMasters(0),
+   --      mAxiLiteWriteSlave  => mAxilWriteSlaves(0));       
+   U_SRPv3 : entity work.SrpV3AxiLite
       generic map (
          TPD_G               => TPD_G,
-         RESP_THOLD_G        => 1,
          SLAVE_READY_EN_G    => true,
-         EN_32BIT_ADDR_G     => true,
-         BRAM_EN_G           => true,
-         XIL_DEVICE_G        => "7SERIES",
-         USE_BUILT_IN_G      => false,
-         ALTERA_SYN_G        => false,
-         ALTERA_RAM_G        => "M9K",
-         GEN_SYNC_FIFO_G     => true,
-         FIFO_ADDR_WIDTH_G   => 9,
-         FIFO_PAUSE_THRESH_G => 2**8,
-         AXI_STREAM_CONFIG_G => AXIS_CONFIG_C(0))            
+         GEN_SYNC_FIFO_G     => false,
+         AXI_STREAM_CONFIG_G => AXIS_CONFIG_C(0))
       port map (
          -- Streaming Slave (Rx) Interface (sAxisClk domain) 
-         sAxisClk            => ethClk,
-         sAxisRst            => ethRst,
-         sAxisMaster         => rssiObMasters(0),
-         sAxisSlave          => rssiObSlaves(0),
+         sAxisClk         => ethClk,
+         sAxisRst         => ethRst,
+         sAxisMaster      => rssiObMasters(0),
+         sAxisSlave       => rssiObSlaves(0),
          -- Streaming Master (Tx) Data Interface (mAxisClk domain)
-         mAxisClk            => ethClk,
-         mAxisRst            => ethRst,
-         mAxisMaster         => rssiIbMasters(0),
-         mAxisSlave          => rssiIbSlaves(0),
-         -- AXI Lite Bus (axiLiteClk domain)
-         axiLiteClk          => ethClk,
-         axiLiteRst          => ethRst,
-         mAxiLiteReadMaster  => mAxilReadMasters(0),
-         mAxiLiteReadSlave   => mAxilReadSlaves(0),
-         mAxiLiteWriteMaster => mAxilWriteMasters(0),
-         mAxiLiteWriteSlave  => mAxilWriteSlaves(0));       
-
+         mAxisClk         => ethClk,
+         mAxisRst         => ethRst,
+         mAxisMaster      => rssiIbMasters(0),
+         mAxisSlave       => rssiIbSlaves(0),
+         -- Master AXI-Lite Interface (axilClk domain)
+         axilClk          => ethClk,
+         axilRst          => ethRst,
+         mAxilReadMaster  => mAxilReadMasters(0),
+         mAxilReadSlave   => mAxilReadSlaves(0),
+         mAxilWriteMaster => mAxilWriteMasters(0),
+         mAxilWriteSlave  => mAxilWriteSlaves(0));
    -----------------------------------------------------
    -- TDEST = 0x1: Streaming CHESS2 Data Interface  
    -- TDEST = 0x1: Emulate PGP's non-VC Timing Interface  

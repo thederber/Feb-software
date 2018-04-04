@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-02
--- Last update: 2016-11-16
+-- Last update: 2018-04-03
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -147,7 +147,6 @@ begin
    U_PgpMon : entity work.Pgp2bAxi
       generic map (
          TPD_G              => TPD_G,
-         AXI_ERROR_RESP_G   => AXI_ERROR_RESP_G,
          COMMON_TX_CLK_G    => true,
          COMMON_RX_CLK_G    => true,
          WRITE_EN_G         => false,
