@@ -76,15 +76,10 @@ class sysReg(pr.Device):
         self.add(pr.RemoteVariable(name='rollOverEn',description='RollOverEn',
                 offset=0xf00, bitSize=1, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW'))
 
-        self.add(pr.Command(name='counterReset',description='CounterReset',
+        self.add(pr.RemoteCommand(name='counterReset',description='CounterReset',
                             offset = 0xf10, bitSize = 1, bitOffset = 0, function=pr.Command.touch))                
                                  
-        self.add(pr.RemoteVariable(name = "softTrigVar", description = "Software Trigger",
-                offset=0xf14, bitSize=1, bitOffset=0, base=pr.Bool, mode='SL', hidden=True)) 
-        self.add(pr.Command(name='softTrig',description='Software Trigger',base='None',
-                function="""\
-                        dev.softTrigVar.set(1)
-                        """))                
+        self.add(pr.RemoteCommand(name='softTrig',description='Software Trigger', offset=0xf14, bitSize=1, bitOffset=0, function = pr.BaseCommand.toggle))                
                         
         self.add(pr.RemoteVariable(name='softResetReg',description='SoftReset',
                 offset=0xff8, bitSize=1, bitOffset=0, base=pr.Bool, mode='SL', hidden=True))

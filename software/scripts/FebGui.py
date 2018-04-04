@@ -83,7 +83,7 @@ class MyRunControl(pyrogue.RunControl):
 ##############################
 class System(pyrogue.Root):
     def __init__(self, guiTop, cmd, dataWriter, srp, **kwargs):
-        super().__init__(name='ePixHRGen1',description='ePix HR No ASIC', **kwargs)
+        super().__init__(name='System',description='Front End Board', **kwargs)
         self.add(dataWriter)
         self.guiTop = guiTop
 
@@ -129,7 +129,6 @@ def gui(arg):
         pyrogue.streamConnect(cmd, pgpVc0)
 
         # Create and Connect SRPv0 to VC1
-        srp = rogue.protocols.srp.SrpV3()
         pyrogue.streamConnectBiDir(pgpVc1,srp)
         
         # Add data stream to file as channel 1
@@ -141,10 +140,9 @@ def gui(arg):
         ethLink = pyrogue.protocols.UdpRssiPack(host=arg,port=8192,jumbo=1400)    
 
         #connect commands to  VC0
-        #pyrogue.streamConnect(cmd, ethLink.application(0))
+        pyrogue.streamConnect(cmd, ethLink.application(0))
     
-        # Create and Connect SRPv3 to AxiStream.tDest = 0x0
-        srp = rogue.protocols.srp.SrpV3()  
+        # Create and Connect SRPv3 to AxiStream.tDest = 0x0      
         pyrogue.streamConnectBiDir(srp,ethLink.application(0))
 
         # Add data stream to file as channel 1 to tDest = 0x1
@@ -155,7 +153,7 @@ def gui(arg):
     
  
     # Create GUI
-    system.start(pollEn=False, pyroGroup=None, pyroHost=None)
+    system.start(pollEn=True, pyroGroup=None, pyroHost=None)
     guiTop.addTree(system)
     guiTop.resize(800,1000)
 

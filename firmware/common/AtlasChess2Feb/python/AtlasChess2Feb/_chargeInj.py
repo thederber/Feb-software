@@ -48,13 +48,9 @@ class chargeInj(pr.Device):
                 self.add(pr.RemoteVariable(name='hitDetRow%01i_%01i'%(i,j),   offset=(4*i+((j+1)*16)), bitSize=7, bitOffset=0,  base=pr.UInt, disp = '{:#x}', mode='RO'))
                 self.add(pr.RemoteVariable(name='hitDetTimeRaw%01i_%01i'%(i,j), units="1/320MHz", description=' ', offset=(4*i+((j+1)*16)), bitSize=16, bitOffset=16, base=pr.UInt, disp = '{:#x}', mode='RO')) 
                 self.add(pr.LinkVariable(name='hitDetTime%01i_%01i'%(i,j), mode = 'RO', units="ns", linkedGet=self.nsTdc, dependencies=[self.variables['hitDetTimeRaw%01i_%01i'%(i,j)]]))
-                
-                
-        self.add(pr.RemoteVariable(name = "calPulseVar", description = "Calibration Pulse", offset=0x10, bitSize=1, bitOffset=0, base=pr.Bool, mode='SL', hidden=True)) 
-        self.add(pr.Command(name='calPulse',description='Calibration Pulse',base='None', 
-                function="""\
-                        dev.calPulseVar.set(1)
-                        """))                     
+        
+        self.add(pr.RemoteCommand(name='calPulse', offset=0x10, bitSize=1, bitOffset=0, function = pr.BaseCommand.toggle))
+
                 
     @staticmethod
     def nsTdc(dev, var):
