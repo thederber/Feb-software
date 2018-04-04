@@ -22,17 +22,14 @@
 import pyrogue as pr
 
 class dac(pr.Device):
-    def __init__(self, name="dac", memBase=None, offset=0, hidden=False, expand=True):
-        super(self.__class__, self).__init__(name, "Configurations the DAC module",
-                        memBase=memBase, offset=offset, hidden=hidden, expand=expand)
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__(**kwargs) 
                                              
         def addPair(name, description, offset):
             """Add a Raw ADC register variable and corresponding converted value Variable"""
-            self.add(pr.Variable(name=name+"Raw", offset=offset, bitSize=12, bitOffset=0, units="3.3V/4095",
-                                 base='hex', mode='RW', description=description))
+            self.add(pr.RemoteVariable(name=name+"Raw", offset=offset, bitSize=12, bitOffset=0, units="3.3V/4095", base=pr.UInt, disp = '{:#x}', mode='RW', description=description))
             
-            self.add(pr.Variable(name=name, mode = 'RO', base='string', units='V',
-                                 getFunction=dac.convtFloat, dependencies=[self.variables[name+"Raw"]]))
+            self.add(pr.LinkVariable(name=name, linkedGet=dac.convtFloat, dependencies=[self.variables[name+"Raw"]]))
 
         addPair(name='dacCASC',     description='DAC CASC',         offset=0x00000)
         addPair(name='dacPIXTH',    description='DAC PIXTH',        offset=0x00004)

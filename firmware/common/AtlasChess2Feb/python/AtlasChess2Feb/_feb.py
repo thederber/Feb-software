@@ -22,13 +22,17 @@
 import pyrogue as pr
 
 import surf
-import surf.AxiVersion
+import surf.axi as axi
+import surf.xilinx as xilinx
 import AtlasChess2Feb
 
 class feb(pr.Device):
-    def __init__(self, name="feb", memBase=None, offset=0, hidden=False):
-        super(self.__class__, self).__init__(name, "FEB Module",
-                                             memBase=memBase, offset=offset, hidden=hidden)
+    def __init__(self, **kwargs):
+
+        if 'description' not in kwargs:
+            kwargs['description'] = "HR Gen1 FPGA"
+
+        super(self.__class__, self).__init__(**kwargs)
         ######################################
         # SACI base address and address stride 
         ######################################
@@ -38,18 +42,18 @@ class feb(pr.Device):
         #############
         # Add devices
         #############
-        self.add(surf.AxiVersion.create(   offset=0x00000000,expand=False))
-        self.add(surf.Xadc(                offset=0x00010000,expand=False))  
-        self.add(AtlasChess2Feb.sysReg(    offset=0x00030000,expand=False))    
-        self.add(AtlasChess2Feb.memReg(    offset=0x00040000,expand=True))    
-        self.add(AtlasChess2Feb.iobuff(    offset=0x00500000,expand=False))    
-        self.add(AtlasChess2Feb.dac(       offset=0x00100000,expand=False))                
-        self.add(AtlasChess2Feb.chargeInj( offset=0x00330000,expand=False))   
+        self.add(axi.AxiVersion(                            offset=0x00000000,expand=False))
+        #self.add(xilinx.Xadc(                               offset=0x00010000,expand=False))  
+        #self.add(AtlasChess2Feb.sysReg(   name="sysreg",    offset=0x00030000,expand=False))    
+        #self.add(AtlasChess2Feb.memReg(   name="memReg",    offset=0x00040000,expand=True))    
+        #self.add(AtlasChess2Feb.iobuff(   name="iobuff",    offset=0x00500000,expand=False))    
+        #self.add(AtlasChess2Feb.dac(      name="dac",       offset=0x00100000,expand=False))                
+        #self.add(AtlasChess2Feb.chargeInj(name="chargeInj", offset=0x00330000,expand=False))   
                 
-        for i in range(3):
-            self.add(AtlasChess2Feb.Chess2Array( 
-                name='Chess2Ctrl%01i'%(i),
-                offset=(saciAddr + i*saciChip),enabled=False,expand=False))   
+        #for i in range(3):
+        #    self.add(AtlasChess2Feb.Chess2Array( 
+        #        name='Chess2Ctrl%01i'%(i),
+        #        offset=(saciAddr + i*saciChip),enabled=False,expand=False))   
                 
-        self.add(AtlasChess2Feb.Chess2Test(offset=saciAddr+(3*saciChip),enabled=False,expand=False))
+        #self.add(AtlasChess2Feb.Chess2Test(name="Chess2Test", offset=saciAddr+(3*saciChip),enabled=False,expand=False))
         

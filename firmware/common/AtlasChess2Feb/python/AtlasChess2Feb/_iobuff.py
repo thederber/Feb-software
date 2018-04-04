@@ -22,24 +22,24 @@
 import pyrogue as pr
 
 class iobuff(pr.Device):
-    def __init__(self, name="iobuff", memBase=None, offset=0, hidden=False, expand=True):
-        super(self.__class__, self).__init__(name, "Configure IO buffer tristate",
-                        memBase=memBase, offset=offset, hidden=hidden, expand=expand)
-                                             
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__(**kwargs)
+        
+                                       
         """Add a bit to every buffer"""
-        self.add(pr.Variable(name="IOBuffer_Disable",            offset=offset, bitSize=31, bitOffset=0,  base='hex',  mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_testClk_Disable",    offset=offset, bitSize=1,  bitOffset=0,  base='bool', mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_dacEnL_Disable",     offset=offset, bitSize=1,  bitOffset=1,  base='bool', mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_term100_Disable",    offset=offset, bitSize=1,  bitOffset=2,  base='bool', mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_term300_Disable",    offset=offset, bitSize=1,  bitOffset=3,  base='bool', mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_lvdsTxSel_Disable",  offset=offset, bitSize=1,  bitOffset=4,  base='bool', mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_acMode_Disable",     offset=offset, bitSize=1,  bitOffset=5,  base='bool', mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_bitSel_Disable",     offset=offset, bitSize=1,  bitOffset=6,  base='bool', mode='RW', description=""))
+        #self.add(pr.Variable(name="IOBuffer_Disable",            offset=0x000, bitSize=31, bitOffset=0,  base='hex',  mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_testClk_Disable",    offset=0x000, bitSize=1,  bitOffset=0,  base=pr.Bool, mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_dacEnL_Disable",     offset=0x000, bitSize=1,  bitOffset=1,  base=pr.Bool, mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_term100_Disable",    offset=0x000, bitSize=1,  bitOffset=2,  base=pr.Bool, mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_term300_Disable",    offset=0x000, bitSize=1,  bitOffset=3,  base=pr.Bool, mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_lvdsTxSel_Disable",  offset=0x000, bitSize=1,  bitOffset=4,  base=pr.Bool, mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_acMode_Disable",     offset=0x000, bitSize=1,  bitOffset=5,  base=pr.Bool, mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_bitSel_Disable",     offset=0x000, bitSize=1,  bitOffset=6,  base=pr.Bool, mode='RW', description=""))
         #
-        self.add(pr.Variable(name="IOBuffer_saciClk_Disable",    offset=offset, bitSize=1,  bitOffset=7,  base='bool', mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_saciCmd_Disable",    offset=offset, bitSize=1,  bitOffset=8,  base='bool', mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_saciRstL_Disable",   offset=offset, bitSize=1,  bitOffset=9,  base='bool', mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_saciSelL_0_Disable", offset=offset, bitSize=1,  bitOffset=10, base='bool', mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_saciSelL_1_Disable", offset=offset, bitSize=1,  bitOffset=11, base='bool', mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_saciSelL_2_Disable", offset=offset, bitSize=1,  bitOffset=12, base='bool', mode='RW', description=""))
-        self.add(pr.Variable(name="IOBuffer_saciSelL_3_Disable", offset=offset, bitSize=1,  bitOffset=13, base='bool', mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_saciClk_Disable",    offset=0x000, bitSize=1,  bitOffset=7,  base=pr.Bool, mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_saciCmd_Disable",    offset=0x000, bitSize=1,  bitOffset=8,  base=pr.Bool, mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_saciRstL_Disable",   offset=0x000, bitSize=1,  bitOffset=9,  base=pr.Bool, mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_saciSelL_0_Disable", offset=0x000, bitSize=1,  bitOffset=10, base=pr.Bool, mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_saciSelL_1_Disable", offset=0x000, bitSize=1,  bitOffset=11, base=pr.Bool, mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_saciSelL_2_Disable", offset=0x000, bitSize=1,  bitOffset=12, base=pr.Bool, mode='RW', description=""))
+        self.add(pr.RemoteVariable(name="IOBuffer_saciSelL_3_Disable", offset=0x000, bitSize=1,  bitOffset=13, base=pr.Bool, mode='RW', description=""))

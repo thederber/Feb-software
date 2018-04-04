@@ -22,28 +22,23 @@
 import pyrogue as pr
                 
 class matrix(pr.Device):
-    def __init__(self, name="matrix"):
-        super(self.__class__, self).__init__(name, "CHESS2 Matrix Data",
-                        memBase=None, hidden=True, expand=False)
-        # Init the variables to all ones (Note: all config bits are active LOW)
-        self._pixel     = [[0x3F for row in range(128)] for col in range(32)]
-        
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__(**kwargs)
+          
         # Create the PyRogue software variables
         for col in range(32):
             for row in range(128):
-                # Common string
-                pixel = 'col%02irow%03i'%(col,row)
                 # Add the software variables
-                self.add(pr.Variable(name=(pixel), 
+                self.add(pr.LocalVariable(name=f'Pixel[{col}][{row}]', 
                         description='Pixel Configuration',
-                        base='hex', mode='RW',bitSize=6,
-                        setFunction='dev._pixel[%d][%d] = value'%(col,row),
-                        getFunction='value = dev._pixel[%d][%d]'%(col,row)))
+                        mode='RW',
+                        value = 0x3f))
+
+
                         
 class Chess2Array(pr.Device):
-    def __init__(self, name="Chess2Array", memBase=None, offset=0, hidden=False, expand=True, enabled=False):
-        super(self.__class__, self).__init__(name, "CHESS2 Array Interface",
-                        memBase=memBase, offset=offset, hidden=hidden, expand=expand, enabled=enabled)        
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__(**kwargs)       
         #################################################################################################
         # Using the atlas-chess2/firmware/submodules/surf/protocols/saci/rtl/AxiLiteSaciMaster.vhd module
         # AXI_Lite_Address[31:24] = Ignored
@@ -79,81 +74,81 @@ class Chess2Array(pr.Device):
         # Define all the non-global registers (A.K.A commands)
         ######################################################
                         
-        self.add(pr.Variable(name='StartMatrixConfig',description='START Matrix Configuration',
-            offset=(cmd0x8), bitSize=32, bitOffset=0, base='bool', mode='WO', hidden=True))     
+        self.add(pr.RemoteVariable(name='StartMatrixConfig',description='START Matrix Configuration',
+            offset=(cmd0x8), bitSize=32, bitOffset=0, base=pr.Bool, mode='WO', hidden=True))     
 
-        self.add(pr.Variable(name='WritePixel',description='Write Pixel',
-            offset=(cmd0x5), bitSize=6, bitOffset=0, base='hex', mode='WO', hidden=True))              
+        self.add(pr.RemoteVariable(name='WritePixel',description='Write Pixel',
+            offset=(cmd0x5), bitSize=6, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='WO', hidden=True))              
             
-        self.add(pr.Variable(name='EndMatrixConfig',description='END Matrix Configuration',
-            offset=(cmd0x0), bitSize=32, bitOffset=0, base='bool', mode='RO', hidden=True))                 
+        self.add(pr.RemoteVariable(name='EndMatrixConfig',description='END Matrix Configuration',
+            offset=(cmd0x0), bitSize=32, bitOffset=0, base=pr.Bool, mode='RO', hidden=True))                 
         
         #################################
         # Define all the global registers     
         #################################
         
-        self.add(pr.Variable(name='RowPointer',description='Row Pointer',
-            offset=(cmd0x1|(4*0x1)), bitSize=rowBitSize, bitOffset=0, base='hex', mode='RW')) 
+        self.add(pr.RemoteVariable(name='RowPointer',description='Row Pointer',
+            offset=(cmd0x1|(4*0x1)), bitSize=rowBitSize, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW')) 
                                  
-        self.add(pr.Variable(name='ColPointer', description='Column Pointer',
-            offset=(cmd0x1|(4*0x3)), bitSize=colBitSize, bitOffset=0, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='ColPointer', description='Column Pointer',
+            offset=(cmd0x1|(4*0x3)), bitSize=colBitSize, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW'))  
 
-        self.add(pr.Variable(name='VNLogicatt', description=warningMessage,            
-            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=0, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='VNLogicatt', description=warningMessage,            
+            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW'))  
                                  
-        self.add(pr.Variable(name='VNLogicres', description=warningMessage,           
-            offset=(cmd0x1|(4*0x5)), bitSize=2, bitOffset=5, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='VNLogicres', description=warningMessage,           
+            offset=(cmd0x1|(4*0x5)), bitSize=2, bitOffset=5, base=pr.UInt, disp = '{:#x}', mode='RW'))  
                                  
-        self.add(pr.Variable(name='VNSFatt', description=warningMessage,            
-            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=7, base='hex', mode='RW')) 
+        self.add(pr.RemoteVariable(name='VNSFatt', description=warningMessage,            
+            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=7, base=pr.UInt, disp = '{:#x}', mode='RW')) 
                                  
-        self.add(pr.Variable(name='VNSFres', description=warningMessage,        
-            offset=(cmd0x1|(4*0x5)), bitSize=2, bitOffset=12, base='hex', mode='RW'))                              
+        self.add(pr.RemoteVariable(name='VNSFres', description=warningMessage,        
+            offset=(cmd0x1|(4*0x5)), bitSize=2, bitOffset=12, base=pr.UInt, disp = '{:#x}', mode='RW'))                              
 
-        self.add(pr.Variable(name='VNatt', description=warningMessage,        
-            offset=(cmd0x1|(4*0x6)), bitSize=5, bitOffset=0, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='VNatt', description=warningMessage,        
+            offset=(cmd0x1|(4*0x6)), bitSize=5, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW'))  
                                  
-        self.add(pr.Variable(name='VNres', description=warningMessage,   
-            offset=(cmd0x1|(4*0x6)), bitSize=2, bitOffset=5, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='VNres', description=warningMessage,   
+            offset=(cmd0x1|(4*0x6)), bitSize=2, bitOffset=5, base=pr.UInt, disp = '{:#x}', mode='RW'))  
                                  
-        self.add(pr.Variable(name='VPFBatt', description=warningMessage,   
-            offset=(cmd0x1|(4*0x6)), bitSize=5, bitOffset=7, base='hex', mode='RW')) 
+        self.add(pr.RemoteVariable(name='VPFBatt', description=warningMessage,   
+            offset=(cmd0x1|(4*0x6)), bitSize=5, bitOffset=7, base=pr.UInt, disp = '{:#x}', mode='RW')) 
                                  
-        self.add(pr.Variable(name='VPFBres', description=warningMessage, 
-            offset=(cmd0x1|(4*0x6)), bitSize=2, bitOffset=12, base='hex', mode='RW'))                              
+        self.add(pr.RemoteVariable(name='VPFBres', description=warningMessage, 
+            offset=(cmd0x1|(4*0x6)), bitSize=2, bitOffset=12, base=pr.UInt, disp = '{:#x}', mode='RW'))                              
 
-        self.add(pr.Variable(name='VPLoadatt', description=warningMessage,       
-            offset=(cmd0x1|(4*0x7)), bitSize=5, bitOffset=0, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='VPLoadatt', description=warningMessage,       
+            offset=(cmd0x1|(4*0x7)), bitSize=5, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW'))  
                                  
-        self.add(pr.Variable(name='VPLoadres', description=warningMessage, 
-            offset=(cmd0x1|(4*0x7)), bitSize=2, bitOffset=5, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='VPLoadres', description=warningMessage, 
+            offset=(cmd0x1|(4*0x7)), bitSize=2, bitOffset=5, base=pr.UInt, disp = '{:#x}', mode='RW'))  
                                  
-        self.add(pr.Variable(name='VPTrimatt', description=warningMessage,         
-            offset=(cmd0x1|(4*0x7)), bitSize=5, bitOffset=7, base='hex', mode='RW')) 
+        self.add(pr.RemoteVariable(name='VPTrimatt', description=warningMessage,         
+            offset=(cmd0x1|(4*0x7)), bitSize=5, bitOffset=7, base=pr.UInt, disp = '{:#x}', mode='RW')) 
                                  
-        self.add(pr.Variable(name='VPTrimres', description=warningMessage, 
-            offset=(cmd0x1|(4*0x7)), bitSize=2, bitOffset=12, base='hex', mode='RW'))                                
+        self.add(pr.RemoteVariable(name='VPTrimres', description=warningMessage, 
+            offset=(cmd0x1|(4*0x7)), bitSize=2, bitOffset=12, base=pr.UInt, disp = '{:#x}', mode='RW'))                                
 
-        self.add(pr.Variable(name='CLK_bit_sel',description="""
+        self.add(pr.RemoteVariable(name='CLK_bit_sel',description="""
             Hit Encoding Clock Selection:
             0 - Clock include Matrix load delay
             1 - Clock does not includes Matrix Load delay                                         
             """,        
-            offset=(cmd0x1|(4*0x8)), bitSize=1, bitOffset=0, base='bool', mode='RW'))  
+            offset=(cmd0x1|(4*0x8)), bitSize=1, bitOffset=0, base=pr.Bool, mode='RW'))  
 
-        self.add(pr.Variable(name='clk_dly',description='Hit Encoding Delay respect Matrix Clock',
-            offset=(cmd0x1|(4*0x8)), bitSize=4, bitOffset=1, base='hex', mode='RW'))   
+        self.add(pr.RemoteVariable(name='clk_dly',description='Hit Encoding Delay respect Matrix Clock',
+            offset=(cmd0x1|(4*0x8)), bitSize=4, bitOffset=1, base=pr.UInt, disp = '{:#x}', mode='RW'))   
 
-        self.add(pr.Variable(name='rd_1',description='Reset Distance',
-            offset=(cmd0x1|(4*0x9)), bitSize=3, bitOffset=0, base='hex', mode='RW'))    
+        self.add(pr.RemoteVariable(name='rd_1',description='Reset Distance',
+            offset=(cmd0x1|(4*0x9)), bitSize=3, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW'))    
 
-        self.add(pr.Variable(name='rlt_1',description='Reset Low Time',
-            offset=(cmd0x1|(4*0x9)), bitSize=3, bitOffset=3, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='rlt_1',description='Reset Low Time',
+            offset=(cmd0x1|(4*0x9)), bitSize=3, bitOffset=3, base=pr.UInt, disp = '{:#x}', mode='RW'))  
 
-        self.add(pr.Variable(name='wrd_1',description='Reset Write Distance',
-            offset=(cmd0x1|(4*0x9)), bitSize=3, bitOffset=6, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='wrd_1',description='Reset Write Distance',
+            offset=(cmd0x1|(4*0x9)), bitSize=3, bitOffset=6, base=pr.UInt, disp = '{:#x}', mode='RW'))  
 
-        self.add(pr.Variable(name='DigiMux',description="""
+        self.add(pr.RemoteVariable(name='DigiMux',description="""
             Multiplexer Configuration for digital output monitoring:
             0b000 = 0x0 = reset1i
             0b001 = 0x1 = writeCLK1i
@@ -166,42 +161,42 @@ class Chess2Array(pr.Device):
             """,             
             enum = {0:'reset1i',1:'writeCLK1i',2:'reset2i',3:'writeCLK2i',
                     4:'wsi',5:'CLKi_1_40MHzi',6:'CLKi_2_40MHzi',7:'gndd'},
-            offset=(cmd0x1|(4*0x9)), bitSize=3, bitOffset=9, base='enum', mode='RW'))                               
+            offset=(cmd0x1|(4*0x9)), bitSize=3, bitOffset=9, mode='RW'))                               
 
-        self.add(pr.Variable(name='wrd_2',description='Reset Write Distance',
-            offset=(cmd0x1|(4*0xA)), bitSize=3, bitOffset=0, base='hex', mode='RW'))                                
+        self.add(pr.RemoteVariable(name='wrd_2',description='Reset Write Distance',
+            offset=(cmd0x1|(4*0xA)), bitSize=3, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW'))                                
 
-        self.add(pr.Variable(name='rd_2',description='Reset Distance',
-            offset=(cmd0x1|(4*0xA)), bitSize=3, bitOffset=3, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='rd_2',description='Reset Distance',
+            offset=(cmd0x1|(4*0xA)), bitSize=3, bitOffset=3, base=pr.UInt, disp = '{:#x}', mode='RW'))  
 
-        self.add(pr.Variable(name='rlt_2',description='Reset Low Time',
-            offset=(cmd0x1|(4*0xA)), bitSize=3, bitOffset=6, base='hex', mode='RW'))   
+        self.add(pr.RemoteVariable(name='rlt_2',description='Reset Low Time',
+            offset=(cmd0x1|(4*0xA)), bitSize=3, bitOffset=6, base=pr.UInt, disp = '{:#x}', mode='RW'))   
 
-        self.add(pr.Variable(name='DelEXEC',description='Exec Delay',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=9, base='bool', mode='RW'))  
+        self.add(pr.RemoteVariable(name='DelEXEC',description='Exec Delay',
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=9, base=pr.Bool, mode='RW'))  
 
-        self.add(pr.Variable(name='DelCCKreg',description='CCKreg Delay',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=10, base='bool', mode='RW'))   
+        self.add(pr.RemoteVariable(name='DelCCKreg',description='CCKreg Delay',
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=10, base=pr.Bool, mode='RW'))   
 
-        self.add(pr.Variable(name='LVDS_TX_Current',description='Standard LVDS Current',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=11, base='bool', mode='RW'))     
+        self.add(pr.RemoteVariable(name='LVDS_TX_Current',description='Standard LVDS Current',
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=11, base=pr.Bool, mode='RW'))     
 
-        self.add(pr.Variable(name='LVDS_RX_AC_Mode',description='LVDS Receiver mode',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=12, base='bool', mode='RW'))    
+        self.add(pr.RemoteVariable(name='LVDS_RX_AC_Mode',description='LVDS Receiver mode',
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=12, base=pr.Bool, mode='RW'))    
 
-        self.add(pr.Variable(name='LVDS_RX_100Ohm',description='DC LVDS Receiver input impedance - 100 Ohm',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=13, base='bool', mode='RW'))
+        self.add(pr.RemoteVariable(name='LVDS_RX_100Ohm',description='DC LVDS Receiver input impedance - 100 Ohm',
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=13, base=pr.Bool, mode='RW'))
 
-        self.add(pr.Variable(name='LVDS_RX_300Ohm',description='DC LVDS Receiver input impedance - 300 Ohm',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=14, base='bool', mode='RW'))         
+        self.add(pr.RemoteVariable(name='LVDS_RX_300Ohm',description='DC LVDS Receiver input impedance - 300 Ohm',
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=14, base=pr.Bool, mode='RW'))         
 
-        self.add(pr.Variable(name='TM',description='Hit Encoding Test Mode',
-            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=15, base='bool', mode='RW'))        
+        self.add(pr.RemoteVariable(name='TM',description='Hit Encoding Test Mode',
+            offset=(cmd0x1|(4*0xA)), bitSize=1, bitOffset=15, base=pr.Bool, mode='RW'))        
             
         ############################    
         # Add the software variables
         ############################    
-        self.add(matrix())   
+        self.add(matrix(name="matrix"))   
 
     @staticmethod
     def configPixel(enable, chargeInj, trimI):

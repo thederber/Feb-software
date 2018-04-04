@@ -22,9 +22,8 @@
 import pyrogue as pr
 
 class Chess2Test(pr.Device):
-    def __init__(self, name="Chess2Test", memBase=None, offset=0, hidden=False, expand=True,enabled=False):
-        super(self.__class__, self).__init__(name, "CHESS2 Test structure Interface",
-                        memBase=memBase, offset=offset, hidden=hidden, expand=expand,enabled=enabled)
+    def __init__(self, **kwargs):
+        super(self.__class__, self).__init__(**kwargs)
         #################################################################################################
         # Using the atlas-chess2/firmware/submodules/surf/protocols/saci/rtl/AxiLiteSaciMaster.vhd module
         # AXI_Lite_Address[31:24] = Ignored
@@ -44,35 +43,35 @@ class Chess2Test(pr.Device):
         colBitSize = 5                             
                              
         # Define all the global registers                               
-        self.add(pr.Variable(name='RowPointer',description='Row Pointer',
-            offset=(cmd0x1|(4*0x1)), bitSize=rowBitSize, bitOffset=0, base='hex', mode='RW')) 
+        self.add(pr.RemoteVariable(name='RowPointer',description='Row Pointer',
+            offset=(cmd0x1|(4*0x1)), bitSize=rowBitSize, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW')) 
                                  
-        self.add(pr.Variable(name='ColPointer',description='Column Pointer',
-            offset=(cmd0x1|(4*0x3)), bitSize=colBitSize, bitOffset=0, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='ColPointer',description='Column Pointer',
+            offset=(cmd0x1|(4*0x3)), bitSize=colBitSize, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW'))  
 
-        self.add(pr.Variable(name='Casc',description='Casc',
-            offset=(cmd0x1|(4*0x5)), bitSize=10, bitOffset=0, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='Casc',description='Casc',
+            offset=(cmd0x1|(4*0x5)), bitSize=10, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW'))  
                                  
-        self.add(pr.Variable(name='ColMux',description='ColMux',
-            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=10, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='ColMux',description='ColMux',
+            offset=(cmd0x1|(4*0x5)), bitSize=5, bitOffset=10, base=pr.UInt, disp = '{:#x}', mode='RW'))  
                            
-        self.add(pr.Variable(name='BL',description='BL',
-            offset=(cmd0x1|(4*0x6)), bitSize=10, bitOffset=0, base='hex', mode='RW'))  
+        self.add(pr.RemoteVariable(name='BL',description='BL',
+            offset=(cmd0x1|(4*0x6)), bitSize=10, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW'))  
                                  
-        self.add(pr.Variable(name='CascPD',description='CascPD',
-            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=10, base='bool', mode='RW'))  
+        self.add(pr.RemoteVariable(name='CascPD',description='CascPD',
+            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=10, base=pr.Bool, mode='RW'))  
                                  
-        self.add(pr.Variable(name='BLPD',description='BLPD',
-            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=11, base='bool', mode='RW'))      
+        self.add(pr.RemoteVariable(name='BLPD',description='BLPD',
+            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=11, base=pr.Bool, mode='RW'))      
                                  
-        self.add(pr.Variable(name='PixPD',description='PixPD',
-            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=12, base='bool', mode='RW'))  
+        self.add(pr.RemoteVariable(name='PixPD',description='PixPD',
+            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=12, base=pr.Bool, mode='RW'))  
                                  
-        self.add(pr.Variable(name='BLRPD',description='BLRPD',
-            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=13, base='bool', mode='RW'))                               
+        self.add(pr.RemoteVariable(name='BLRPD',description='BLRPD',
+            offset=(cmd0x1|(4*0x6)), bitSize=1, bitOffset=13, base=pr.Bool, mode='RW'))                               
                            
-        self.add(pr.Variable(name='Pix',description='Pix',
-            offset=(cmd0x1|(4*0x7)), bitSize=10, bitOffset=0, base='hex', mode='RW'))   
+        self.add(pr.RemoteVariable(name='Pix',description='Pix',
+            offset=(cmd0x1|(4*0x7)), bitSize=10, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW'))   
                            
-        self.add(pr.Variable(name='BLR',description='BLR',
-            offset=(cmd0x1|(4*0x8)), bitSize=10, bitOffset=0, base='hex', mode='RW'))                                
+        self.add(pr.RemoteVariable(name='BLR',description='BLR',
+            offset=(cmd0x1|(4*0x8)), bitSize=10, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='RW'))                                
