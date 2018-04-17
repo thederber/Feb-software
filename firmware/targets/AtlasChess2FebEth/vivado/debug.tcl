@@ -38,15 +38,20 @@ set_property C_DATA_DEPTH 2048 [get_debug_cores ${ilaName}]
 ## Set the clock for the ILA core
 #################################
 #SetDebugCoreClk ${ilaName} {U_Core/U_Asic/U_ChargeInj/timingClk320MHz}
-SetDebugCoreClk ${ilaName} {U_Core/axilClk}
-
+#SetDebugCoreClk ${ilaName} {U_Core/axilClk}
+SetDebugCoreClk ${ilaName} {U_Core/U_Timing/U_TimingMsg/timingClk320MHz}
 #######################
 ## Set the debug Probes
 #######################
 
-ConfigProbe ${ilaName} {U_Core/ethReady}
-ConfigProbe ${ilaName} {U_Core/rssiStatus[*]}
-ConfigProbe ${ilaName} {U_Core/chessMaster[*]}
+ConfigProbe ${ilaName} {U_Core/U_Timing/U_TimingMsg/r[*]}
+ConfigProbe ${ilaName} {U_Core/U_Timing/U_TimingMsg/timingModeSync[*]}
+ConfigProbe ${ilaName} {U_Core/U_Timing/extTrigL}
+ConfigProbe ${ilaName} {U_Core/U_Timing/extTrig}
+
+#ConfigProbe ${ilaName} {U_Core/ethReady}
+#ConfigProbe ${ilaName} {U_Core/rssiStatus[*]}
+#ConfigProbe ${ilaName} {U_Core/chessMaster[*]}
 #ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[0][*]}
 #ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[1][*]}
 #ConfigProbe ${ilaName} {U_Core/U_Asic/U_ChargeInj/hitDet[2][*]}

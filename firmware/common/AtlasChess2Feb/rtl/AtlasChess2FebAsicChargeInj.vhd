@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2017-04-28
+-- Last update: 2018-04-17
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -102,20 +102,6 @@ architecture rtl of AtlasChess2FebAsicChargeInj is
    signal hitDetIndex    : Slv3Array(2 downto 0);
    signal timer          : slv(15 downto 0);
 
-   attribute dont_touch                   : string;
-   attribute dont_touch of calPulse       : signal is "TRUE";
-   attribute dont_touch of invPulse       : signal is "TRUE";
-   attribute dont_touch of pulse          : signal is "TRUE";
-   attribute dont_touch of pulseReg       : signal is "TRUE";
-   attribute dont_touch of calWidth       : signal is "TRUE";
-   attribute dont_touch of calDelay       : signal is "TRUE";
-   attribute dont_touch of cnt            : signal is "TRUE";
-   attribute dont_touch of hitDet         : signal is "TRUE";
-   attribute dont_touch of hitDetSync     : signal is "TRUE";
-   attribute dont_touch of hitDetTime     : signal is "TRUE";
-   attribute dont_touch of hitDetTimeSync : signal is "TRUE";
-   attribute dont_touch of hitDetIndex    : signal is "TRUE";
-   attribute dont_touch of timer          : signal is "TRUE";
 
 begin
 

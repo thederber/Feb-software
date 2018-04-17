@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-02
--- Last update: 2018-04-03
+-- Last update: 2018-04-17
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -108,6 +108,10 @@ architecture mapping of AtlasChess2FebTiming is
    signal evrTs        : slv(63 downto 0);
    signal evrEn        : sl;
    signal evrTimeStamp : slv(63 downto 0);
+
+   attribute dont_touch                    : string;
+   attribute dont_touch of extTrig         : signal is "TRUE";
+   attribute dont_touch of extTrigL        : signal is "TRUE";
    
 begin
 

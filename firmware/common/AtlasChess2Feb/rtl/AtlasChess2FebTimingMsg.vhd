@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-08-09
+-- Last update: 2018-04-17
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -68,6 +68,11 @@ architecture rtl of AtlasChess2FebTimingMsg is
 
    signal timingModeSync : TimingModeType;
 
+   attribute dont_touch                    : string;
+   attribute dont_touch of r               : signal is "TRUE";
+   attribute dont_touch of timingClk320MHz : signal is "TRUE";
+   attribute dont_touch of timingModeSync  : signal is "TRUE";   
+
 begin
 
    U_Sync : entity work.SynchronizerVector
@@ -126,7 +131,10 @@ begin
       end case;
 
       -- Force trigger if generated from software
-      v.timingTrig := softTrig;      
+      if softTrig = '1' then
+         v.timingTrig :=  '1';      
+      end if;
+      --v.timingTrig := softTrig;      
       
       -- Synchronous Reset
       if timingRst320MHz = '1' then
