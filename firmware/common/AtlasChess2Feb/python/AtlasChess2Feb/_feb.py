@@ -44,7 +44,7 @@ class feb(pr.Device):
         #############
         self.add(axi.AxiVersion(                            offset=0x00000000,expand=False))
         self.add(xilinx.Xadc(                               offset=0x00010000,expand=False))  
-        self.add(AtlasChess2Feb.sysReg(   name="sysreg",    offset=0x00030000,expand=False))    
+        self.add(AtlasChess2Feb.sysReg(   name="sysReg",    offset=0x00030000,expand=False))    
         self.add(AtlasChess2Feb.memReg(   name="memReg",    offset=0x00040000,expand=True))    
         self.add(AtlasChess2Feb.iobuff(   name="iobuff",    offset=0x00500000,expand=False))    
         self.add(AtlasChess2Feb.dac(      name="dac",       offset=0x00100000,expand=False))                

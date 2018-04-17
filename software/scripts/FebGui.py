@@ -48,42 +48,13 @@ from SCurveNP import *
 
 c2_hists = []
 
-# Custom run control
-class MyRunControl(pyrogue.RunControl):
-   def __init__(self,name):
-      pyrogue.RunControl.__init__(self,name, description='Run Controller',  rates={1:'1 Hz', 2:'2 Hz', 4:'4 Hz', 8:'8 Hz', 10:'10 Hz', 25:'25 Hz', 50:'50 Hz', 100:'100 Hz'})
-      self._thread = None
-
-   def _setRunState(self,dev,var,value,changed):
-      if changed: 
-         if self.runState.get(read=False) == 'Running': 
-            self._thread = threading.Thread(target=self._run) 
-            self._thread.start() 
-         else: 
-            self._thread.join() 
-            self._thread = None 
-
-   def _run(self):
-      self.runCount.set(0)
-      self._last = int(time.time())
-
-      while (self.runState.value() == 'Running'):
-         delay = 1.0 / ({value: key for key,value in self.runRate.enum.items()}[self._runRate])
-         time.sleep(delay)
-         self._root.feb.sysReg.softTrig()
-
-         self._runCount += 1
-         if self._last != int(time.time()):
-             self._last = int(time.time())
-             self.runCount._updated()
-
-
 ##############################
 # Set base
 ##############################
 class System(pyrogue.Root):
     def __init__(self, guiTop, cmd, dataWriter, srp, **kwargs):
         super().__init__(name='System',description='Front End Board', **kwargs)
+        #self.add(MyRunControl('runControl'))
         self.add(dataWriter)
         self.guiTop = guiTop
 
@@ -94,6 +65,9 @@ class System(pyrogue.Root):
 
         # Add registers
         self.add(AtlasChess2Feb.feb(memBase=srp))
+
+        # Add run cotnrol
+        self.add(pyrogue.RunControl(name = 'runControl', description='Run Controller Chess 2', cmd=self.Trigger, rates={1:'1 Hz', 2:'2 Hz', 4:'4 Hz', 8:'8 Hz', 10:'10 Hz', 30:'30 Hz', 60:'60 Hz', 120:'120 Hz'}))
 
 
 # Add data stream to file as channel 1 File writer
