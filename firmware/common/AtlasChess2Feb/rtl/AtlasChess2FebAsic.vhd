@@ -5,7 +5,7 @@
 -- Author     : Larry Ruckman  <ruckman@slac.stanford.edu>
 -- Company    : SLAC National Accelerator Laboratory
 -- Created    : 2016-06-07
--- Last update: 2016-12-06
+-- Last update: 2018-04-18
 -- Platform   : 
 -- Standard   : VHDL'93/02
 -------------------------------------------------------------------------------
@@ -151,7 +151,13 @@ architecture mapping of AtlasChess2FebAsic is
 
    attribute IODELAY_GROUP                 : string;
    attribute IODELAY_GROUP of U_IDELAYCTRL : label is IODELAY_GROUP_G;
-   
+
+   attribute dont_touch                    : string;
+   attribute dont_touch of dataValid       : signal is "TRUE";
+   attribute dont_touch of multiHit        : signal is "TRUE";
+   attribute dont_touch of col             : signal is "TRUE";
+   attribute dont_touch of row             : signal is "TRUE";
+    
 begin
 
    -- routing signals

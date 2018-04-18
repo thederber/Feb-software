@@ -48,7 +48,12 @@ ConfigProbe ${ilaName} {U_Core/U_Timing/U_TimingMsg/r[*]}
 ConfigProbe ${ilaName} {U_Core/U_Timing/U_TimingMsg/timingModeSync[*]}
 ConfigProbe ${ilaName} {U_Core/U_Timing/extTrigL}
 ConfigProbe ${ilaName} {U_Core/U_Timing/extTrig}
-
+#
+ConfigProbe ${ilaName} {U_Core/U_Asic/dataValid[*]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/multiHit[*]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/row[*]}
+ConfigProbe ${ilaName} {U_Core/U_Asic/col[*]}
+#
 #ConfigProbe ${ilaName} {U_Core/ethReady}
 #ConfigProbe ${ilaName} {U_Core/rssiStatus[*]}
 #ConfigProbe ${ilaName} {U_Core/chessMaster[*]}
