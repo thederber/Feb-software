@@ -237,7 +237,7 @@ class Chess2Array(pr.Device):
                 self.RowPointer.set(row)       
                 self.WritePixel.set(value)
                 # Update the software variable
-                self.matrix._pixel[col][row] = value
+                self.matrix.node(f'Pixel[{col}][{row}]').set(value)
         self.EndMatrixConfig.get()       
              
     def writePixel(self, row, col, enable, chargeInj, trimI=0):
@@ -247,7 +247,7 @@ class Chess2Array(pr.Device):
         self.RowPointer.set(row)
         self.ColPointer.set(col)
         self.WritePixel.set(value)
-        self.matrix._pixel[col][row] = value
+        self.matrix.node(f'Pixel[{col}][{row}]').set(value)
         self.EndMatrixConfig.get()
         
     def loadMatrix(self):
@@ -261,6 +261,6 @@ class Chess2Array(pr.Device):
                 self.ColPointer.set(col)       
                 self.RowPointer.set(row)      
                 # Load the software variable
-                self.WritePixel.set(self.matrix._pixel[col][row])
+                self.WritePixel.set(self.matrix.node(f'Pixel[{col}][{row}]'))
         self.EndMatrixConfig.get()
         
