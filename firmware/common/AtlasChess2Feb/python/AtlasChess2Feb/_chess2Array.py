@@ -75,13 +75,13 @@ class Chess2Array(pr.Device):
         ######################################################
                         
         self.add(pr.RemoteVariable(name='StartMatrixConfig',description='START Matrix Configuration',
-            offset=(cmd0x8), bitSize=32, bitOffset=0, base=pr.Bool, mode='WO', hidden=True))     
+            offset=(cmd0x8), bitSize=32, bitOffset=0, base=pr.UInt, mode='WO', hidden=True))     
 
         self.add(pr.RemoteVariable(name='WritePixel',description='Write Pixel',
             offset=(cmd0x5), bitSize=6, bitOffset=0, base=pr.UInt, disp = '{:#x}', mode='WO', hidden=True))              
             
         self.add(pr.RemoteVariable(name='EndMatrixConfig',description='END Matrix Configuration',
-            offset=(cmd0x0), bitSize=32, bitOffset=0, base=pr.Bool, mode='RO', hidden=True))                 
+            offset=(cmd0x0), bitSize=32, bitOffset=0, base=pr.UInt, mode='RO', hidden=True))                 
         
         #################################
         # Define all the global registers     
@@ -216,7 +216,7 @@ class Chess2Array(pr.Device):
     def setDefaults(self):
         # print ('setDefaults(self=%s)' % (self))
         # Configure for 40 MHz timing
-        self.CLK_bit_sel.set(0x0)
+        self.CLK_bit_sel.set(False)
         self.clk_dly.set(0x0)
         self.rd_1.set(0x0)
         self.rlt_1.set(0x2)
