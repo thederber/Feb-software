@@ -18,4 +18,4 @@
 # copied, modified, propagated, or distributed except according to the terms 
 # contained in the LICENSE.txt file.
 #-----------------------------------------------------------------------------
-from pyrogue.frameViewer._frameViewer import *
+from frameViewer._frameViewer import *
