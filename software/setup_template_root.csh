@@ -6,7 +6,8 @@ setenv ROGUE_DIR  ${PWD}/rogue
 
 # Setup enivorment
 # with SLAC AFS access
-source /afs/slac.stanford.edu/g/reseng/python/3.5.2/settings.csh
+#source /afs/slac.stanford.edu/g/reseng/python/3.5.2/settings.csh
+source /afs/slac.stanford.edu/g/reseng/python/3.6.2/settings.csh
 source /afs/slac.stanford.edu/g/reseng/boost/1.62.0_p3/settings.csh
 
 # with local installations
