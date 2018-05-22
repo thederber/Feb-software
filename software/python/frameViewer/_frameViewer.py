@@ -18,7 +18,7 @@ class Window(QtGui.QMainWindow, QObject):
     processMonitoringFrameTrigger = pyqtSignal()
     monitoringDataTrigger = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self,system):
         super(Window, self).__init__()    
         self.mainWdGeom = [50, 50, 2000,840 ] # x, y, width, height
         self.setGeometry(self.mainWdGeom[0], self.mainWdGeom[1], self.mainWdGeom[2],self.mainWdGeom[3])
@@ -37,6 +37,7 @@ class Window(QtGui.QMainWindow, QObject):
         self.show()
         self.togetInterval_t=[0,0]
         self.interval_time=0
+        self.system=system
         #global t 
         self.statusBar().showMessage("the speed of the data received")
     def add_timestamp_interval(self,time_stamp):
@@ -102,11 +103,18 @@ class Window(QtGui.QMainWindow, QObject):
         self.mainWidget = QtGui.QWidget(self)
     
         self.reset_image=QtGui.QPushButton("clear image")
+        self.take_ref=QtGui.QPushButton("take ref hitmap")
+        self.init_ref=QtGui.QPushButton("clear ref hitmap")
         self.reset_image.clicked.connect(self.reset_allimages) 
+        self.take_ref.clicked.connect(self.take_refhitmap)
+        self.init_ref.clicked.connect(self.init_refhitmap)
+ 
         vbox1 = QVBoxLayout()
         vbox1.setAlignment(QtCore.Qt.AlignTop)
         vbox1.addWidget(self.mainImageDisp,QtCore.Qt.AlignTop)
         vbox1.addWidget(self.reset_image)
+        vbox1.addWidget(self.init_ref)
+        vbox1.addWidget(self.take_ref)
         self.mainImageDisp.initial_hitmap()
 
 
@@ -137,6 +145,16 @@ class Window(QtGui.QMainWindow, QObject):
         self.move((screen.width()-size.width())/2,(screen.height()-size.height())/2)
     def reset_allimages(self):
         self.mainImageDisp.initial_hitmap()
+   
+    def init_refhitmap(self):
+        self.mainImageDisp.hitmap_ref0=np.ones((self.mainImageDisp.nRows,self.mainImageDisp.nColumns))
+        self.mainImageDisp.hitmap_ref1=np.ones((self.mainImageDisp.nRows,self.mainImageDisp.nColumns))
+        self.mainImageDisp.hitmap_ref2=np.ones((self.mainImageDisp.nRows,self.mainImageDisp.nColumns))
+ 
+    def take_refhitmap(self):
+        self.mainImageDisp.ref=1
+        
+        
 class EventReader(rogue.interfaces.stream.Slave):
 
     def __init__(self, parent) :
@@ -175,10 +193,7 @@ class MplCanvas_hitmap(FigureCanvas):
         #self.fig,self.axes=plt.subplots(figsize=(11,9))
         self.fig = Figure(figsize=(width, height))
         self.axes = self.fig.add_subplot(111)
-        self.ax0=self.fig.add_axes([0.16,0.144,0.586,0.1957])
-        self.ax1=self.fig.add_axes([0.16,0.444,0.586,0.1962])
-        self.ax2=self.fig.add_axes([0.16,0.6485,0.586,0.1960])
-
+        self.ref=0
         plt.ion()
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
@@ -191,11 +206,18 @@ class MplCanvas_hitmap(FigureCanvas):
         self.nColumns=32
         self.axes.set_axis_off()
         self.chess2_point=[(87.9,108),(20228,108),(24300,108),(24300,18517),(24300,18517),(20227,18517),(87.9,18517),(87.9,13413),(87.9,13138),(87.9,8034),(87.9,5212),(20227,5212),(20227,8034),(20227,13138),(20227,13413)]
+        self.ax0=self.fig.add_axes([0.16,0.144,0.586,0.1957])
+        self.ax1=self.fig.add_axes([0.16,0.444,0.586,0.1962])
+        self.ax2=self.fig.add_axes([0.16,0.6485,0.586,0.1960])
+        self.hitmap_ref0=np.ones((self.nRows,self.nColumns))
+        self.hitmap_ref1=np.ones((self.nRows,self.nColumns))
+        self.hitmap_ref2=np.ones((self.nRows,self.nColumns))
 
     def initial_hitmap(self):
         self.hitmap_t0=np.ones((self.nRows,self.nColumns))
         self.hitmap_t1=np.ones((self.nRows,self.nColumns))
         self.hitmap_t2=np.ones((self.nRows,self.nColumns))
+
         #if one wants to plot something at the begining of the application fill this function.
         for i in range(9):
             self.axes.plot([self.chess2_point[i][0],self.chess2_point[i+1][0]],[self.chess2_point[i][1],self.chess2_point[i+1][1]],'k')
@@ -206,20 +228,63 @@ class MplCanvas_hitmap(FigureCanvas):
         self.plot()
     def plot(self):
         self.ax0.clear()
-        self.ax0.imshow(self.hitmap_t2,aspect="auto",cmap='gray',origin='upper',vmin=0,interpolation='nearest')
+        self.ax0.imshow(self.hitmap_t2,aspect="auto",cmap='gray',origin='upper',interpolation='nearest')
         self.ax1.clear()
-        self.ax1.imshow(self.hitmap_t1,aspect="auto",cmap='gray',origin='upper',vmin=0,interpolation='nearest')
+        self.ax1.imshow(self.hitmap_t1,aspect="auto",cmap='gray',origin='upper',interpolation='nearest')
         self.ax2.clear()
-        self.ax2.imshow(self.hitmap_t0,aspect="auto",cmap='gray',origin='lower',vmin=0,interpolation='nearest')
+        self.ax2.imshow(self.hitmap_t0,aspect="auto",cmap='gray',origin='lower',interpolation='nearest')
         self.draw()
         self.fig.canvas.draw()
     def update_hitmap(self,hitmap_2,hitmap_1,hitmap_0):
-        #self.hitmap_t2+=hitmap_2
-        #self.hitmap_t1+=hitmap_1
-        #self.hitmap_t0+=hitmap_0
-        self.hitmap_t2=hitmap_2
-        self.hitmap_t1=hitmap_1
-        self.hitmap_t0=hitmap_0
+        self.hitmap_t2+=hitmap_2
+        self.hitmap_t1+=hitmap_1
+        self.hitmap_t0+=hitmap_0
+        if self.ref==1:
+            print("using as noise hitmap ....")
+            self.hitmap_ref0=self.hitmap_t0 
+            self.hitmap_ref1=self.hitmap_t1 
+            self.hitmap_ref2=self.hitmap_t2
+            self.ref=0 
+        self.reducenoise()   
+     
+    def reducenoise(self):
+     #   max_data0=np.linalg.norm(self.hitmap_t0)
+     #   max_ref0=np.linalg.norm(self.hitmap_ref0)
+     #   #max_data0=np.amax(self.hitmap_t0)
+     #   #max_ref0=np.amax(self.hitmap_ref0)
+     #   if max_data0>0 and max_ref0>0:
+     #       print(max_data0/max_ref0)
+     #       self.hitmap_ref0=self.hitmap_ref0*(max_data0/max_ref0)
+     #   max_data1=np.amax(self.hitmap_t1)
+     #   max_ref1=np.amax(self.hitmap_ref1)
+     #   if max_data1>0 and max_ref1>0:
+     #       print(max_data1/max_ref1)
+     #       self.hitmap_ref1=self.hitmap_ref1*(max_data1/max_ref1)
+     #   max_data2=np.amax(self.hitmap_t2)
+     #   max_ref2=np.amax(self.hitmap_ref2)
+     #   if max_data2>0 and max_ref2>0:
+     #       self.hitmap_ref2=self.hitmap_ref2*(max_data2/max_ref2)
+        r=15
+        r1=15
+        s=2
+        if self.hitmap_t2[r][r1]>0 and self.hitmap_ref2[r][r1]>0:
+             rate_2=np.linalg.norm(self.hitmap_t2[r1])/np.linalg.norm(self.hitmap_ref2[r1])
+        else:
+            rate_2=0.1
+        if self.hitmap_t1[r][r1]>0 and self.hitmap_ref1[r][r1]>0:
+             rate_1=np.linalg.norm(self.hitmap_t1[r1])/np.linalg.norm(self.hitmap_ref1[r1])
+            # rate_1=self.hitmap_t1[r][r1]/self.hitmap_ref1[r][r1]
+        else:
+            rate_1=0.1
+        if self.hitmap_t0[r][r1]>0 and self.hitmap_ref0[r][r1]>0:
+             rate_0=np.linalg.norm(self.hitmap_t0[r1])/np.linalg.norm(self.hitmap_ref0[r1])
+            # rate_0=self.hitmap_t0[r][r1]/self.hitmap_ref0[r][r1]
+        else:
+            rate_0=0.1
+        self.hitmap_t2=self.hitmap_t2-self.hitmap_ref2*rate_2
+        self.hitmap_t1=self.hitmap_t1-self.hitmap_ref1*rate_1
+        self.hitmap_t0=self.hitmap_t0-self.hitmap_ref0*rate_0
+        
         self.plot()
 
 
