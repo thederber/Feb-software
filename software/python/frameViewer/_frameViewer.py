@@ -32,6 +32,7 @@ class Window(QtGui.QMainWindow, QObject):
         self.skipFrames=10
         self.monitoringDataTrigger.connect(self.displayMonitoringDataFromReader) 
         self.timestamp=0
+        self.hitmapAc=0
         self.eventReaderMonitoring.ProcessFramePeriod = 1
         self.prepairWindow()
         self.show()
@@ -102,6 +103,11 @@ class Window(QtGui.QMainWindow, QObject):
         self.mainImageDisp = MplCanvas_hitmap(MyTitle = "CHESS2 Hitmap")
         self.mainWidget = QtGui.QWidget(self)
     
+        self.hitmap_accum= QtGui.QRadioButton("Accumulate the hitmap")  
+        self.hitmap_accum.toggled.connect(self.hitmapAccumu)
+        Acc_hitmap=QHBoxLayout()
+        Acc_hitmap.addWidget(self.hitmap_accum)
+
         self.reset_image=QtGui.QPushButton("clear image")
         self.take_ref=QtGui.QPushButton("take ref hitmap")
         self.init_ref=QtGui.QPushButton("clear ref hitmap")
@@ -112,10 +118,17 @@ class Window(QtGui.QMainWindow, QObject):
         vbox1 = QVBoxLayout()
         vbox1.setAlignment(QtCore.Qt.AlignTop)
         vbox1.addWidget(self.mainImageDisp,QtCore.Qt.AlignTop)
-        vbox1.addWidget(self.reset_image)
-        vbox1.addWidget(self.init_ref)
-        vbox1.addWidget(self.take_ref)
+        hSubbox_l1=QHBoxLayout()
+        hSubbox_l1.addWidget(self.init_ref)
+        hSubbox_l1.addWidget(self.take_ref)
+
+        hSubbox_l2=QHBoxLayout()
+        hSubbox_l2.addWidget(self.reset_image)
+        vbox1.addLayout(Acc_hitmap)
+        vbox1.addLayout(hSubbox_l1)
+        vbox1.addLayout(hSubbox_l2)
         self.mainImageDisp.initial_hitmap()
+
 
 
         self.side_1 = MplCanvas_effi_plot(MyTitle = "Efficiency")        
@@ -147,13 +160,18 @@ class Window(QtGui.QMainWindow, QObject):
         self.mainImageDisp.initial_hitmap()
    
     def init_refhitmap(self):
-        self.mainImageDisp.hitmap_ref0=np.ones((self.mainImageDisp.nRows,self.mainImageDisp.nColumns))
-        self.mainImageDisp.hitmap_ref1=np.ones((self.mainImageDisp.nRows,self.mainImageDisp.nColumns))
-        self.mainImageDisp.hitmap_ref2=np.ones((self.mainImageDisp.nRows,self.mainImageDisp.nColumns))
+        self.mainImageDisp.hitmap_ref0=np.zeros((self.mainImageDisp.nRows,self.mainImageDisp.nColumns))
+        self.mainImageDisp.hitmap_ref1=np.zeros((self.mainImageDisp.nRows,self.mainImageDisp.nColumns))
+        self.mainImageDisp.hitmap_ref2=np.zeros((self.mainImageDisp.nRows,self.mainImageDisp.nColumns))
  
     def take_refhitmap(self):
         self.mainImageDisp.ref=1
-        
+       
+    def hitmapAccumu(self):
+        if self.hitmap_accum.isChecked():
+            self.hitmapAc=1
+        else:
+            self.hitmapAc=0
         
 class EventReader(rogue.interfaces.stream.Slave):
 
@@ -168,11 +186,6 @@ class EventReader(rogue.interfaces.stream.Slave):
         self.frameDataArray = [bytearray(),bytearray(),bytearray(),bytearray()] # bytearray()
         self.parent = parent
       
-        self.CurrentBLRaw =0
-        self.CurrentBL =0
-        self.CurrentThresholdRaw =0
-        self.CurrentThreshold =0
-
     def _acceptFrame(self,frame):
         self.lastFrame = frame
         p = bytearray(self.lastFrame.getPayload())
@@ -209,14 +222,14 @@ class MplCanvas_hitmap(FigureCanvas):
         self.ax0=self.fig.add_axes([0.16,0.144,0.586,0.1957])
         self.ax1=self.fig.add_axes([0.16,0.444,0.586,0.1962])
         self.ax2=self.fig.add_axes([0.16,0.6485,0.586,0.1960])
-        self.hitmap_ref0=np.ones((self.nRows,self.nColumns))
-        self.hitmap_ref1=np.ones((self.nRows,self.nColumns))
-        self.hitmap_ref2=np.ones((self.nRows,self.nColumns))
+        self.hitmap_ref0=np.zeros((self.nRows,self.nColumns))
+        self.hitmap_ref1=np.zeros((self.nRows,self.nColumns))
+        self.hitmap_ref2=np.zeros((self.nRows,self.nColumns))
 
     def initial_hitmap(self):
-        self.hitmap_t0=np.ones((self.nRows,self.nColumns))
-        self.hitmap_t1=np.ones((self.nRows,self.nColumns))
-        self.hitmap_t2=np.ones((self.nRows,self.nColumns))
+        self.hitmap_t0=np.zeros((self.nRows,self.nColumns))
+        self.hitmap_t1=np.zeros((self.nRows,self.nColumns))
+        self.hitmap_t2=np.zeros((self.nRows,self.nColumns))
 
         #if one wants to plot something at the begining of the application fill this function.
         for i in range(9):
@@ -236,9 +249,15 @@ class MplCanvas_hitmap(FigureCanvas):
         self.draw()
         self.fig.canvas.draw()
     def update_hitmap(self,hitmap_2,hitmap_1,hitmap_0):
-        self.hitmap_t2+=hitmap_2
-        self.hitmap_t1+=hitmap_1
-        self.hitmap_t0+=hitmap_0
+        if self.parent.hitmapAc==1:
+            self.hitmap_t2+=hitmap_2
+            self.hitmap_t1+=hitmap_1
+            self.hitmap_t0+=hitmap_0
+        else:
+            self.hitmap_t2=hitmap_2
+            self.hitmap_t1=hitmap_1
+            self.hitmap_t0=hitmap_0
+
         if self.ref==1:
             print("using as noise hitmap ....")
             self.hitmap_ref0=self.hitmap_t0 
@@ -266,24 +285,24 @@ class MplCanvas_hitmap(FigureCanvas):
      #       self.hitmap_ref2=self.hitmap_ref2*(max_data2/max_ref2)
         r=15
         r1=15
-        s=2
-        if self.hitmap_t2[r][r1]>0 and self.hitmap_ref2[r][r1]>0:
-             rate_2=np.linalg.norm(self.hitmap_t2[r1])/np.linalg.norm(self.hitmap_ref2[r1])
+        s=0.8
+        if sum(sum(self.hitmap_t2))>0 and sum(sum(self.hitmap_ref2))>0:
+             rate_2=sum(sum(self.hitmap_t2))/sum(sum(self.hitmap_ref2))
         else:
             rate_2=0.1
-        if self.hitmap_t1[r][r1]>0 and self.hitmap_ref1[r][r1]>0:
-             rate_1=np.linalg.norm(self.hitmap_t1[r1])/np.linalg.norm(self.hitmap_ref1[r1])
+        if sum(sum(self.hitmap_t1))>0 and sum(sum(self.hitmap_ref1))>0:
+             rate_1=sum(sum(self.hitmap_t1))/sum(sum(self.hitmap_ref1))
             # rate_1=self.hitmap_t1[r][r1]/self.hitmap_ref1[r][r1]
         else:
             rate_1=0.1
-        if self.hitmap_t0[r][r1]>0 and self.hitmap_ref0[r][r1]>0:
-             rate_0=np.linalg.norm(self.hitmap_t0[r1])/np.linalg.norm(self.hitmap_ref0[r1])
+        if sum(sum(self.hitmap_t0))>0 and sum(sum(self.hitmap_ref0))>0:
+             rate_0=sum(sum(self.hitmap_t0))/sum(sum(self.hitmap_ref0))
             # rate_0=self.hitmap_t0[r][r1]/self.hitmap_ref0[r][r1]
         else:
             rate_0=0.1
-        self.hitmap_t2=self.hitmap_t2-self.hitmap_ref2*rate_2
-        self.hitmap_t1=self.hitmap_t1-self.hitmap_ref1*rate_1
-        self.hitmap_t0=self.hitmap_t0-self.hitmap_ref0*rate_0
+        self.hitmap_t2=self.hitmap_t2-self.hitmap_ref2*rate_2*s
+        self.hitmap_t1=self.hitmap_t1-self.hitmap_ref1*rate_1*s
+        self.hitmap_t0=self.hitmap_t0-self.hitmap_ref0*rate_0*s
         
         self.plot()
 
