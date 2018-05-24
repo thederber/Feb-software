@@ -13,7 +13,8 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import pyplot as plt
 import threading
-from SCurveNP_8hits_addDecode import *
+from SCurveNP import *
+#from SCurveNP_8hits_addDecode import *
 class Window(QtGui.QMainWindow, QObject):
     processMonitoringFrameTrigger = pyqtSignal()
     monitoringDataTrigger = pyqtSignal()
@@ -32,7 +33,6 @@ class Window(QtGui.QMainWindow, QObject):
         self.skipFrames=10
         self.monitoringDataTrigger.connect(self.displayMonitoringDataFromReader) 
         self.timestamp=0
-        self.hitmapAc=0
         self.eventReaderMonitoring.ProcessFramePeriod = 1
         self.prepairWindow()
         self.show()
@@ -72,9 +72,10 @@ class Window(QtGui.QMainWindow, QObject):
                 self.raw_Data_frame.add_data("buffer",data[i],i)
             if self.eventReaderMonitoring.numAcceptedFrames%self.skipFrames==0:
                 self.togetInterval_t=[0,0]
-                print("updating hitmap ",self.eventReaderMonitoring.numAcceptedFrames)
+                print("updating frame",self.eventReaderMonitoring.numAcceptedFrames)
                 self.mainImageDisp.update_hitmap(self.raw_Data_frame.hitmap_t2,self.raw_Data_frame.hitmap_t1,self.raw_Data_frame.hitmap_t0)
                 self.side_1.update_effi_plot(self.raw_Data_frame.dvflag_M0,self.raw_Data_frame.mhflag_M0,self.raw_Data_frame.dvflag_M1,self.raw_Data_frame.mhflag_M1,self.raw_Data_frame.dvflag_M2,self.raw_Data_frame.mhflag_M2)
+                #time_t=self.timestamp
                 time_t=self.timestamp*(1.0/320000000)
                 self.side_2.update_time_plot(time_t)
                 self.raw_Data_frame=frame_data()
@@ -169,9 +170,9 @@ class Window(QtGui.QMainWindow, QObject):
        
     def hitmapAccumu(self):
         if self.hitmap_accum.isChecked():
-            self.hitmapAc=1
+            self.mainImageDisp.hitmapAc=1
         else:
-            self.hitmapAc=0
+            self.mainImageDisp.hitmapAc=0
         
 class EventReader(rogue.interfaces.stream.Slave):
 
@@ -210,6 +211,7 @@ class MplCanvas_hitmap(FigureCanvas):
         plt.ion()
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
+        self.hitmapAc=0
         FigureCanvas.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
         self.MyTitle = MyTitle
@@ -249,7 +251,8 @@ class MplCanvas_hitmap(FigureCanvas):
         self.draw()
         self.fig.canvas.draw()
     def update_hitmap(self,hitmap_2,hitmap_1,hitmap_0):
-        if self.parent.hitmapAc==1:
+
+        if self.hitmapAc==1:
             self.hitmap_t2+=hitmap_2
             self.hitmap_t1+=hitmap_1
             self.hitmap_t0+=hitmap_0
