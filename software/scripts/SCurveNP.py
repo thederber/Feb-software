@@ -20,7 +20,6 @@ from matplotlib import ticker
 #import cPickle as pickle
 import scipy.io as sio
 # Generating log file
-
 def decode_header(frame_rawHeader):
     timestamp=np.uint64()
     frame_size=np.uint32()
@@ -138,64 +137,100 @@ def get_frame_header(file_o):
     file_header=np.fromfile(file_o,dtype='uint32',count=2)
     return file_header
 
-def get_frame(file_o,frame_size):
-   
+# help to check the stream readout speed
+def check_SR_file(file_o):
+    frame_num=-1
+    file_finished=1
+    time_stamp_all=[]
+    while(file_finished):
+        file_header=get_frame_header(file_o)
+        frame_num+=1
+        if len(file_header)==0:
+            file_finished=0
+            break
+        frame_Size = int(file_header[0]/2)-2
+        frame_rawData,frame_rawHeader,frame_all,time_stamp=get_frame(file_o,frame_Size)
+        time_stamp_all.append(time_stamp)
+
+    #for i in range(len(time_stamp_all)-1):
+    #    print("time diff: ",time_stamp_all[i+1]-time_stamp_all[i])
+    return frame_num,time_stamp_all
+
+def get_frame(file_o,frame_size,debug=0):
+    
     PayLoad=np.fromfile(file_o,dtype='uint16',count=frame_size)
     frame_rawHeader=PayLoad[0:16].copy()
     frame_rawData=PayLoad[16:].copy()
     frame_all=PayLoad.copy()
-    print("len(header):", len(frame_rawHeader))
+  #  print("len(header):", len(frame_rawHeader))
     timestamp=np.uint64()
     for i in range(len(frame_rawHeader)):
         #print ("frame header: ",bin(i)[2:].rjust(16,"0"))
-        print ("frame header----: ",bin(frame_rawHeader[i])[2:].rjust(16,"0"))
+        if debug:
+            print ("frame header----: ",bin(frame_rawHeader[i])[2:].rjust(16,"0"))
         if i==0: 
-            print("Virtual Channel: ",(frame_rawHeader[i]& 0x1))
-            print("Destination ID (Lane +Z): ",(frame_rawHeader[i]& 0x7e)>>1)
-            print("Transaction ID 1part: ",(frame_rawHeader[i]&0xff80)>>7)
+            if debug:
+                print("Virtual Channel: ",(frame_rawHeader[i]& 0x1))
+                print("Destination ID (Lane +Z): ",(frame_rawHeader[i]& 0x7e)>>1)
+                print("Transaction ID 1part: ",(frame_rawHeader[i]&0xff80)>>7)
         if i==1:
-            print("Transaction ID 2part: ",frame_rawHeader[i] &0xffff)
+            if debug:
+                print("Transaction ID 2part: ",frame_rawHeader[i] &0xffff)
         if i==2:
-            print("Acquire Counter: ",frame_rawHeader[i]&0xffff)
+            if debug:
+                print("Acquire Counter: ",frame_rawHeader[i]&0xffff)
         if i==3:
-            print("OP Code: ",frame_rawHeader[i] & 0xff)
-            print("Element ID: ",frame_rawHeader[i] & 0xf00)
-            print("Destination ID (Z only): ",frame_rawHeader[i] & 0xf000)     
+            if debug:
+                print("OP Code: ",frame_rawHeader[i] & 0xff)
+                print("Element ID: ",frame_rawHeader[i] & 0xf00)
+                print("Destination ID (Z only): ",frame_rawHeader[i] & 0xf000)     
         if i==4:
-            print("Frame Number 1part: ",frame_rawHeader[i] & 0xffff)
+            if debug:
+                print("Frame Number 1part: ",frame_rawHeader[i] & 0xffff)
         if i==5:
-            print("Frame Number 2part: ",frame_rawHeader[i] & 0xffff)
+            if debug:
+                print("Frame Number 2part: ",frame_rawHeader[i] & 0xffff)
         if i==6:
-            print("Ticks 1part: ",frame_rawHeader[i] & 0xffff)
+            if debug:
+                print("Ticks 1part: ",frame_rawHeader[i] & 0xffff)
             timing_1=frame_rawHeader[i] & 0xffff
             timestamp+=timing_1
         if i==7:
-            print("Ticks 2part: ",frame_rawHeader[i]&0xffff)
+            if debug:
+                print("Ticks 2part: ",frame_rawHeader[i]&0xffff)
             timing_2=frame_rawHeader[i] & 0xffff
             timestamp+=timing_2<<16
         if i==8:
-            print("Fiducials 1part: ",frame_rawHeader[i]&0xffff)
+            if debug:
+                print("Fiducials 1part: ",frame_rawHeader[i]&0xffff)
             timing_3=frame_rawHeader[i] & 0xffff
             timestamp+=timing_3<<32
         if i==9:
-            print("Fiducials 2part: ",frame_rawHeader[i]&0xffff)
+            if debug:
+                print("Fiducials 2part: ",frame_rawHeader[i]&0xffff)
             timing_4=frame_rawHeader[i] & 0xffff
             timestamp+=timing_4<<48
         if i==10:
-            print("sbtemp[0]: ",frame_rawHeader[i]&0xffff)
+            if debug:
+                print("sbtemp[0]: ",frame_rawHeader[i]&0xffff)
         if i==11:
-            print("sbtemp[1]: ",frame_rawHeader[i]&0xffff)
+            if debug:
+                print("sbtemp[1]: ",frame_rawHeader[i]&0xffff)
         if i==12:
-            print("sbtemp[2]: ",frame_rawHeader[i]&0xffff)
+            if debug:
+                print("sbtemp[2]: ",frame_rawHeader[i]&0xffff)
         if i==13:
-            print("sbtemp[3]: ",frame_rawHeader[i]&0xffff)
+            if debug:
+                print("sbtemp[3]: ",frame_rawHeader[i]&0xffff)
         if i==14:
-            print("Frame Type 1part: ",frame_rawHeader[i]&0xffff)
+            if debug:
+                print("Frame Type 1part: ",frame_rawHeader[i]&0xffff)
         if i==15:
-            print("Frame Type 2part: ",frame_rawHeader[i]&0xffff)
-    print("timestamp: ",timestamp)
+            if debug:
+                print("Frame Type 2part: ",frame_rawHeader[i]&0xffff)
+    if debug:
+        print("timestamp: ",timestamp)
     return frame_rawData,frame_rawHeader,frame_all,timestamp
-
 
 
 class timep:
@@ -222,10 +257,18 @@ class Hist1d(object):
         self.data=[]
         print(type(self.data),type(self.bins_i))
         self.n,self.bins_i,self.patches=plt.hist(self.data,bins=int(len(self.bins_i)),normed=0)
+        #self.hist,self_edges=plt.hist(self.data,bins=int(nbins), range=(x_l,x_h))
         print(self.bins_i,self.patches)
+        #return self.hist,self.edges
     def fill(self,arr):
         self.data.append(arr)
+       # self.n, _ =np.histogram(self.data,bins=int(len(self.bins_i)),normed=False)
+       # for rect,h in zip(self.patches,self.n):
+       #      rect.set_height(h)
+       # print("********************************",type(self.patches))
         return self.data
+        #hist, edges=np.histogram(self.data,bins=int(self.bins_i),range=self.ranges)
+        #self.hist += hist
          
 class Hist2d(object):
     def __init__(self,nxbins,x_l,x_h,nybins,y_l,y_h):
@@ -253,6 +296,15 @@ def binRep(num):
     binNum = bin(ctypes.c_uint.from_buffer(ctypes.c_float(num)).value)[2:]
     print("bits: " + binNum.rjust(32,"0"))
     return binNum.rjust(32,"0")
+   # mantissa = "1" + binNum[-23:]
+   # print("sig (bin): " + mantissa.rjust(24))
+   # mantInt = int(mantissa,2)/2**23
+   # print("sig (float): " + str(mantInt))
+   # base = int(binNum[-31:-23],2)-127
+   # print("base:" + str(base))
+   # sign = 1-2*("1"==binNum[-32:-31].rjust(1,"0"))
+   # print("sign:" + str(sign))
+   # print("recreate:" + str(sign*mantInt*(2**base)))
 
 def load_chess2_data(filename):
     for i in [2]:
@@ -265,7 +317,6 @@ def load_chess2_data(filename):
         data_1d=np.loadtxt(sys.argv[1])
         hists=data_1d.reshape(int(shape_hist[0]),int(shape_hist[1]),int(shape_hist[2]),int(shape_hist[3]))	
     return hists
-
 def get_pixelsandthresholds(filename):
     file_data=open(filename,'r')
     pixels=[]
@@ -295,7 +346,6 @@ def get_pixelsandthresholds(filename):
             p_2=(int(pixel_i[0]),int(pixel_i[1]))
             pixels.append(p_2)
     return pixels,thresholds
-
 def get_values(filename):
     file_data=open(sys.argv[1],'r')
     line_count=0
@@ -362,14 +412,14 @@ def makeSCurve(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve.roo
         # this delay seems to be very important to enable the comparitor inside the asic to settle. (smaller values tend to make this 
         # tests to report wrong times
         time.sleep(2.0)
-        system.readAll()
+        system.ReadAll()
         for cnt in range(nCounts):
           #time.sleep(0.1)
           # start charge injection
           system.feb.memReg.chargInjStartEventReg.set(0)
           time.sleep(0.1)
           #system.feb.chargeInj.calPulseVar.set(1)
-          system.readAll()
+          system.ReadAll()
           if system.feb.chargeInj.hitDetValid0._rawGet():
             row_det = int(system.feb.chargeInj.hitDetRow0._rawGet())
             col_det = int(system.feb.chargeInj.hitDetCol0._rawGet())
@@ -630,14 +680,14 @@ def makeCalibCurveLoop(system,nCounts,thresholdCuts,pixels=None,histFileName="sc
         # this delay seems to be very important to enable the comparitor inside the asic to settle. (smaller values tend to make this 
         # tests to report wrong times
         time.sleep(2.0)
-        system.readAll()
+        system.ReadAll()
         for cnt in range(nCounts):
           #time.sleep(0.1)
           # start charge injection
           #system.feb.memReg.chargInjStartEventReg.set(0)
           system.feb.chargeInj.calPulseVar.set(1)
           time.sleep(0.1)          
-          system.readAll()
+          system.ReadAll()
           if system.feb.chargeInj.hitDetValid0._rawGet():
             row_det = int(system.feb.chargeInj.hitDetRow0._rawGet())
             col_det = int(system.feb.chargeInj.hitDetCol0._rawGet())
@@ -717,7 +767,7 @@ def makeCalibCurveLoopBLx_hitmap(system,nCounts,thresholdCuts,pixels=None,histFi
                     #time.sleep(1.0)
                     system.feb.chargeInj.calPulseVar.set(1)
                     #time.sleep(0.05)          
-                    system.readAll()
+                    system.ReadAll()
                     if system.feb.chargeInj.hitDetValid0._rawGet():
                         row_det = int(system.feb.chargeInj.hitDetRow0._rawGet())
                         col_det = int(system.feb.chargeInj.hitDetCol0._rawGet())
@@ -761,7 +811,7 @@ def makeCalibCurveLoopBLx_hitmap(system,nCounts,thresholdCuts,pixels=None,histFi
                     #time.sleep(1.0)
                     system.feb.chargeInj.calPulseVar.set(1)
                     #time.sleep(0.05)          
-                    system.readAll()
+                    system.ReadAll()
                     if system.feb.chargeInj.hitDetValid1._rawGet():
                         row_det = int(system.feb.chargeInj.hitDetRow1._rawGet())
                         col_det = int(system.feb.chargeInj.hitDetCol1._rawGet())
@@ -806,7 +856,7 @@ def makeCalibCurveLoopBLx_hitmap(system,nCounts,thresholdCuts,pixels=None,histFi
                     #time.sleep(1.0)
                     system.feb.chargeInj.calPulseVar.set(1)
                     #time.sleep(0.05)          
-                    system.readAll()
+                    system.ReadAll()
                     if system.feb.chargeInj.hitDetValid2._rawGet():
                         row_det = int(system.feb.chargeInj.hitDetRow2._rawGet())
                         col_det = int(system.feb.chargeInj.hitDetCol2._rawGet())
@@ -869,15 +919,15 @@ def makeCalibCurveLoopBLx(system,nCounts,thresholdCuts,pixels=None,histFileName=
             system.feb.dac.dacPIXTHRaw.set(threshold)
             hists=[[],[],[]]
             time.sleep(1.0)
-            system.readAll()
+            system.ReadAll()
             ####hists = [ R.TH1F("deltaT_%i_%i_%i_%s"%(i_asic,row,col,hex(threshold)),"",100,0,1000) for i_asic in range(3) ] # deltaT in ns
             for cnt in range(nCounts):
                 #time.sleep(1.0)
-                #system.readAll()
+                #system.ReadAll()
           #system.feb.memReg.chargInjStartEventReg.set(0)
                 system.feb.chargeInj.calPulseVar.set(1)
                 time.sleep(0.05)          
-                system.readAll()
+                system.ReadAll()
                 if system.feb.chargeInj.hitDetValid0_0._rawGet():
                     row_det = int(system.feb.chargeInj.hitDetRow0_0._rawGet())
                     col_det = int(system.feb.chargeInj.hitDetCol0_0._rawGet())
@@ -1036,7 +1086,7 @@ def makeCalibCurveLoopBLx_8hits(system,nCounts,thresholdCuts,pixels=None,histFil
             ax.plot([chass2_point[i][0],chass2_point[21-i][0]],[chass2_point[i][1],chass2_point[21-i][1]],'k')
         plt.show()
         plt.ion()
-        figure_1,ax1=plt.subplots(figsize=(13,6))
+        figure_1,ax1=plt.subplots(figsize=(13,8))
         ax1.set_axis_off()
         #fig_all=plt.figure(figsize=(17,10))
     #fig_all=Figure(figsize=(17,10),dpi=100)
@@ -1054,7 +1104,7 @@ def makeCalibCurveLoopBLx_8hits(system,nCounts,thresholdCuts,pixels=None,histFil
     thre_index=0
     hot_pixels_m0=[(0,0),(8,15),(2,1),(1,16),(5,16),(6,1),(2,21),(3,30),(6,30),(2,31),(10,30)]
     hot_pixels_m1=[(0,0),(1,1),(3,1),(6,1),(8,24),(7,27)]
-    hot_pixels_m2=[(0,0),(12,31),(1,1),(3,1),(4,1),(7,1),(1,2),(4,29),(5,30),(15,31)]
+    hot_pixels_m2=[(0,0),(12,31),(1,1),(3,1),(4,1),(7,1),(1,2),(4,29),(5,30),(15,31),(127,31)]
 #    hot_pixels=[(27,16),(50,15),(45,15)]
     
    # #FileNameIn_txt='dumpingData_Th_0.66V_Laser_hex.txt'
@@ -1083,15 +1133,15 @@ def makeCalibCurveLoopBLx_8hits(system,nCounts,thresholdCuts,pixels=None,histFil
         print("Thresholds (system.feb.dac.dacPIXTHRaw): ",  hex(threshold))
         system.feb.dac.dacPIXTHRaw.set(threshold)
         time.sleep(2.0)
-        #system.readAll()
+        #system.ReadAll()
         print("start taking ",nCounts," counts :", time.clock())
        # OutputFile.write("#                        Matrix 0       Matrix 1        Matrix2\n")
        # OutputFile.write("threshold at :"+str(threshold)+"\n")
         for cnt in range(nCounts):
         #    OutputFile.write("event :"+str(cnt)+"\n")
-            system.feb.chargeInj.calPulseVar.set(1)
+            system.feb.chargeInj.calPulse.set(1)
             #time.sleep(0.05)
-            system.readAll()
+            system.ReadAll()
             for n in [1]:
                 for hit in hits:
          #           OutputFile.write("\tHit index :"+str(hit)+"\t")
@@ -1200,7 +1250,7 @@ def makeCalibCurveLoopBLx_8hits(system,nCounts,thresholdCuts,pixels=None,histFil
             plt.ylabel('Counts',fontsize=l_size)
             figure_1.canvas.draw()
             figure_1.canvas.flush_events()
-
+            
         if real_data==2:
             l_size=10
             fig_0_2d=plt.subplot(3,3,1)
@@ -1326,13 +1376,13 @@ def makeCalibCurveLoopBLx_8hits_hitmap(system,nCounts,thresholdCuts,pixels=None,
                 print("time start finishing threshold: ", time.clock())
                 time.sleep(2.0)
                 print("time after sleep(2.0): ", time.clock())
-                system.readAll()
+                system.ReadAll()
                 print("time after readall(): ", time.clock())
                 print("start taking ",nCounts," counts :", time.clock())
                 for cnt in range(nCounts):
                     system.feb.chargeInj.calPulseVar.set(1)
                     #time.sleep(0.05)
-                    system.readAll()
+                    system.ReadAll()
                     for n in [1]:
                         for hit in hits:
                             matrix_i=0
@@ -1638,7 +1688,7 @@ def makeCalibCurveLoopBLx_simu(allHists,nCounts,thresholdCuts,pixels=None,histFi
     allhist=save_timep(allHists)
     return allhist
 def get_funct(name,matrix,hit):
-    name_d={'Valid':'system.feb.chargeInj.hitDetValid'+str(matrix)+'_'+str(hit)+'._rawGet','row_det':'system.feb.chargeInj.hitDetRow'+str(matrix)+'_'+str(hit)+'._rawGet()','col_det':'system.feb.chargeInj.hitDetCol'+str(matrix)+'_'+str(hit)+'._rawGet()','time_det':'system.feb.chargeInj.hitDetTime'+str(matrix)+'_'+str(hit)+'._rawGet()','time_det_raw':'system.feb.chargeInj.hitDetTimeRaw'+str(matrix)+'_'+str(hit)+'._rawGet()'}
+    name_d={'Valid':'system.feb.chargeInj.hitDetValid'+str(matrix)+'_'+str(hit)+'.get()','row_det':'system.feb.chargeInj.hitDetRow'+str(matrix)+'_'+str(hit)+'.get()','col_det':'system.feb.chargeInj.hitDetCol'+str(matrix)+'_'+str(hit)+'.get()','time_det':'system.feb.chargeInj.hitDetTime'+str(matrix)+'_'+str(hit)+'.get()','time_det_raw':'system.feb.chargeInj.hitDetTimeRaw'+str(matrix)+'_'+str(hit)+'.get()'}
     return name_d[name]
 
 def data_update_Ri(Ri,t1):
@@ -1683,14 +1733,14 @@ def makeCalibCurveLoopTH(system,nCounts,thresholdCuts,pixels=None,histFileName="
         # this delay seems to be very important to enable the comparitor inside the asic to settle. (smaller values tend to make this 
         # tests to report wrong times
         time.sleep(2.0)
-        system.readAll()
+        system.ReadAll()
         for cnt in range(nCounts):
           #time.sleep(0.1)
           # start charge injection
           #system.feb.memReg.chargInjStartEventReg.set(0)
           system.feb.chargeInj.calPulseVar.set(1)
           time.sleep(0.1)          
-          system.readAll()
+          system.ReadAll()
           if system.feb.chargeInj.hitDetValid0._rawGet():
             row_det = int(system.feb.chargeInj.hitDetRow0._rawGet())
             col_det = int(system.feb.chargeInj.hitDetCol0._rawGet())
@@ -1831,14 +1881,14 @@ def SwingThLoopBLx(system,nCounts,thresholdCuts,pixels=None,histFileName="scurve
         # this delay seems to be very important to enable the comparitor inside the asic to settle. (smaller values tend to make this 
         # tests to report wrong times
         time.sleep(2.0)
-        system.readAll()
+        system.ReadAll()
         for cnt in range(nCounts):
           #time.sleep(0.1)
           # start charge injection
           system.feb.memReg.chargInjStartEventReg.set(0)
           #system.feb.chargeInj.calPulseVar.set(1)
           time.sleep(0.1)          
-          system.readAll()
+          system.ReadAll()
           if system.feb.chargeInj.hitDetValid0._rawGet():
             row_det = int(system.feb.chargeInj.hitDetRow0._rawGet())
             col_det = int(system.feb.chargeInj.hitDetCol0._rawGet())

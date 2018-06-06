@@ -242,6 +242,7 @@ class MplCanvas_hitmap(FigureCanvas):
             self.axes.plot([self.chess2_point[i][0],self.chess2_point[21-i][0]],[self.chess2_point[i][1],self.chess2_point[21-i][1]],'k')
         self.plot()
     def plot(self):
+        self.maskHotPixels()
         self.ax0.clear()
         self.ax0.imshow(self.hitmap_t2,aspect="auto",cmap='gray',origin='upper',interpolation='nearest')
         self.ax1.clear()
@@ -250,6 +251,13 @@ class MplCanvas_hitmap(FigureCanvas):
         self.ax2.imshow(self.hitmap_t0,aspect="auto",cmap='gray',origin='lower',interpolation='nearest')
         self.draw()
         self.fig.canvas.draw()
+    def maskHotPixels(self):
+        for i in range(len(self.hitmap_t2)):
+            for j in range(0,12):
+                self.hitmap_t2[i][j]=0
+                self.hitmap_t1[i][j]=0
+                self.hitmap_t0[i][j]=0
+      
     def update_hitmap(self,hitmap_2,hitmap_1,hitmap_0):
 
         if self.hitmapAc==1:
