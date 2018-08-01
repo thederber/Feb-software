@@ -25,8 +25,9 @@ class ScanTest():
 		self.is_th_scan = False
 		self.is_bl_scan = False
 
-		self.data_savedir = "/home/herve/Desktop/Chess2Data/noise_"+NOW+"/data"
-		self.fig_savedir = "/home/herve/Desktop/Chess2Data/noise_"+NOW+"/plots"
+		self.scan_dir = "/home/herve/Desktop/Chess2Data/noise_"+NOW
+		self.data_savedir = self.scan_dir+"/data"
+		self.fig_savedir = self.scan_dir+"/plots"
 
 		if not os.path.isdir(self.data_savedir): os.makedirs(self.data_savedir)
 		if not os.path.isdir(self.fig_savedir): os.makedirs(self.fig_savedir)
@@ -70,12 +71,35 @@ class ScanTest():
 		fig_filename = "ntrigs_"+str(self.ntrigs)+"_sleeptime_"+str(self.sleeptime)+"ms_pulser_"+self.pulserStatus+"_"+self.val_field+"_"+str(val)+".png"
 		hist_fig.fig.savefig(self.fig_savedir+"/"+fig_filename)
 		print("Just saved fig")
+	def save_fig_config(self,val,field_vals_msg):
+		fig_config_filename = "ntrigs_"+str(self.ntrigs)+"_sleeptime_"+str(self.sleeptime)+"ms_pulser_"+self.pulserStatus+"_"+self.val_field+"_"+str(val)+"_config.txt"
+		with open(self.scan_dir+"/"+fig_config_filename,"w") as f:
+			f.write(field_vals_msg)
+		f.close()
 
-	def scan(self,system,eventReader):
+	def get_plot_config_msg(self,system,val,val_fields,start_time,stop_time):
+		msg = "Start: "+start_time.strftime("%c")+"\t Stop: "+stop_time.strftime("%c")+"\n"
+		deltatime = stop_time-start_time
+		msg += "Delta: "+str(deltatime.seconds)+" seconds\n"
+		msg += "ntrigs: "+str(self.ntrigs)+"\n"
+		msg += "sleeptime: "+str(self.sleeptime)+"ms between trigs\n"
+		msg += "pulser: "+self.pulserStatus+"\n"
+		msg += "scan_param: "+self.val_field+"\n"
+		#now add lines specifying parameter config
+		get_param_val_assign_msg = lambda f,v: "param_val = system.feb."+f+"."+v+".get()"
+		for i in range(len(val_fields)):
+			vf = val_fields[i]
+			exec_scope = {'system':system}
+			exec(get_param_val_assign_msg(self.feb_field,vf),exec_scope)
+			param_val = exec_scope['param_val']
+			msg += vf+'='+str(param_val)+'\n'
+		return msg
+	def scan(self,system,eventReader,val_fields):
 		if self.val_field == "None": raise("FIELD NOT SET FOR SCAN TEST")
 		if self.is_bl_scan:
 			system.feb.dac.dacPIXTHRaw.set(self.fixed_threshold)
 		for val in self.val_range:
+			start_time = datetime.now()
 			eval("system.feb."+self.feb_field+"."+self.val_field+".set("+str(val)+")")
 			if self.is_th_scan: 
 				x_list = self.thresholds
@@ -88,7 +112,7 @@ class ScanTest():
 			if len(x_list) == 0: 
 				raise("length of x_list is zero")
 
-			fig_title = "ntrigs="+str(self.ntrigs)+",sleeptime="+str(self.sleeptime)+"ms,pulser="+self.pulserStatus+","+self.val_field+"="+str(val)	
+			fig_title = "ntrigs="+str(self.ntrigs)+",sleeptime="+str(self.sleeptime)+"ms,pulser="+self.pulserStatus+","+self.val_field+"="+str(val)+" (see config file)"
 			hist_fig = Hist_Plotter(self.shape,x_list,x_label,fig_title)
 			hist_fig.show()
 
@@ -113,7 +137,10 @@ class ScanTest():
 				#hist_fig.add_data(eventReader.plotter.data1[self.topleft[0]:self.topleft[0]+8,self.topleft[1]][np.newaxis])
 				eval("hist_fig.add_data(eventReader.plotter.data"+str(self.matrix)+"[self.topleft[0]:self.topleft[0]+self.shape[0],self.topleft[1]:self.topleft[1]+self.shape[1]])")
 				hist_fig.plot()
+			stop_time = datetime.now()
 			self.save_fig(hist_fig,val)
+			plot_config_msg = self.get_plot_config_msg(system,val,val_fields,start_time,stop_time)
+			self.save_fig_config(val,plot_config_msg)
 			hist_fig.close()
 			del hist_fig
 

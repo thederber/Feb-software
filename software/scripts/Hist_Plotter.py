@@ -14,7 +14,7 @@ class Hist_Plotter:
 		self.fig_title = fig_title
 		self.data = np.zeros(shape)
 		self.fig, self.ax = plt.subplots(1,1)
-		self.fig.suptitle(self.fig_title, fontsize=20)
+		self.fig.suptitle(self.fig_title, fontsize=10)
 		#we want lines to have data from columns, so reshape data
 		self.lines = self.ax.plot(np.transpose(self.data))
 		self.ax.set_autoscale_on(True)
