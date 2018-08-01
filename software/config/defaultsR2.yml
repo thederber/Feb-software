@@ -3,10 +3,10 @@ System:
   ForceWrite: 'False'
   dataWriter:
     enable: 'True'
-    dataFile: ''
-    open: 'False'
-    bufferSize: '0'
-    maxFileSize: '0'
+    dataFile: 'test_data_file07092018.dat'
+    open: 'True'
+    bufferSize: '100000'
+    maxFileSize: '100000000'
   feb:
     enable: 'True'
     Xadc:
@@ -48,7 +48,7 @@ System:
       invPulse: 'False'
       calPulseInh: 'False'
     Chess2Ctrl0:
-      enable: 'True'
+      enable: 'False'
       RowPointer: '0x7f'
       ColPointer: '0x1f'
       VNLogicatt: '0x1c'
