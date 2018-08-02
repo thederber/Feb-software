@@ -82,9 +82,9 @@ class Frame_data():
 			this_hitmap = eval("self.hitmap_t"+str(m))
 			for r in range(nrows):
 				for c in range(ncols):	
-					nhits = this_hitmap[r][c]
+					nhits = int(this_hitmap[r][c])
 					if nhits > 0:
-						datalines.append((m,r,c,nhits))
+						datalines.append([m,r,c,nhits])
 		return datalines	
 	def get_att_vals(self,system,feb_field,val_fields):
 		#values of interest: VNLogicatt,VNSFatt,VNatt,VPFBatt,VPLoadatt,VPTrimatt	
