@@ -6,7 +6,7 @@ import sys
 import time
 
 class Hist_Plotter:
-	def __init__(self,shape,x_list,x_label,fig_title):
+	def __init__(self,shape,x_list,x_label,fig_title,vline_x):
 		#shape is (rows,cols) of 
 		self.x_data = [0]
 		self.x_data.extend(x_list)
@@ -17,6 +17,7 @@ class Hist_Plotter:
 		self.fig.suptitle(self.fig_title, fontsize=10)
 		#we want lines to have data from columns, so reshape data
 		self.lines = self.ax.plot(np.transpose(self.data))
+		self.ax.axvline(x=vline_x,ymin=0,ymax=1,color='r')
 		self.ax.set_autoscale_on(True)
 		self.ax.set_xlim(x_list[0],x_list[-1])
 		self.ax.set_xlabel(self.x_label)
@@ -36,8 +37,12 @@ class Hist_Plotter:
 		self.fig.canvas.restore_region(self.background)
 		#self.ax.relim()
 		#self.ax.autoscale_view(True,True,True)
+		maxy = 0
 		for i in range(len(self.lines)):
 			line_y = self.data[i,:].tolist()
+			for v in line_y: 
+				if v > maxy: 
+					maxy = v
 			#0th index of x_data is unused, same with line_y (extra from init)
 			self.lines[i].set_data(self.x_data[1:len(line_y)], line_y[1:])
 			self.ax.relim()
@@ -45,5 +50,6 @@ class Hist_Plotter:
 			self.ax.draw_artist(self.lines[i])
 		#self.ax.relim()
 		#self.ax.autoscale_view(True,True,True)
+		#plt.plot((800,800), (0, maxy), 'k-')
 		self.fig.canvas.blit(self.ax.bbox)
 

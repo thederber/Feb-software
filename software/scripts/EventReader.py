@@ -22,6 +22,8 @@ class EventReader(rogue.interfaces.stream.Slave):
         self.ev_hitmap_t0 = np.zeros((nrows,ncols))
         self.ev_hitmap_t1 = np.zeros((nrows,ncols))
         self.ev_hitmap_t2 = np.zeros((nrows,ncols))
+    def reset_data_frames(self):
+        self.data_frames = []
 
     def _acceptFrame(self,frame):
         p = bytearray(frame.getPayload())
@@ -29,7 +31,9 @@ class EventReader(rogue.interfaces.stream.Slave):
         f = Frame_data(p)
         f.decode_frame()
         self.hitmap_update(f)
-        self.data_frames.append(f.get_data())
+        csv_data = f.get_data()
+        if len(csv_data) > 0:
+            self.data_frames.append(csv_data)
         self.counter += 1
         print("Getting frames:"+str(self.counter))
 

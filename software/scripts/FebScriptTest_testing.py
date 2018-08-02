@@ -107,9 +107,9 @@ def gui(ip = "192.168.2.101", configFile = "../config/defaultR2_test.yml" ):
     print("Loading config file")
 
     """ Performs a test on a 1x8 block of pixels, swing th"""
-    start = 0
-    end = 1000#0x7d0 = 2000
-    step = 8#int((end-start)/nsteps)
+    start = 720
+    end = 900#0x7d0 = 2000
+    step = 1#int((end-start)/nsteps)
     thresholds = range(start, end+1, step)
     ifbs = range(0,0x1F)
     baselines = range(start,end+1,step)
@@ -156,6 +156,7 @@ def gui(ip = "192.168.2.101", configFile = "../config/defaultR2_test.yml" ):
 
         scan_test.set_scan_type("threshold_scan")
         scan_test.set_thresholds(thresholds)
+        scan_test.set_fixed_baseline(744)
         #scan_test.set_scan_type("baseline_scan")
         #scan_test.set_fixed_threshold(fixed_threshold)
         

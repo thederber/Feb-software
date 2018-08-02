@@ -21,6 +21,7 @@ class ScanTest():
 		self.thresholds = None #see set_scan_type
 		self.baselines = None
 		self.fixed_threshold = None
+		self.fixed_baseline = None
 		self.scan_type = None 
 		self.is_th_scan = False
 		self.is_bl_scan = False
@@ -28,9 +29,11 @@ class ScanTest():
 		self.scan_dir = "/home/herve/Desktop/Chess2Data/noise_"+NOW
 		self.data_savedir = self.scan_dir+"/data"
 		self.fig_savedir = self.scan_dir+"/plots"
+		self.config_file_dir = self.scan_dir+"/config"
 
 		if not os.path.isdir(self.data_savedir): os.makedirs(self.data_savedir)
 		if not os.path.isdir(self.fig_savedir): os.makedirs(self.fig_savedir)
+		if not os.path.isdir(self.config_file_dir): os.makedirs(self.config_file_dir)
 	def set_matrix(self,matrix):
 		self.matrix = matrix
 	def set_feb_field(self,feb_field):
@@ -62,6 +65,9 @@ class ScanTest():
 	def set_fixed_threshold(self,th):
 		if self.scan_type == "threshold_scan": raise("Error: setting fixed threshold for threshold scan")
 		self.fixed_threshold = th
+	def set_fixed_baseline(self,bl):
+		if self.scan_type == "baseline_scan": raise("Error: setting fixed bl for thresh scan")
+		self.fixed_baseline = bl
 	def set_thresholds(self,thresholds):
 		self.thresholds = thresholds
 	def set_baselines(self,baselines):
@@ -73,7 +79,7 @@ class ScanTest():
 		print("Just saved fig")
 	def save_fig_config(self,val,field_vals_msg):
 		fig_config_filename = "ntrigs_"+str(self.ntrigs)+"_sleeptime_"+str(self.sleeptime)+"ms_pulser_"+self.pulserStatus+"_"+self.val_field+"_"+str(val)+"_config.txt"
-		with open(self.scan_dir+"/"+fig_config_filename,"w") as f:
+		with open(self.config_file_dir+"/"+fig_config_filename,"w") as f:
 			f.write(field_vals_msg)
 		f.close()
 
@@ -84,6 +90,8 @@ class ScanTest():
 		msg += "ntrigs: "+str(self.ntrigs)+"\n"
 		msg += "sleeptime: "+str(self.sleeptime)+"ms between trigs\n"
 		msg += "pulser: "+self.pulserStatus+"\n"
+		if self.is_th_scan: msg += "Baseline channel: "+str(self.fixed_baseline)+"\n"
+		else: msg += "Threshold channel: "+str(self.fixed_threshold)+"\n"
 		msg += "scan_param: "+self.val_field+"\n"
 		#now add lines specifying parameter config
 		get_param_val_assign_msg = lambda f,v: "param_val = system.feb."+f+"."+v+".get()"
@@ -94,32 +102,53 @@ class ScanTest():
 			param_val = exec_scope['param_val']
 			msg += vf+'='+str(param_val)+'\n'
 		return msg
+	def save_data_to_csv(self,hist_data,val):
+		csv_filename = "ntrigs_"+str(self.ntrigs)+"_sleeptime_"+str(self.sleeptime)+"ms_pulser_"+self.pulserStatus+"_"+self.val_field+"_"+str(val)+".csv"
+		f = open(self.data_savedir+"/"+csv_filename,"w")
+		for xind in range(len(hist_data)):
+			xval = hist_data[xind][0][0][0]
+			if self.is_th_scan: f.write("Threshold "+str(xval)+":\n")
+			else: f.write("Baseline "+str(xval)+":\n")
+			for frameind in range(len(hist_data[xind])):
+				f.write("\tFrame "+str(frameind)+":\n")
+				for pix in hist_data[xind][frameind]:
+					#write line of pix, (th,m,r,c,nhits) w/o th
+					msg = "\t\t"+str(pix[1])
+					for v in pix[2:]: 
+						msg += ","+str(v)
+					msg += "\n"
+					f.write(msg)	
+		f.close()
 	def scan(self,system,eventReader,val_fields):
 		if self.val_field == "None": raise("FIELD NOT SET FOR SCAN TEST")
-		if self.is_bl_scan:
+		if self.is_th_scan: 
+			system.feb.dac.dacBLRaw.set(self.fixed_baseline)
+		else:
 			system.feb.dac.dacPIXTHRaw.set(self.fixed_threshold)
 		for val in self.val_range:
 			start_time = datetime.now()
 			eval("system.feb."+self.feb_field+"."+self.val_field+".set("+str(val)+")")
 			if self.is_th_scan: 
 				x_list = self.thresholds
-				x_label = "Threshold Voltage (~3.3V at channel 4096)"
-			elif self.is_bl_scan: 
-				x_list = self.baselines
-				x_label = "Baseline Voltage (units unknown)"
+				x_label = "Threshold Voltage Channel (~3.3V at channel 4096)"
 			else: 
-				raise("neither is_th_scan nor is_bl_scan")
+				x_list = self.baselines
+				x_label = "Baseline Voltage Channel (~3.3V at channel 4096)"
 			if len(x_list) == 0: 
 				raise("length of x_list is zero")
 
 			fig_title = "ntrigs="+str(self.ntrigs)+",sleeptime="+str(self.sleeptime)+"ms,pulser="+self.pulserStatus+","+self.val_field+"="+str(val)+" (see config file)"
-			hist_fig = Hist_Plotter(self.shape,x_list,x_label,fig_title)
+			if self.is_th_scan: vline_x = system.feb.dac.dacBLRaw.get()
+			else: vline_x = system.feb.dac.dacPIXTHRaw.get()
+			hist_fig = Hist_Plotter(self.shape,x_list,x_label,fig_title,vline_x)
 			hist_fig.show()
-
+			#x is threshold or baseline
+			hist_data = []
 			for x in x_list:
 				if self.is_th_scan:
 					system.feb.dac.dacPIXTHRaw.set(x)
 				else:
+					#BL and BLR should be 144 from each other
 					system.feb.dac.dacBLRaw.set(x)
 					system.feb.dac.dacBLRRaw.set(x+144) 
 				eventReader.hitmap_reset()
@@ -130,17 +159,26 @@ class ScanTest():
 					time.sleep(self.sleeptime/1000.0)
 					system.feb.sysReg.softTrig()
 					trig_count += 1
-				#time.sleep(2.0)
-				#system.ReadAll()
 				system.feb.sysReg.timingMode.set(0x3) #stop taking data
 				eventReader.hitmap_plot()
-				#hist_fig.add_data(eventReader.plotter.data1[self.topleft[0]:self.topleft[0]+8,self.topleft[1]][np.newaxis])
 				eval("hist_fig.add_data(eventReader.plotter.data"+str(self.matrix)+"[self.topleft[0]:self.topleft[0]+self.shape[0],self.topleft[1]:self.topleft[1]+self.shape[1]])")
 				hist_fig.plot()
+				#before appending to hist data, insert threshold into each pix hit
+				dfs = eventReader.data_frames
+				print("Data frames:",dfs)
+				for i in range(len(dfs)):
+					for j in range(len(dfs[i])):
+						dfs[i][j].insert(0,x)
+				if len(dfs) > 0: 
+					hist_data.append(dfs)
+				eventReader.reset_data_frames()
+			#save plots,configs,and csvs
 			stop_time = datetime.now()
 			self.save_fig(hist_fig,val)
 			plot_config_msg = self.get_plot_config_msg(system,val,val_fields,start_time,stop_time)
 			self.save_fig_config(val,plot_config_msg)
 			hist_fig.close()
 			del hist_fig
-
+			#save csv files with data from hist_data
+			print(hist_data[0])
+			self.save_data_to_csv(hist_data,val)
