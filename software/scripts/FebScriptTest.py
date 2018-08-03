@@ -107,10 +107,9 @@ def gui(ip = "192.168.2.101", configFile = "../config/defaultR2_test.yml" ):
     print("Loading config file")
 
     """ Performs a test on a 1x8 block of pixels, swing th"""
-    start = 0x0
-    #end = 0x500
-    end = 1000#0x7d0
-    step = 8#int((end-start)/nsteps)
+    start = 720
+    end = 900#0x7d0 = 2000
+    step = 1#int((end-start)/nsteps)
     thresholds = range(start, end+1, step)
     ifbs = range(0,0x1F)
     baselines = range(start,end+1,step)
@@ -122,7 +121,7 @@ def gui(ip = "192.168.2.101", configFile = "../config/defaultR2_test.yml" ):
     #TODO check that pktWordSize is the nb of 64b frame received
     system.feb.sysReg.pktWordSize.set(255)
     system.feb.sysReg.timingMode.set(0x3) #reserved
-    val_fields = ["VNLogicatt","VNSFatt","VNatt","VPFBatt","VPLoadatt","VPTrimatt"]
+    val_fields = ["VPFBatt","VNLogicatt","VNSFatt","VNatt","VPLoadatt","VPTrimatt"]
     val_ranges = [range(0,0x1F) for i in range(len(val_fields))]
     for val_ind in range(len(val_fields)):
         val_field = val_fields[val_ind]
@@ -157,11 +156,15 @@ def gui(ip = "192.168.2.101", configFile = "../config/defaultR2_test.yml" ):
 
         scan_test.set_scan_type("threshold_scan")
         scan_test.set_thresholds(thresholds)
+        scan_test.set_fixed_baseline(744)
         #scan_test.set_scan_type("baseline_scan")
         #scan_test.set_fixed_threshold(fixed_threshold)
         
         eventReader.hitmap_show()
-        scan_test.scan(system,eventReader)
+        #scan through each val while keeping all other vals at config specs
+        system.root.ReadConfig(configFile)
+        print("Loading config file")
+        scan_test.scan(system,eventReader,val_fields)
 	
     # Run gui
     appTop.exec_()

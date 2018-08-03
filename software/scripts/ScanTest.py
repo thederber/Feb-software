@@ -26,7 +26,7 @@ class ScanTest():
 		self.is_th_scan = False
 		self.is_bl_scan = False
 
-		self.scan_dir = "/home/herve/Desktop/Chess2Data/noise_"+NOW
+		self.scan_dir = "../../Chess2Data/noise_"+NOW
 		self.data_savedir = self.scan_dir+"/data"
 		self.fig_savedir = self.scan_dir+"/plots"
 		self.config_file_dir = self.scan_dir+"/config"
